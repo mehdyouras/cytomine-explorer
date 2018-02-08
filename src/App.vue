@@ -1,6 +1,7 @@
 <template>
   <div>
-    <button @click="addMap">Ajouter une carte</button>
+    <button v-if="maps.length < maxMapsToShow" @click="addMap">Ajouter une carte</button>
+    <p v-else>Nombre maximum de cartes atteint</p>
     <div class="container">
       <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
     </div>
@@ -24,7 +25,7 @@ export default {
         mapZoom: 3,
         mapRotation: 0,
       },
-      mapsToShow: 1,
+      maxMapsToShow: 4,
       maps: [],
       lastEventMapId: null,
     }
@@ -60,8 +61,10 @@ export default {
       this.maps[index].linkedTo = payload[0];
     },
     addMap() {
-      let id = uuid();
-      this.maps.push({id: id, linkedTo: ""});
+      if(this.maps.length < this.maxMapsToShow) {
+        let id = uuid();
+        this.maps.push({id: id, linkedTo: ""});
+      }
     },
     deleteMap(payload) {
       let index = findIndex(this.maps, (map) => {
@@ -72,10 +75,8 @@ export default {
     }
   },
   created() {
-    for (let index = 0; index < this.mapsToShow; index++) {
-      let id = uuid();
-      this.maps.push({id: id, linkedTo: ""});
-    }
+    let id = uuid();
+    this.maps.push({id: id, linkedTo: ""});
   },
 }
 </script>
