@@ -3,7 +3,7 @@
         <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id">
     </div>
     <label :for="'link-'+this.currentMap.id">Lier la carte</label>
-    <select @change="sendLink" v-model="linkedTo" name="link" :id="'link-'+this.currentMap.id">
+    <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+this.currentMap.id">
         <option value="">Choisir une carte</option>
         <option v-for="map in maps" v-if="map.id" :key="map.id" :value="map.id">{{map.id}}</option>
     </select>
@@ -15,7 +15,7 @@ export default {
   name: 'Explore',
   data () {
     return {
-        linkedTo: "",
+        linkValue: "",
     }
   },
   props: [
@@ -25,7 +25,7 @@ export default {
     'lastEventMapId',
   ],
   computed: {
-      link() {
+      linkedTo() {
           return this.currentMap.linkedTo;
       },
       mapCenter() {
@@ -61,8 +61,9 @@ export default {
             this.$openlayers.getView(this.currentMap.id).setRotation(this.mapRotation);
         }
     },
-    link() {
-        this.linkedTo = this.link;
+    linkedTo() {
+        // Sets the local value to the value sent by the parent
+        this.linkValue = this.currentMap.linkedTo;
     }
   },
   methods: {
@@ -75,7 +76,7 @@ export default {
         this.$emit('dragged', payload);
     },
     sendLink() {
-        let payload = [this.currentMap.id, this.linkedTo];
+        let payload = [this.currentMap.id, this.linkValue];
         this.$emit('mapIsLinked', payload);
     },
   },
