@@ -19,6 +19,7 @@ export default {
       mapView: {
         mapCenter: [37.41, 8.82],
         mapZoom: 3,
+        mapRotation: 0,
       },
       mapsToShow: 4,
       maps: [],
@@ -27,9 +28,10 @@ export default {
   },
   methods: {
     setMap(payload) {
-      this.mapView= {
+      this.mapView = {
         mapCenter: payload.view.getCenter(),
         mapZoom: payload.view.getZoom(),
+        mapRotation: payload.view.getRotation(),
       }
       this.lastEventMapId = payload.mapId;
     },

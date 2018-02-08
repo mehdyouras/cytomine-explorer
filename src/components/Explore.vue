@@ -33,6 +33,9 @@ export default {
       },
       mapZoom() {
           return this.mapView.mapZoom;
+      },
+      mapRotation() {
+          return this.mapView.mapRotation;
       }
   },
   watch: {
@@ -49,6 +52,13 @@ export default {
         if(this.currentMap.linkedTo == this.lastEventMapId) {
             // Apply changes
             this.$openlayers.getView(this.currentMap.id).setZoom(this.mapZoom);
+        }
+    },
+    mapRotation() {
+        // Checks if the last event was on a linked map
+        if(this.currentMap.linkedTo == this.lastEventMapId) {
+            // Apply changes
+            this.$openlayers.getView(this.currentMap.id).setRotation(this.mapRotation);
         }
     },
     link() {
