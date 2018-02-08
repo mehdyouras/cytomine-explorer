@@ -1,12 +1,13 @@
 <template>
     <div class="map">
         <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id">
-    </div>
-    <label :for="'link-'+this.currentMap.id">Lier la carte</label>
-    <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+this.currentMap.id">
-        <option value="">Choisir une carte</option>
-        <option v-for="map in maps" v-if="map.id" :key="map.id" :value="map.id">{{map.id}}</option>
-    </select>
+        </div>
+        <label :for="'link-'+this.currentMap.id">Lier la carte</label>
+        <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+this.currentMap.id">
+            <option value="">Choisir une carte</option>
+            <option v-for="map in maps" v-if="map.id" :key="map.id" :value="map.id">{{map.id}}</option>
+        </select>
+        <button @click="deleteMap">Supprimer la carte</button>
     </div>
 </template>
 
@@ -79,6 +80,9 @@ export default {
         let payload = [this.currentMap.id, this.linkValue];
         this.$emit('mapIsLinked', payload);
     },
+    deleteMap() {
+        this.$emit('deleteMap', this.currentMap.id);
+    }
   },
   mounted() {
     // Init map

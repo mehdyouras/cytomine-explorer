@@ -1,6 +1,9 @@
 <template>
-  <div class="container">
-    <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
+  <div>
+    <button @click="addMap">Ajouter une carte</button>
+    <div class="container">
+      <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
+    </div>
   </div>
 </template>
 
@@ -21,7 +24,7 @@ export default {
         mapZoom: 3,
         mapRotation: 0,
       },
-      mapsToShow: 4,
+      mapsToShow: 1,
       maps: [],
       lastEventMapId: null,
     }
@@ -55,6 +58,17 @@ export default {
         return map.id === payload[1];
       })
       this.maps[index].linkedTo = payload[0];
+    },
+    addMap() {
+      let id = uuid();
+      this.maps.push({id: id, linkedTo: ""});
+    },
+    deleteMap(payload) {
+      let index = findIndex(this.maps, (map) => {
+        return map.id === payload;
+      })
+      console.log(index);
+      this.maps.splice(index, 1);
     }
   },
   created() {
