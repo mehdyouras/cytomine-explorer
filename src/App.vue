@@ -7,7 +7,7 @@
 <script>
 import Explore from './components/Explore'
 import uuid from 'uuid'
-import _ from 'lodash'
+import findIndex from 'lodash.findindex'
 
 export default {
   name: 'app',
@@ -35,7 +35,7 @@ export default {
     },
     linkMaps(payload) {
       // Removes last linked map
-      let index = _.findIndex(this.maps, (map) => {
+      let index = findIndex(this.maps, (map) => {
         return map.linkedTo === payload[0];
       })
       if(index !== -1) {
@@ -43,13 +43,13 @@ export default {
       }
 
       // Finds map index
-      index = _.findIndex(this.maps, (map) => {
+      index = findIndex(this.maps, (map) => {
         return map.id === payload[0];
       })
       // Links maps
       this.maps[index].linkedTo = payload[1];
 
-      index = _.findIndex(this.maps, (map) => {
+      index = findIndex(this.maps, (map) => {
         return map.id === payload[1];
       })
       this.maps[index].linkedTo = payload[0];
