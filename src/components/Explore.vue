@@ -2,16 +2,20 @@
     <div class="map">
         <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id">
         </div>
-        <label :for="'link-'+this.currentMap.id">Lier la carte</label>
+        <label :for="'link-'+this.currentMap.id">Link the map</label>
         <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+this.currentMap.id">
-            <option value="">Choisir une carte</option>
-            <option v-for="(map, index) in maps" v-if="map.id" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
+            <option value="">Select a map</option>
+            <template v-for="(map, index) in maps">
+                <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
+            </template>
         </select>
-        <button @click="deleteMap">Supprimer la carte</button>
+        <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
 
 <script>
+import findIndex from 'lodash.findindex';
+
 export default {
   name: 'Explore',
   data () {
@@ -39,6 +43,9 @@ export default {
     mapRotation() {
         return this.mapView.mapRotation;
     },
+    mapIndex() {
+        return findIndex(this.maps, map => map.id === this.currentMap.id);
+    }
   },
   watch: {
     // Watches these values
