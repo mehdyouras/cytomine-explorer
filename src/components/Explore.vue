@@ -5,7 +5,7 @@
         <label :for="'link-'+this.currentMap.id">Lier la carte</label>
         <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+this.currentMap.id">
             <option value="">Choisir une carte</option>
-            <option v-for="map in maps" v-if="map.id" :key="map.id" :value="map.id">{{map.id}}</option>
+            <option v-for="(map, index) in maps" v-if="map.id" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
         </select>
         <button @click="deleteMap">Supprimer la carte</button>
     </div>
@@ -17,6 +17,7 @@ export default {
   data () {
     return {
         linkValue: "",
+        mapNames: ['Panneau supérieur gauche', 'Panneau supérieur droit', 'Panneau inférieur gauche', 'Panneau inférieur droit'],
     }
   },
   props: [
@@ -26,18 +27,18 @@ export default {
     'lastEventMapId',
   ],
   computed: {
-      linkedTo() {
-          return this.currentMap.linkedTo;
-      },
-      mapCenter() {
-          return this.mapView.mapCenter;
-      },
-      mapZoom() {
-          return this.mapView.mapZoom;
-      },
-      mapRotation() {
-          return this.mapView.mapRotation;
-      }
+    linkedTo() {
+        return this.currentMap.linkedTo;
+    },
+    mapCenter() {
+        return this.mapView.mapCenter;
+    },
+    mapZoom() {
+        return this.mapView.mapZoom;
+    },
+    mapRotation() {
+        return this.mapView.mapRotation;
+    },
   },
   watch: {
     // Watches these values
