@@ -1,57 +1,88 @@
 <template>
-  <div @mouseup="emitCenter()" class="map" :id="id">
-  </div>
+    <div class="map">
+        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id">
+    </div>
+    <label :for="'link-'+this.currentMap.id">Lier la carte</label>
+    <select @change="sendLink" v-model="linkedTo" name="link" :id="'link-'+this.currentMap.id">
+        <option value="">Choisir une carte</option>
+        <option v-for="map in maps" v-if="map.id" :key="map.id" :value="map.id">{{map.id}}</option>
+    </select>
+    </div>
 </template>
 
 <script>
-import Map from 'ol/map'
-import View from 'ol/view';
-import TileLayer from 'ol/layer/tile';
-import OSM from 'ol/source/osm';
-import proj from 'ol/proj';
-import uuid from 'uuid'
-
 export default {
   name: 'Explore',
   data () {
     return {
-        id: uuid(),
-        center: null,
-        map: {},
+        linkedTo: "",
     }
   },
   props: [
-    'mapCenter',
+    'mapView',
+    'maps',
+    'currentMap',
+    'lastEventMapId',
   ],
+  computed: {
+      link() {
+          return this.currentMap.linkedTo;
+      },
+      mapCenter() {
+          return this.mapView.mapCenter;
+      },
+      mapZoom() {
+          return this.mapView.mapZoom;
+      }
+  },
   watch: {
-    mapCenter: function() {
-      
+    // Watches these values
+    mapCenter() {
+        // Checks if the last event was on a linked map
+        if(this.currentMap.linkedTo == this.lastEventMapId) {
+            // Apply changes
+            this.$openlayers.getView(this.currentMap.id).setCenter(this.mapCenter);
+        }
+    },
+    mapZoom() {
+        // Checks if the last event was on a linked map
+        if(this.currentMap.linkedTo == this.lastEventMapId) {
+            // Apply changes
+            this.$openlayers.getView(this.currentMap.id).setZoom(this.mapZoom);
+        }
+    },
+    link() {
+        this.linkedTo = this.link;
     }
   },
   methods: {
-    emitCenter() {
-      console.log(this.map.getCenter());
-      this.$emit('dragged', this.map.getValues());
+    // Sends view infos
+    sendView() {
+        let payload = {
+            mapId: this.currentMap.id,
+            view: this.$openlayers.getView(this.currentMap.id),
+        }
+        this.$emit('dragged', payload);
     },
-    setMap() {
-      // this.center = this.mapCenter;
-      
-    }
+    sendLink() {
+        let payload = [this.currentMap.id, this.linkedTo];
+        this.$emit('mapIsLinked', payload);
+    },
   },
   mounted() {
-    this.map = new Map({
-      target: this.id,
-      layers: [ 
-        new TileLayer({
-            source: new OSM()
-          })
-        ],
-      view: new View({
-        center: proj.fromLonLat(this.mapCenter),
-        zoom: 4,
-        setCenter: proj.fromLonLat(this.mapCenter),  
-      }),
+    // Init map
+    this.$openlayers.init({
+      element: this.currentMap.id,
+      center: this.mapCenter,
+      zoom: this.mapZoom,
+      enableZoomButton: true,
+      enablePan: true,
+      enableMouseWheelZoom: true,
+      enableDoubleClickZoom: true,
+      enableScaleLine: true,  
     })
+    // Adds layer
+    this.$openlayers.addLayer({element: this.currentMap.id, name: 'Map', type: "OSM"})
   }
 }
 

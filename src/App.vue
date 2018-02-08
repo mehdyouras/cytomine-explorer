@@ -1,12 +1,11 @@
 <template>
   <div class="container">
-    <explore2 v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore2>
+    <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
   </div>
 </template>
 
 <script>
 import Explore from './components/Explore'
-import Explore2 from './components/Explore2'
 import uuid from 'uuid'
 import _ from 'lodash'
 
@@ -14,7 +13,6 @@ export default {
   name: 'app',
   components: {
     Explore,
-    Explore2
   },
   data() {
     return {
