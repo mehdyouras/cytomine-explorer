@@ -70,7 +70,6 @@ export default {
       let index = findIndex(this.maps, (map) => {
         return map.id === payload;
       })
-      console.log(index);
       this.maps.splice(index, 1);
     }
   },
