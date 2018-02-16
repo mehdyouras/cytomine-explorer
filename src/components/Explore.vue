@@ -22,6 +22,7 @@ export default {
     return {
         linkValue: "",
         mapNames: ['Panneau supérieur gauche', 'Panneau supérieur droit', 'Panneau inférieur gauche', 'Panneau inférieur droit'],
+        imsBaseUrl: 'http://localhost-ims/image/tile?zoomify=',
     }
   },
   props: [
@@ -108,7 +109,7 @@ export default {
     this.$openlayers.addLayer({
         element: this.currentMap.id,
         type: 'XYZ',
-        url:'http://localhost-ims/image/tile?zoomify=/data/33//1518613420620/LUNG1_pyr.tif/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=image/pyrtiff', 
+        url:`${this.imsBaseUrl}${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
     })
   }
 }

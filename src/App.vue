@@ -28,21 +28,24 @@ export default {
   data() {
     return {
       mapView: {
-        mapCenter: [37.41, 8.82],
+        mapCenter: [0, 0],
         mapZoom: 3,
         mapRotation: 0,
       },
       maxMapsToShow: 4,
       maps: [],
       lastEventMapId: null,
-      imsBaseUrl: 'http://localhost-ims/image/tile?zoomify=',
       apiBaseUrl: 'http://localhost:8085/api',
       images: [],
       projectId: '1493',
-      imageToAdd: '',
+      imageToAdd: "",
+      baseImage: '1577'
     }
   },
   methods: {
+    imageIndex(imageId) {
+      return findIndex(this.images, image => image.id == imageId);
+    },
     setMap(payload) {
       this.mapView = {
         mapCenter: payload.view.getCenter(),
@@ -74,8 +77,7 @@ export default {
     },
     addMap() {
       if(this.maps.length < this.maxMapsToShow) {
-        let id = uuid();
-        this.maps.push({id: id, linkedTo: ""});
+        this.maps.push({id: uuid(), imageId: this.imageToAdd, linkedTo: "", data: this.images[this.imageIndex(this.imageToAdd)]});
       }
     },
     deleteMap(payload) {
@@ -86,11 +88,11 @@ export default {
     }
   },
   created() {
-    let id = uuid();
-    this.maps.push({id: id, linkedTo: "", imageId: ""});
     axios.get(`${this.apiBaseUrl}/project/${this.projectId}/imageinstance.json`).then(data => {
       this.images = data.data.collection;
+      this.maps.push({id: uuid(), imageId: this.baseImage, linkedTo: "", data: this.images[this.imageIndex(this.baseImage)]});
     })
+    
   },
 }
 </script>
