@@ -81,6 +81,9 @@ module.exports = {
     overlay: true,
     headers: { "Access-Control-Allow-Origin": "*" },
     port: 8085,
+    proxy: {
+      "/api": "http://localhost-core:8080/"
+    }
   },
   performance: {
     hints: false

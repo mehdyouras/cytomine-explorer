@@ -12,6 +12,7 @@
 import Explore from './components/Explore'
 import uuid from 'uuid'
 import findIndex from 'lodash.findindex'
+import axios from 'axios'
 
 export default {
   name: 'app',
@@ -28,6 +29,11 @@ export default {
       maxMapsToShow: 4,
       maps: [],
       lastEventMapId: null,
+      imsBaseUrl: 'http://localhost-ims/image/tile?zoomify=',
+      apiBaseUrl: 'http://localhost:8085/api',
+      images: [],
+      projectId: '1493',
+      imageToAdd: '',
     }
   },
   methods: {
@@ -75,7 +81,10 @@ export default {
   },
   created() {
     let id = uuid();
-    this.maps.push({id: id, linkedTo: ""});
+    this.maps.push({id: id, linkedTo: "", imageId: ""});
+    axios.get(`${this.apiBaseUrl}/project/${this.projectId}/imageinstance.json`).then(data => {
+      this.images = data.data.collection;
+    })
   },
 }
 </script>
