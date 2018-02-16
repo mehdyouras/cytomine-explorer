@@ -105,7 +105,11 @@ export default {
       enableScaleLine: true,  
     })
     // Adds layer
-    this.$openlayers.addLayer({element: this.currentMap.id, name: 'Map', type: "OSM"})
+    this.$openlayers.addLayer({
+        element: this.currentMap.id,
+        type: 'XYZ',
+        url:'http://localhost-ims/image/tile?zoomify=/data/33//1518613420620/LUNG1_pyr.tif/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=image/pyrtiff', 
+    })
   }
 }
 
