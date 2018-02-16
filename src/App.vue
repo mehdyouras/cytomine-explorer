@@ -1,6 +1,12 @@
 <template>
   <div>
-    <button v-if="maps.length < maxMapsToShow" @click="addMap">Add a map</button>
+    <div v-if="maps.length < maxMapsToShow">
+      <select v-model.number="imageToAdd" name="images" id="images">
+        <option value="">Select an image to add</option>
+        <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
+      </select>
+      <button @click="addMap">Add a map</button>
+    </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <div class="container">
       <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
