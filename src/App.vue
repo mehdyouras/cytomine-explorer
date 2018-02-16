@@ -9,6 +9,7 @@
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <div class="container">
+      <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
       <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
     </div>
   </div>
@@ -16,6 +17,8 @@
 
 <script>
 import Explore from './components/Explore'
+import OverviewMap from './components/OverviewMap'
+
 import uuid from 'uuid'
 import findIndex from 'lodash.findindex'
 import axios from 'axios'
@@ -24,6 +27,7 @@ export default {
   name: 'app',
   components: {
     Explore,
+    OverviewMap
   },
   data() {
     return {
