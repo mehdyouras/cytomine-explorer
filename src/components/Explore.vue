@@ -111,6 +111,7 @@ export default {
         type: 'XYZ',
         url:`${this.imsBaseUrl}${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
     })
+    this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
   }
 }
 
