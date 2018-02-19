@@ -60,7 +60,7 @@ export default {
         return this.mapView.mapRotation;
     },
     mapIndex() {
-        return findIndex(this.maps, map => map.id === this.currentMap.id);
+        return this.maps.findIndex(map => map.id === this.currentMap.id);
     },
     filterUrl() {
         if(this.filterSelected !== "") {

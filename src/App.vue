@@ -20,7 +20,6 @@ import Explore from './components/Explore'
 import OverviewMap from './components/OverviewMap'
 
 import uuid from 'uuid'
-import findIndex from 'lodash.findindex'
 import axios from 'axios'
 
 export default {
@@ -48,7 +47,7 @@ export default {
   },
   methods: {
     imageIndex(imageId) {
-      return findIndex(this.images, image => image.id == imageId);
+      return this.images.findIndex(image => image.id == imageId);
     },
     setMap(payload) {
       this.mapView = {
