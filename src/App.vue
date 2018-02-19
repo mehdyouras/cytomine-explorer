@@ -39,7 +39,6 @@ export default {
       maxMapsToShow: 4,
       maps: [],
       lastEventMapId: null,
-      apiBaseUrl: 'http://localhost:8085/api',
       images: [],
       projectId: '1493',
       imageToAdd: "",
@@ -93,14 +92,14 @@ export default {
     }
   },
   created() {
-    axios.get(`${this.apiBaseUrl}/project/${this.projectId}/imageinstance.json`).then(data => {
+    api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
       let id = uuid();
       this.lastEventMapId = id;
       this.images = data.data.collection;
       this.maps.push({id, imageId: this.baseImage, linkedTo: "", data: this.images[this.imageIndex(this.baseImage)]});
     })
 
-    axios.get(`${this.apiBaseUrl}/project/${this.projectId}/imagefilterproject.json`).then(data => {
+    api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {
       this.filters = data.data.collection;
     })
     
