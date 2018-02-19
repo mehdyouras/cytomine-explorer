@@ -44,8 +44,14 @@ export default {
 </script>
 
 <style>
+    .ol-overviewmap {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 9999; 
+    }
     .ol-overviewmap .ol-overviewmap-box {
         border: 2px solid red;
-      }
+    }
 </style>
 

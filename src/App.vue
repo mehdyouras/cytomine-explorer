@@ -8,8 +8,8 @@
       <button @click="addMap">Add a map</button>
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
+    <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
     <div class="container">
-      <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
       <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters"></explore>
     </div>
   </div>
@@ -114,6 +114,7 @@ export default {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+    margin-top: 200px;
   }
 </style>
 
