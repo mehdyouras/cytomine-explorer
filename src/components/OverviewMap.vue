@@ -10,6 +10,7 @@ export default {
   data() {
       return {
           overviewMap: {},
+          overviewMapCount: 0,
       }
   },
   props: [
@@ -17,18 +18,18 @@ export default {
       'maps',
   ],
   watch: {
-      maps() {
-        if(this.maps.length <= 1) {
+    maps() {
+        if(this.overviewMapCount < 1) {
             this.initOverviewMap();
+            this.overviewMapCount++
         }
-      },
-      lastEventMapId(newId, oldId) {
-        this.overviewMap.render();
+    },
+    lastEventMapId(newId, oldId) {
         if(newId !== oldId && oldId) {
             this.$openlayers.getMap(oldId).removeControl(this.overviewMap)
             this.initOverviewMap(newId);
         }   
-      }
+    },
   },
   methods: {
       initOverviewMap(id = this.maps[0].id) {
