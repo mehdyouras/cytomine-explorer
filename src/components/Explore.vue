@@ -17,15 +17,20 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
+        <annotations :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
 
 <script>
 import findIndex from 'lodash.findindex';
+import Annotations from './Annotations';
 
 export default {
   name: 'Explore',
+  components: {
+      Annotations,
+  },
   data () {
     return {
         linkValue: "",
