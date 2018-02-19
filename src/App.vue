@@ -93,8 +93,10 @@ export default {
   },
   created() {
     axios.get(`${this.apiBaseUrl}/project/${this.projectId}/imageinstance.json`).then(data => {
+      let id = uuid();
+      this.lastEventMapId = id;
       this.images = data.data.collection;
-      this.maps.push({id: uuid(), imageId: this.baseImage, linkedTo: "", data: this.images[this.imageIndex(this.baseImage)]});
+      this.maps.push({id, imageId: this.baseImage, linkedTo: "", data: this.images[this.imageIndex(this.baseImage)]});
     })
     
   },

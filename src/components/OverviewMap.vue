@@ -7,16 +7,44 @@ import OverviewMap from 'ol/control/overviewmap';
 
 export default {
   name: 'OverviewMap',
+  data() {
+      return {
+          overviewMap: {},
+      }
+  },
   props: [
       'lastEventMapId',
       'maps',
   ],
-  mounted() {
-      console.log(this.maps)
-      this.$openlayers.getMap(this.lastEventMapId).addControl(new OverviewMap({
-          collapsed: false,
-          target: "overview-map",
-      }))
+  watch: {
+      maps() {
+        if(this.maps.length <= 1) {
+            this.initOverviewMap();
+        }
+      },
+      lastEventMapId(newId, oldId) {
+        this.overviewMap.render();
+        if(newId !== oldId && oldId) {
+            this.$openlayers.getMap(oldId).removeControl(this.overviewMap)
+            this.initOverviewMap(newId);
+        }   
+      }
+  },
+  methods: {
+      initOverviewMap(id = this.maps[0].id) {
+        this.overviewMap = new OverviewMap({
+            collapsed: false,
+            target: "overview-map",
+        })
+        this.$openlayers.getMap(id).addControl(this.overviewMap);
+      }
   },
 }
 </script>
+
+<style>
+    .ol-overviewmap .ol-overviewmap-box {
+        border: 2px solid red;
+      }
+</style>
+
