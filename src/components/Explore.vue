@@ -17,7 +17,7 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <annotations :currentMap="currentMap"></annotations>
+        <annotations @addLayer="addLayer" :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
@@ -121,6 +121,16 @@ export default {
     },
     deleteMap() {
         this.$emit('deleteMap', this.currentMap.id);
+    },
+    addLayer(payload) {
+        console.log('yo')
+        // this.$openlayers.addLayer({
+        //     element: this.currentMap.id,
+        //     name: payload.name,
+        //     type: 'Vector',
+        //     features: payload.features,
+        // });
+        // console.log(this.$openlayers.getLayers(this.currentMap.id))
     }
   },
   mounted() {
