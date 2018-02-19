@@ -2,13 +2,21 @@
     <div class="map">
         <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id">
         </div>
-        <label :for="'link-'+this.currentMap.id">Link the map</label>
-        <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+this.currentMap.id">
+        <label :for="'link-'+currentMap.id">Link the map</label>
+        <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
             <option value="">Select a map</option>
             <template v-for="(map, index) in maps">
                 <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
             </template>
         </select>
+        <div>
+            <label :for="'original-filter-'+currentMap.id">Original</label>
+            <input v-model="filterSelected" type="radio" :name="'filter-original-'+currentMap.id" :id="'filter-original-'+currentMap.id" value="">
+            <div v-for="filter in filters" :key="filter.id">
+                <label :for="'filter-'+filter.id+'-'+currentMap.id">{{filter.name}}</label>
+                <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
+            </div>
+        </div>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
@@ -22,7 +30,8 @@ export default {
     return {
         linkValue: "",
         mapNames: ['Panneau supérieur gauche', 'Panneau supérieur droit', 'Panneau inférieur gauche', 'Panneau inférieur droit'],
-        imsBaseUrl: 'http://localhost-ims/image/tile?zoomify=',
+        imsBaseUrl: 'http://localhost-ims/',
+        filterSelected: "",
     }
   },
   props: [
@@ -30,6 +39,7 @@ export default {
     'maps',
     'currentMap',
     'lastEventMapId',
+    'filters'
   ],
   computed: {
     linkedTo() {
@@ -46,6 +56,13 @@ export default {
     },
     mapIndex() {
         return findIndex(this.maps, map => map.id === this.currentMap.id);
+    },
+    filterUrl() {
+        if(this.filterSelected !== "") {
+            return `${this.imsBaseUrl}${this.filterSelected.baseUrl}`;
+        } else {
+            return "";
+        }
     }
   },
   watch: {
@@ -74,6 +91,14 @@ export default {
     linkedTo() {
         // Sets the local value to the value sent by the parent
         this.linkValue = this.currentMap.linkedTo;
+    },
+    filterSelected() {
+        //sets filter on change 
+        this.$openlayers.setLayer({
+            element: this.currentMap.id,
+            type: 'XYZ',
+            url:`${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
+        })
     }
   },
   methods: {
@@ -85,6 +110,7 @@ export default {
         }
         this.$emit('dragged', payload);
     },
+    // Sends which map is linked to this one to the parent
     sendLink() {
         let payload = [this.currentMap.id, this.linkValue];
         this.$emit('mapIsLinked', payload);
@@ -109,7 +135,7 @@ export default {
     this.$openlayers.addLayer({
         element: this.currentMap.id,
         type: 'XYZ',
-        url:`${this.imsBaseUrl}${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
+        url:`${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
     })
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
   }

@@ -10,7 +10,7 @@
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <div class="container">
       <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
-      <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId"></explore>
+      <explore v-for="map in maps" :key="map.id" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters"></explore>
     </div>
   </div>
 </template>
@@ -43,7 +43,8 @@ export default {
       images: [],
       projectId: '1493',
       imageToAdd: "",
-      baseImage: '1577'
+      baseImage: '1577',
+      filters: [],
     }
   },
   methods: {
@@ -97,6 +98,10 @@ export default {
       this.lastEventMapId = id;
       this.images = data.data.collection;
       this.maps.push({id, imageId: this.baseImage, linkedTo: "", data: this.images[this.imageIndex(this.baseImage)]});
+    })
+
+    axios.get(`${this.apiBaseUrl}/project/${this.projectId}/imagefilterproject.json`).then(data => {
+      this.filters = data.data.collection;
     })
     
   },
