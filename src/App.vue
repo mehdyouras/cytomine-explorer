@@ -20,7 +20,6 @@ import Explore from './components/Explore'
 import OverviewMap from './components/OverviewMap'
 
 import uuid from 'uuid'
-import axios from 'axios'
 
 export default {
   name: 'app',

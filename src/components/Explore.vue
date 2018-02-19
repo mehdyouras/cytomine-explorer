@@ -23,7 +23,6 @@
 </template>
 
 <script>
-import findIndex from 'lodash.findindex';
 import Annotations from './Annotations';
 
 export default {
