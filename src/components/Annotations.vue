@@ -20,6 +20,8 @@ import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
+import proj from 'ol/proj';
+
 
 
 export default {
@@ -38,6 +40,9 @@ export default {
   computed: {
       layersNotAdded() {
           return difference(this.userLayers, this.layersSelected);
+      },
+      test() {
+        return proj.transform(["12575.743652344","10328"], 'EPSG:4326', 'EPSG:3857');
       }
   },
   methods: {
@@ -68,7 +73,7 @@ export default {
                             if(array[0] === "") {
                                 array.splice(0, 1)
                             }
-                            array = array.map(value => value*1000);
+                            // array = array.map(value => value*1000);
                             return array.join(" ");
                         })
 
