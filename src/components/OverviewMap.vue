@@ -50,6 +50,10 @@ export default {
         right: 15px;
         z-index: 9999; 
     }
+    .ol-overviewmap-map {
+        width: 256px;
+        height: 256px;
+    }
     .ol-overviewmap .ol-overviewmap-box {
         border: 2px solid red;
     }
