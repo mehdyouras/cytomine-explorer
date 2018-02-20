@@ -83,7 +83,7 @@ export default {
       }
     },
     deleteMap(payload) {
-      let index = findIndex(this.maps, (map) => {
+      let index = this.maps.findIndex(map => {
         return map.id === payload;
       })
       this.maps.splice(index, 1);
