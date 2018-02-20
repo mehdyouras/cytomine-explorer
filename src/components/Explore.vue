@@ -122,16 +122,6 @@ export default {
     deleteMap() {
         this.$emit('deleteMap', this.currentMap.id);
     },
-    addLayer(payload) {
-        console.log('yo')
-        // this.$openlayers.addLayer({
-        //     element: this.currentMap.id,
-        //     name: payload.name,
-        //     type: 'Vector',
-        //     features: payload.features,
-        // });
-        // console.log(this.$openlayers.getLayers(this.currentMap.id))
-    }
   },
   mounted() {
     // Init map
