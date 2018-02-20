@@ -19,6 +19,7 @@ import difference from 'lodash.difference'
 import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
+import Collection from 'ol/collection';
 
 
 export default {
@@ -50,27 +51,47 @@ export default {
                     return element.location;
                 })
 
-                let format = new WKT({splitCollection: true});
-                let features = geoms.map(geom => {
-                    return format.readFeature(geom)
-                })
+                let format = new WKT();
+                let features = new Collection(
+                    geoms.map(geom => {
+                        let from = geom.indexOf("((");
+                        let to = geom.indexOf("))");
+
+                        let strStart = geom.substring(0, from + 2);
+                        let strEnd = geom.substring(to, geom.length);
+
+                        let subStr = geom.substring(from + 2, to);
+                        
+                        let exploded = subStr.split(",");
+                        exploded = exploded.map(str => {
+                            let array = str.split(" ");
+                            if(array[0] === "") {
+                                array.splice(0, 1)
+                            }
+                            array = array.map(value => value*1000);
+                            return array.join(" ");
+                        })
+
+                        let pointsString = exploded.join(", ");
+
+                        return format.readFeature(strStart + pointsString + strEnd);
+                    })
+                )
 
                 // Create vector layer
                 let vector = new LayerVector({
-                    name: this.layerToBeAdded.id,  
+                    title: this.layerToBeAdded.id,  
                     source: new SrcVector({
                         features,
                     }),
+                    
                 })
-                
-                // this.$emit('addLayer', {features, name: this.layerToBeAdded.id});
 
                 this.$openlayers.getMap(this.currentMap.id).addLayer(vector);
                 
                 // Clean field
                 this.layerToBeAdded = {};
                 
-                console.log(this.$openlayers.getLayers(this.currentMap.id));
             })
 
         }
