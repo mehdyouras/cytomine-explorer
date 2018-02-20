@@ -17,7 +17,7 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <annotations @addLayer="addLayer" :currentMap="currentMap"></annotations>
+        <annotations :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
