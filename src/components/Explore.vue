@@ -24,6 +24,9 @@
 
 <script>
 import Annotations from './Annotations';
+import OlXYZ from 'ol/source/xyz'
+import OlTile from 'ol/layer/tile'
+import proj from 'ol/proj';
 
 export default {
   name: 'Explore',
@@ -127,20 +130,25 @@ export default {
     // Init map
     this.$openlayers.init({
       element: this.currentMap.id,
-      center: this.mapCenter,
+      center: [0, 0],
       zoom: this.mapZoom,
       enableZoomButton: true,
       enablePan: true,
       enableMouseWheelZoom: true,
       enableDoubleClickZoom: true,
-      enableScaleLine: true,  
+      enableScaleLine: true,
+    //   projection: 'EPSG:4326',
     })
     // Adds layer
-    this.$openlayers.addLayer({
-        element: this.currentMap.id,
-        type: 'XYZ',
-        url:`${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
+    let extentMax = proj.transform([parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)], 'EPSG:4326', 'EPSG:3857')
+    let extent = [0,0].concat(extent)
+    let layer = new OlTile({
+        source: new OlXYZ({
+            url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+        }),
+        // extent,    
     })
+    this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
   }
 }
@@ -149,6 +157,6 @@ export default {
 
 <style>
   .map {
-    width: 50%;
+    width: 100%;
   }
 </style>
