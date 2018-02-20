@@ -27,6 +27,7 @@ import Annotations from './Annotations';
 import OlXYZ from 'ol/source/xyz'
 import OlTile from 'ol/layer/tile'
 import proj from 'ol/proj';
+import Projection from 'ol/proj/projection';
 
 export default {
   name: 'Explore',
@@ -137,7 +138,11 @@ export default {
       enableMouseWheelZoom: true,
       enableDoubleClickZoom: true,
       enableScaleLine: true,
-    //   projection: 'EPSG:4326',
+      projection: new Projection({
+          code: 'EPSG:3857',
+          units: 'pixels',
+          metersPerUnit: 1,
+      }),
     })
     // Adds layer
     let extentMax = proj.transform([parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)], 'EPSG:4326', 'EPSG:3857')
