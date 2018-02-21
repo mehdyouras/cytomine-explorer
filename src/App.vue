@@ -111,7 +111,6 @@ export default {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    margin-top: 200px;
   }
 </style>
 

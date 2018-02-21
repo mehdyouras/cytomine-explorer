@@ -49,6 +49,7 @@ export default {
         top: 15px;
         right: 15px;
         z-index: 9999; 
+        border: 3px solid black;
     }
     .ol-overviewmap-map {
         width: 256px;
