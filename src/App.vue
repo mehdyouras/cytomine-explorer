@@ -31,7 +31,7 @@ export default {
     return {
       mapView: {
         mapCenter: [0, 0],
-        mapZoom: 3,
+        mapZoom: 2,
         mapRotation: 0,
       },
       maxMapsToShow: 4,

@@ -59,27 +59,28 @@ export default {
                 let format = new WKT();
                 let features = new Collection(
                     geoms.map(geom => {
-                        let from = geom.indexOf("((");
-                        let to = geom.indexOf("))");
+                        return format.readFeature(geom);
+                        // let from = geom.indexOf("((");
+                        // let to = geom.indexOf("))");
 
-                        let strStart = geom.substring(0, from + 2);
-                        let strEnd = geom.substring(to, geom.length);
+                        // let strStart = geom.substring(0, from + 2);
+                        // let strEnd = geom.substring(to, geom.length);
 
-                        let subStr = geom.substring(from + 2, to);
+                        // let subStr = geom.substring(from + 2, to);
                         
-                        let exploded = subStr.split(",");
-                        exploded = exploded.map(str => {
-                            let array = str.split(" ");
-                            if(array[0] === "") {
-                                array.splice(0, 1)
-                            }
-                            // array = array.map(value => value*1000);
-                            return array.join(" ");
-                        })
+                        // let exploded = subStr.split(",");
+                        // exploded = exploded.map(str => {
+                        //     let array = str.split(" ");
+                        //     if(array[0] === "") {
+                        //         array.splice(0, 1)
+                        //     }
+                        //     // array = array.map(value => value*1000);
+                        //     return array.join(" ");
+                        // })
 
-                        let pointsString = exploded.join(", ");
+                        // let pointsString = exploded.join(", ");
 
-                        return format.readFeature(strStart + pointsString + strEnd);
+                        // return format.readFeature(strStart + pointsString + strEnd);
                     })
                 )
 

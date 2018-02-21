@@ -24,10 +24,11 @@
 
 <script>
 import Annotations from './Annotations';
-import OlXYZ from 'ol/source/xyz'
+import OlXYZ from 'ol/source/tileimage'
 import OlTile from 'ol/layer/tile'
 import proj from 'ol/proj';
 import Projection from 'ol/proj/projection';
+import TileGrid from 'ol/tilegrid/tilegrid';
 
 export default {
   name: 'Explore',
@@ -128,30 +129,40 @@ export default {
     },
   },
   mounted() {
+      let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
     // Init map
     this.$openlayers.init({
       element: this.currentMap.id,
-      center: [0, 0],
+      center: [parseInt(this.currentMap.data.width)/2, parseInt(this.currentMap.data.height)/2],
       zoom: this.mapZoom,
       enableZoomButton: true,
       enablePan: true,
       enableMouseWheelZoom: true,
       enableDoubleClickZoom: true,
       enableScaleLine: true,
+      minZoom: 2,
       projection: new Projection({
-          code: 'EPSG:3857',
-          units: 'pixels',
-          metersPerUnit: 1,
+        code: 'EPSG:3857',
+        extent,
       }),
     })
     // Adds layer
-    let extentMax = proj.transform([parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)], 'EPSG:4326', 'EPSG:3857')
-    let extent = [0,0].concat(extent)
+    
+    let maxResolution = this.currentMap.data.width / 256;
+    let resolutions = [];
+    for (var i = 0; i < 18; i++) {
+        resolutions[i] = maxResolution / Math.pow(2, i);
+    }
+    console.log(extent)
     let layer = new OlTile({
         source: new OlXYZ({
             url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+            // tileGrid: new TileGrid({
+            //     // origin: [0, parseInt(this.currentMap.data.height)],
+            //     // resolutions,
+            // })
         }),
-        // extent,    
+        extent,    
     })
     this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
@@ -162,6 +173,7 @@ export default {
 
 <style>
   .map {
-    width: 50%;
+    width: 100%;
+    height: 100vh;
   }
 </style>
