@@ -26,9 +26,6 @@
 import Annotations from './Annotations';
 import TileImage from 'ol/source/tileimage'
 import OlTile from 'ol/layer/tile'
-import proj from 'ol/proj';
-import Projection from 'ol/proj/projection';
-import TileGrid from 'ol/tilegrid/tilegrid';
 
 export default {
   name: 'Explore',
