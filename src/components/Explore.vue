@@ -146,21 +146,11 @@ export default {
         extent,
       }),
     })
+
     // Adds layer
-    
-    let maxResolution = this.currentMap.data.width / 256;
-    let resolutions = [];
-    for (var i = 0; i < 18; i++) {
-        resolutions[i] = maxResolution / Math.pow(2, i);
-    }
-    console.log(extent)
     let layer = new OlTile({
         source: new OlXYZ({
             url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
-            // tileGrid: new TileGrid({
-            //     // origin: [0, parseInt(this.currentMap.data.height)],
-            //     // resolutions,
-            // })
         }),
         extent,    
     })

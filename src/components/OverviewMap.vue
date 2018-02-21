@@ -45,7 +45,6 @@ export default {
                 projection: new Projection({
                     code: 'EPSG:3857',
                     extent: [0, 0, parseInt(map.data.width), parseInt(map.data.height)],
-                    // units: 'pixels'
                 }),
                 center:[0, 0],
                 minZoom: 1,

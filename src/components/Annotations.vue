@@ -49,6 +49,7 @@ export default {
     addLayer() {
         if(this.layerToBeAdded.id) {            
             api.get(`/api/annotation.json?&user=${this.layerToBeAdded.user}&image=${this.currentMap.imageId}&showWKT=true`).then(data => {
+                
                 // Push added item to selected
                 this.layersSelected.push(this.layerToBeAdded);
 
@@ -60,27 +61,6 @@ export default {
                 let features = new Collection(
                     geoms.map(geom => {
                         return format.readFeature(geom);
-                        // let from = geom.indexOf("((");
-                        // let to = geom.indexOf("))");
-
-                        // let strStart = geom.substring(0, from + 2);
-                        // let strEnd = geom.substring(to, geom.length);
-
-                        // let subStr = geom.substring(from + 2, to);
-                        
-                        // let exploded = subStr.split(",");
-                        // exploded = exploded.map(str => {
-                        //     let array = str.split(" ");
-                        //     if(array[0] === "") {
-                        //         array.splice(0, 1)
-                        //     }
-                        //     // array = array.map(value => value*1000);
-                        //     return array.join(" ");
-                        // })
-
-                        // let pointsString = exploded.join(", ");
-
-                        // return format.readFeature(strStart + pointsString + strEnd);
                     })
                 )
 
