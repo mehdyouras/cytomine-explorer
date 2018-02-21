@@ -126,7 +126,7 @@ export default {
     },
   },
   mounted() {
-    let extent = [0, 0, parseInt(this.currentMap.data.width)+(8*256), parseInt(this.currentMap.data.height)];
+    let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
 
     // Init map
     this.$openlayers.init({
@@ -140,7 +140,7 @@ export default {
       enableScaleLine: true,
       minZoom: 2,
       projection: {
-        code: 'EPSG:3857',
+        code: 'CYTO',
         extent,
       },
     })
@@ -150,7 +150,8 @@ export default {
         source: new TileImage({
             url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
         }),
-        extent,    
+        extent,
+        wrapX: false,    
     })
     this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
