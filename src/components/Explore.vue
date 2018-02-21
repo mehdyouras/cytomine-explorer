@@ -129,7 +129,8 @@ export default {
     },
   },
   mounted() {
-      let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
+    let extent = [0, 0, parseInt(this.currentMap.data.width)+(8*256), parseInt(this.currentMap.data.height)];
+
     // Init map
     this.$openlayers.init({
       element: this.currentMap.id,
