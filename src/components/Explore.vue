@@ -24,7 +24,7 @@
 
 <script>
 import Annotations from './Annotations';
-import OlXYZ from 'ol/source/tileimage'
+import TileImage from 'ol/source/tileimage'
 import OlTile from 'ol/layer/tile'
 import proj from 'ol/proj';
 import Projection from 'ol/proj/projection';
@@ -142,15 +142,15 @@ export default {
       enableDoubleClickZoom: true,
       enableScaleLine: true,
       minZoom: 2,
-      projection: new Projection({
+      projection: {
         code: 'EPSG:3857',
         extent,
-      }),
+      },
     })
 
     // Adds layer
     let layer = new OlTile({
-        source: new OlXYZ({
+        source: new TileImage({
             url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
         }),
         extent,    
