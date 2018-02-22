@@ -37,8 +37,7 @@ export default {
         } else if(oldId === 'reload') {
             this.initOverviewMap(this.maps[index(newId)])
             return;
-        }
-        if(newId !== oldId && oldId) {
+        } else if(newId !== oldId && oldId) {
             this.$openlayers.getMap(oldId).removeControl(this.overviewMap)
             this.initOverviewMap(this.maps[index(newId)]);
         }   
