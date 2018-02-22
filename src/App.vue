@@ -40,7 +40,7 @@ export default {
       images: [],
       projectId: '1493',
       imageToAdd: "",
-      baseImage: '1535',
+      baseImage: '1577',
       filters: [],
     }
   },
