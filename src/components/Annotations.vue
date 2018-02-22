@@ -8,7 +8,7 @@
       <ul>
             <li v-for="layer in layersSelected" :key="layer.id">
                 {{userDisplayName(layer)}}
-                <button @click="removeFromSelected(layer)">Remove</button>
+                <button @click="removeLayer(layer)">Remove</button>
             </li>
       </ul>
   </div>
@@ -75,8 +75,7 @@ export default {
                 this.$openlayers.getMap(this.currentMap.id).addLayer(vector);
                 
                 // Clean field
-                this.layerToBeAdded = {};
-                
+                this.layerToBeAdded = {};                
             })
 
         }
@@ -84,11 +83,20 @@ export default {
     userDisplayName(user) {
         return `${user.lastname} ${user.firstname} (${user.username})`
     },
-    removeFromSelected(toRemove) {
+    removeLayer(toRemove) {
         let index = this.layersSelected.findIndex(layer => {
             return layer.id === toRemove.id;
         });
         this.layersSelected.splice(index, 1);
+
+        let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+
+        index = layersArray.findIndex(layer => {
+            return layer.title === toRemove.id;
+        })
+
+        layersArray.splice(index, 1);
+        this.$openlayers.getMap(this.currentMap.id).render();
     }
   },
   mounted() {
