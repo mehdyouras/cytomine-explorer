@@ -65,12 +65,14 @@ export default {
                 )
 
                 // Create vector layer
+                let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
+                
                 let vector = new LayerVector({
                     title: this.layerToBeAdded.id,  
                     source: new SrcVector({
                         features,
                     }),
-                    
+                    extent,
                 })
 
                 this.$openlayers.getMap(this.currentMap.id).addLayer(vector);

@@ -26,6 +26,8 @@
 import Annotations from './Annotations';
 import TileImage from 'ol/source/tileimage'
 import OlTile from 'ol/layer/tile'
+import Zoomify from 'ol/source/zoomify';
+import Group from 'ol/layer/group';
 
 export default {
   name: 'Explore',
@@ -38,6 +40,7 @@ export default {
         mapNames: ['Panneau supérieur gauche', 'Panneau supérieur droit', 'Panneau inférieur gauche', 'Panneau inférieur droit'],
         imsBaseUrl: 'http://localhost-ims/',
         filterSelected: "",
+        extent: [],
     }
   },
   props: [
@@ -100,11 +103,16 @@ export default {
     },
     filterSelected() {
         //sets filter on change 
-        this.$openlayers.setLayer({
-            element: this.currentMap.id,
-            type: 'XYZ',
-            url:`${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`, 
+        let layer = new OlTile({
+            source: new Zoomify({
+                url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+                size: [parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)],
+                extent: this.extent,
+            }),
+            extent: this.extent,
         })
+        this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: [layer]}))
+        this.$emit('updateOverviewMap');
     }
   },
   methods: {
@@ -126,7 +134,7 @@ export default {
     },
   },
   mounted() {
-    let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
+    this.extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
 
     // Init map
     this.$openlayers.init({
@@ -141,17 +149,18 @@ export default {
       minZoom: 2,
       projection: {
         code: 'CYTO',
-        extent,
+        extent: this.extent,
       },
     })
 
     // Adds layer
     let layer = new OlTile({
-        source: new TileImage({
-            url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup=0&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+        source: new Zoomify({
+            url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+            size: [parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)],
+            extent: this.extent,
         }),
-        extent,
-        wrapX: false,    
+        extent: this.extent,
     })
     this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
