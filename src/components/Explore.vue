@@ -72,6 +72,12 @@ export default {
         } else {
             return "";
         }
+    },
+    mapWidth() {
+        return parseInt(this.currentMap.data.width)
+    },
+    mapHeight() {
+        return parseInt(this.currentMap.data.height)
     }
   },
   watch: {
@@ -106,7 +112,7 @@ export default {
         let layer = new OlTile({
             source: new Zoomify({
                 url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
-                size: [parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)],
+                size: [this.mapWidth, this.mapHeight],
                 extent: this.extent,
             }),
             extent: this.extent,
@@ -134,12 +140,12 @@ export default {
     },
   },
   mounted() {
-    this.extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
+    this.extent = [0, 0, this.mapWidth, this.mapHeight];
 
     // Init map
     this.$openlayers.init({
       element: this.currentMap.id,
-      center: [parseInt(this.currentMap.data.width)/2, parseInt(this.currentMap.data.height)/2],
+      center: [this.mapWidth/2, this.mapHeight/2],
       zoom: this.mapZoom,
       enableZoomButton: true,
       enablePan: true,
@@ -157,7 +163,7 @@ export default {
     let layer = new OlTile({
         source: new Zoomify({
             url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
-            size: [parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)],
+            size: [this.mapWidth, this.mapHeight],
             extent: this.extent,
         }),
         extent: this.extent,
