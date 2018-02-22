@@ -20,9 +20,6 @@ import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
-import proj from 'ol/proj';
-
-
 
 export default {
   name: 'Annotations',
