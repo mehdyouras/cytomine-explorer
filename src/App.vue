@@ -5,7 +5,7 @@
         <option value="">Select an image to add</option>
         <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
       </select>
-      <button @click="addMap">Add a map</button>
+      <button @click="addMap(imageToAdd)">Add a map</button>
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
@@ -76,9 +76,14 @@ export default {
       index = this.mapIndex(payload[1])
       this.maps[index].linkedTo = payload[0];
     },
-    addMap() {
+    addMap(imageId = this.imageToAdd, id = uuid()) {
       if(this.maps.length < this.maxMapsToShow) {
-        this.maps.push({id: uuid(), imageId: this.imageToAdd, linkedTo: "", data: this.images[this.imageIndex(this.imageToAdd)]});
+        this.maps.push({
+          id,
+          imageId,
+          linkedTo: "",
+          data: this.images[this.imageIndex(imageId)]
+        })
       }
     },
     deleteMap(payload) {
@@ -96,7 +101,7 @@ export default {
       let id = uuid();
       this.lastEventMapId = id;
       this.images = data.data.collection;
-      this.maps.push({id, imageId: this.baseImage, linkedTo: "", data: this.images[this.imageIndex(this.baseImage)]});
+      this.addMap(this.baseImage, id);
     })
 
     api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {
