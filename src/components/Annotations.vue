@@ -81,11 +81,13 @@ export default {
         return `${user.lastname} ${user.firstname} (${user.username})`
     },
     removeLayer(toRemove) {
+        // Removes the layer from the selected
         let index = this.layersSelected.findIndex(layer => {
             return layer.id === toRemove.id;
         });
         this.layersSelected.splice(index, 1);
 
+        // Removes layer from the map
         let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
 
         index = layersArray.findIndex(layer => {
