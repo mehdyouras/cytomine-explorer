@@ -18,13 +18,16 @@
             </div>
         </div>
         <annotations :currentMap="currentMap"></annotations>
+        <informations :currentMap="currentMap"></informations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
 
 <script>
 import Annotations from './Explore/Annotations';
-import OlTile from 'ol/layer/tile'
+import Informations from './Explore/Informations';
+
+import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
 
@@ -32,6 +35,7 @@ export default {
   name: 'Explore',
   components: {
       Annotations,
+      Informations,
   },
   data () {
     return {
