@@ -48,6 +48,9 @@ export default {
     imageIndex(imageId) {
       return this.images.findIndex(image => image.id == imageId);
     },
+    mapIndex(mapId) {
+      return this.maps.findIndex(map => map.id == mapId)
+    },
     setMap(payload) {
       this.mapView = {
         mapCenter: payload.view.getCenter(),
@@ -66,15 +69,11 @@ export default {
       }
 
       // Finds map index
-      index = this.maps.findIndex((map) => {
-        return map.id === payload[0];
-      })
+      index = this.mapIndex(payload[0])
       // Links maps
       this.maps[index].linkedTo = payload[1];
 
-      index = this.maps.findIndex((map) => {
-        return map.id === payload[1];
-      })
+      index = this.mapIndex(payload[1])
       this.maps[index].linkedTo = payload[0];
     },
     addMap() {
