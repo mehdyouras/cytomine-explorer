@@ -41,14 +41,11 @@ export default {
       layersNotAdded() {
           return difference(this.userLayers, this.layersSelected);
       },
-      test() {
-        return proj.transform(["12575.743652344","10328"], 'EPSG:4326', 'EPSG:3857');
-      }
   },
   methods: {
     addLayer() {
         if(this.layerToBeAdded.id) {            
-            api.get(`/api/annotation.json?&user=${this.layerToBeAdded.user}&image=${this.currentMap.imageId}&showWKT=true`).then(data => {
+            api.get(`/api/annotation.json?&user=${this.layerToBeAdded.id}&image=${this.currentMap.imageId}&showWKT=true`).then(data => {
                 
                 // Push added item to selected
                 this.layersSelected.push(this.layerToBeAdded);
