@@ -24,7 +24,6 @@
 
 <script>
 import Annotations from './Annotations';
-import TileImage from 'ol/source/tileimage'
 import OlTile from 'ol/layer/tile'
 import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
