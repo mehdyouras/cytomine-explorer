@@ -36,7 +36,7 @@ export default {
   data () {
     return {
         linkValue: "",
-        mapNames: ['Panneau supérieur gauche', 'Panneau supérieur droit', 'Panneau inférieur gauche', 'Panneau inférieur droit'],
+        mapNames: ['1', '2', '3', '4'],
         imsBaseUrl: 'http://localhost-ims/',
         filterSelected: "",
         extent: [],
