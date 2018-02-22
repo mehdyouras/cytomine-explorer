@@ -103,9 +103,6 @@ export default {
             this.userLayers = data.data.collection;
         }
       )
-      api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationactions.json`).then(data => {
-          this.annotationsIndex = data.data;
-      })
   },
 }
 </script>
