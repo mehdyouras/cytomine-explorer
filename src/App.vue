@@ -58,7 +58,7 @@ export default {
     },
     linkMaps(payload) {
       // Removes last linked map
-      let index = findIndex(this.maps, (map) => {
+      let index = this.maps.findIndex((map) => {
         return map.linkedTo === payload[0];
       })
       if(index !== -1) {
@@ -66,13 +66,13 @@ export default {
       }
 
       // Finds map index
-      index = findIndex(this.maps, (map) => {
+      index = this.maps.findIndex((map) => {
         return map.id === payload[0];
       })
       // Links maps
       this.maps[index].linkedTo = payload[1];
 
-      index = findIndex(this.maps, (map) => {
+      index = this.maps.findIndex((map) => {
         return map.id === payload[1];
       })
       this.maps[index].linkedTo = payload[0];
