@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import Annotations from './Annotations';
+import Annotations from './Explore/Annotations';
 import OlTile from 'ol/layer/tile'
 import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
