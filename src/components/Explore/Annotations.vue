@@ -91,7 +91,7 @@ export default {
         let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
 
         index = layersArray.findIndex(layer => {
-            return layer.title === toRemove.id;
+            return layer.get('title') === toRemove.id;
         })
 
         layersArray.splice(index, 1);
