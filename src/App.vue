@@ -54,7 +54,7 @@ export default {
     setMap(payload) {
       this.mapView = {
         mapCenter: payload.view.getCenter(),
-        mapZoom: payload.view.getZoom(),
+        mapResolution: payload.view.getResolution(),
         mapRotation: payload.view.getRotation(),
       }
       this.lastEventMapId = payload.mapId;

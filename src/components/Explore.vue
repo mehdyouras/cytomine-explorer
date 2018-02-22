@@ -54,15 +54,6 @@ export default {
     linkedTo() {
         return this.currentMap.linkedTo;
     },
-    mapCenter() {
-        return this.mapView.mapCenter;
-    },
-    mapZoom() {
-        return this.mapView.mapZoom;
-    },
-    mapRotation() {
-        return this.mapView.mapRotation;
-    },
     mapIndex() {
         return this.maps.findIndex(map => map.id === this.currentMap.id);
     },
@@ -81,27 +72,18 @@ export default {
     }
   },
   watch: {
-    // Watches these values
-    mapCenter() {
-        // Checks if the last event was on a linked map
-        if(this.currentMap.linkedTo == this.lastEventMapId) {
-            // Apply changes
-            this.$openlayers.getView(this.currentMap.id).setCenter(this.mapCenter);
-        }
-    },
-    mapZoom() {
-        // Checks if the last event was on a linked map
-        if(this.currentMap.linkedTo == this.lastEventMapId) {
-            // Apply changes
-            this.$openlayers.getView(this.currentMap.id).setZoom(this.mapZoom);
-        }
-    },
-    mapRotation() {
-        // Checks if the last event was on a linked map
-        if(this.currentMap.linkedTo == this.lastEventMapId) {
-            // Apply changes
-            this.$openlayers.getView(this.currentMap.id).setRotation(this.mapRotation);
-        }
+    mapView: {
+        handler() {
+            let {mapCenter, mapResolution, mapRotation} = this.mapView;
+            if(this.currentMap.linkedTo == this.lastEventMapId) {
+                this.$openlayers.getView(this.currentMap.id).setProperties({
+                    center: mapCenter,
+                    resolution: mapResolution,
+                    rotation: mapRotation,
+                })
+            }
+        },
+        deep: true,
     },
     linkedTo() {
         // Sets the local value to the value sent by the parent
