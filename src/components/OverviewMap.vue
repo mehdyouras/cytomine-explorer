@@ -27,12 +27,20 @@ export default {
         }
     },
     lastEventMapId(newId, oldId) {
-        let index = this.maps.findIndex(map => {
-            return map.id === newId;
-        })
+        let index = (id) => {
+            return this.maps.findIndex(map => {
+                return map.id === id;
+            })
+        }
+        if(newId === 'reload') {
+            return;
+        } else if(oldId === 'reload') {
+            this.initOverviewMap(this.maps[index(newId)])
+            return;
+        }
         if(newId !== oldId && oldId) {
             this.$openlayers.getMap(oldId).removeControl(this.overviewMap)
-            this.initOverviewMap(this.maps[index]);
+            this.initOverviewMap(this.maps[index(newId)]);
         }   
     },
   },
@@ -52,7 +60,7 @@ export default {
             })
         })
         this.$openlayers.getMap(map.id).addControl(this.overviewMap);
-      }
+      },
   },
 }
 </script>
