@@ -44,6 +44,7 @@ export default {
           annotationsIndex: [],
           vectorLayer: {},
           drawInteraction: {},
+          extent: [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)],
       }
   },
   computed: {
@@ -73,15 +74,13 @@ export default {
                     })
                 )
 
-                // Create vector layer
-                let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
-                
+                // Create vector layer                
                 this.vectorLayer = new LayerVector({
                     title: this.layerToBeAdded.id,  
                     source: new SrcVector({
                         features,
                     }),
-                    extent,
+                    extent : this.extent,
                 })
 
                 this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
