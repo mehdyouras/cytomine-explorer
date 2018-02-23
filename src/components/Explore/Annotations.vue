@@ -52,6 +52,9 @@ export default {
       },
   },
   methods: {
+    layerIndex(array, toFind) {
+        return array.findIndex(item => item.get('title') === toFind);
+    },
     addLayer() {
         if(this.layerToBeAdded.id) {            
             api.get(`/api/annotation.json?&user=${this.layerToBeAdded.id}&image=${this.currentMap.imageId}&showWKT=true`).then(data => {
@@ -103,9 +106,7 @@ export default {
         // Removes layer from the map
         let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
 
-        index = layersArray.findIndex(layer => {
-            return layer.get('title') === toRemove.id;
-        })
+        index = this.layerIndex(layersArray, toRemove.id);
 
         layersArray.splice(index, 1);
         this.$openlayers.getMap(this.currentMap.id).render();
