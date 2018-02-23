@@ -1,13 +1,13 @@
 <template>
   <div>
       <ul>
-          <li><button @click="addAnnotation('Point')">Point</button></li>
+          <li><button @click="addInteraction('Point')">Point</button></li>
           <!-- <li><button @click="addAnnotation('')">Arrow</button></li> -->
-          <li><button @click="addAnnotation('Rectangle')">Rectangle</button></li>
+          <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
           <!-- <li><button @click="addAnnotation('')">Ellipse</button></li> -->
-          <li><button @click="addAnnotation('Circle')">Circle</button></li>
-          <li><button @click="addAnnotation('Polygon')">Polygon</button></li>
-          <li><button @click="addAnnotation('Polygon', true)">Freehand</button></li>
+          <li><button @click="addInteraction('Circle')">Circle</button></li>
+          <li><button @click="addInteraction('Polygon')">Polygon</button></li>
+          <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
       </ul>
       <select v-model="layerToBeAdded" name="user-layer" id="user-layer">
           <option :value="{}">Choose an annotation layer</option>
@@ -43,14 +43,22 @@ export default {
           layersSelected: [],
           annotationsIndex: [],
           vectorLayer: {},
-          drawInteraction: {},
-          extent: [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)],
+          draw: {
+              layer: {},
+              interaction: {},
+          }
       }
   },
   computed: {
       layersNotAdded() {
           return difference(this.userLayers, this.layersSelected);
       },
+      extent() {
+          return [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
+      },
+      layersArray() {
+          return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+      }
   },
   methods: {
     layerIndex(array, toFind) {
@@ -87,7 +95,6 @@ export default {
                 
                 // Clean field
                 this.layerToBeAdded = {};                
-                this.addAnnotation()
             })
 
         }
@@ -103,34 +110,52 @@ export default {
         this.layersSelected.splice(index, 1);
 
         // Removes layer from the map
-        let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+        index = this.layerIndex(this.layersArray, toRemove.id);
 
-        index = this.layerIndex(layersArray, toRemove.id);
-
-        layersArray.splice(index, 1);
+        this.layersArray.splice(index, 1);
         this.$openlayers.getMap(this.currentMap.id).render();
     },
-    addAnnotation(geomType, freehand = false) {
-        let source = this.vectorLayer.getSource();
-        let geometryFunction;
-        let type;
+    addInteraction(geomType, freehand = false ) {
+        let currentMap = this.$openlayers.getMap(this.currentMap.id)
+
+        currentMap.removeInteraction(this.draw.interaction);
+
+        // Creates layer if not found
+        if(this.layerIndex(this.layersArray, 'draw') < 0) {
+            this.draw.layer = new LayerVector({
+                title: 'draw',  
+                source: new SrcVector(),
+                extent: this.extent,
+            })
+            currentMap.addLayer(this.draw.layer);
+        }
+        // Adds interaction
+        let source = this.draw.layer.getSource(),
+            geometryFunction, type;
+
         switch (geomType) {
             case 'Rectangle':
-                    geometryFunction = Draw.createBox();
-                    type = 'circle';
+                geometryFunction = Draw.createBox();    
+                type = 'Circle';
                 break;
-        
-            default:
+            case 'Point':
+                type = 'Point'
+                break;
+            case 'Circle':
+                type = 'Circle'
+                break;
+            case 'Polygon':
+                type = 'Polygon'
                 break;
         }
-        this.drawInteraction = new Draw({
+        this.draw.interaction = new Draw({
             source,
             type,
             geometryFunction,
             freehand,
         })
-        this.$openlayers.getMap(this.currentMap.id).addInteraction(this.drawInteraction);
-    }
+        this.$openlayers.getMap(this.currentMap.id).addInteraction(this.draw.interaction);
+    },
   },
   mounted() {
       api.get(`/api/project/1493/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
