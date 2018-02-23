@@ -2,9 +2,9 @@
   <div>
       <ul>
           <li><button @click="addInteraction('Point')">Point</button></li>
-          <!-- <li><button @click="addAnnotation('')">Arrow</button></li> -->
+          <li><button @click="addInteraction('Arrow')">Arrow</button></li>
           <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
-          <!-- <li><button @click="addAnnotation('')">Ellipse</button></li> -->
+          <li><button @click="addInteraction('Ellipse')">Ellipse</button></li>
           <li><button @click="addInteraction('Circle')">Circle</button></li>
           <li><button @click="addInteraction('Polygon')">Polygon</button></li>
           <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
@@ -146,6 +146,12 @@ export default {
                 break;
             case 'Polygon':
                 type = 'Polygon'
+                break;
+            case 'Ellipse':
+                type = 'Circle'
+                geometryFunction = Draw.createRegularPolygon(15);
+                break;
+            case 'Arrow':
                 break;
         }
         this.draw.interaction = new Draw({
