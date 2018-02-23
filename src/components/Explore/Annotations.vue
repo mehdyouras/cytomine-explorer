@@ -1,5 +1,14 @@
 <template>
   <div>
+      <ul>
+          <li><button @click="addAnnotation('Point')">Point</button></li>
+          <!-- <li><button @click="addAnnotation('')">Arrow</button></li> -->
+          <li><button @click="addAnnotation('Rectangle')">Rectangle</button></li>
+          <!-- <li><button @click="addAnnotation('')">Ellipse</button></li> -->
+          <li><button @click="addAnnotation('Circle')">Circle</button></li>
+          <li><button @click="addAnnotation('Polygon')">Polygon</button></li>
+          <li><button @click="addAnnotation('Polygon', true)">Freehand</button></li>
+      </ul>
       <select v-model="layerToBeAdded" name="user-layer" id="user-layer">
           <option :value="{}">Choose an annotation layer</option>
           <option v-for="layer in layersNotAdded" :key="layer.id" :value="layer">{{userDisplayName(layer)}}</option>
@@ -20,6 +29,7 @@ import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
+import Draw from 'ol/interaction/draw';
 
 export default {
   name: 'Annotations',
@@ -32,6 +42,8 @@ export default {
           layerToBeAdded: {},
           layersSelected: [],
           annotationsIndex: [],
+          vectorLayer: {},
+          drawInteraction: {},
       }
   },
   computed: {
@@ -61,7 +73,7 @@ export default {
                 // Create vector layer
                 let extent = [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
                 
-                let vector = new LayerVector({
+                this.vectorLayer = new LayerVector({
                     title: this.layerToBeAdded.id,  
                     source: new SrcVector({
                         features,
@@ -69,10 +81,11 @@ export default {
                     extent,
                 })
 
-                this.$openlayers.getMap(this.currentMap.id).addLayer(vector);
+                this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
                 
                 // Clean field
                 this.layerToBeAdded = {};                
+                this.addAnnotation()
             })
 
         }
@@ -96,6 +109,27 @@ export default {
 
         layersArray.splice(index, 1);
         this.$openlayers.getMap(this.currentMap.id).render();
+    },
+    addAnnotation(geomType, freehand = false) {
+        let source = this.vectorLayer.getSource();
+        let geometryFunction;
+        let type;
+        switch (geomType) {
+            case 'Rectangle':
+                    geometryFunction = Draw.createBox();
+                    type = 'circle';
+                break;
+        
+            default:
+                break;
+        }
+        this.drawInteraction = new Draw({
+            source,
+            type,
+            geometryFunction,
+            freehand,
+        })
+        this.$openlayers.getMap(this.currentMap.id).addInteraction(this.drawInteraction);
     }
   },
   mounted() {
