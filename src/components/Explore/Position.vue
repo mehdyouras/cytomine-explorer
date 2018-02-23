@@ -4,7 +4,7 @@
         magnitude: unknown    
       </div>
       <div>
-          x: , y:
+          x: {{currentCoordinate[0]}}, y: {{currentCoordinate[1]}}
       </div>
   </div>
 </template>
@@ -13,10 +13,18 @@
 export default {
   name: 'Position',
   props: [
-      'currentMap'
+      'currentMapId',
+      'mousePosition'
   ],
-  created() {
-      this.$openlayers.getMap(currentMap.id).addControl();
+  computed: {
+      currentCoordinate() {
+          if(this.$openlayers.getMap(this.currentMapId) !== undefined) {
+              let coord = this.$openlayers.getMap(this.currentMapId).getCoordinateFromPixel(this.mousePosition);
+              return coord.map(value => Math.round(value * 100) / 1000);
+          } else {
+              return this.mousePosition;
+          }
+      }
   },
 }
 </script>

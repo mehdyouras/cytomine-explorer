@@ -1,6 +1,6 @@
 <template>
     <div class="map">
-        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id">
+        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
         <label :for="'link-'+currentMap.id">Link the map</label>
         <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
@@ -19,6 +19,7 @@
         </div>
         <annotations :currentMap="currentMap"></annotations>
         <informations :currentMap="currentMap"></informations>
+        <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
@@ -26,6 +27,7 @@
 <script>
 import Annotations from './Explore/Annotations';
 import Informations from './Explore/Informations';
+import Position from './Explore/Position'
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -36,6 +38,7 @@ export default {
   components: {
       Annotations,
       Informations,
+      Position,
   },
   data () {
     return {
@@ -44,6 +47,7 @@ export default {
         imsBaseUrl: 'http://localhost-ims/',
         filterSelected: "",
         extent: [],
+        mousePosition: [0, 0],
     }
   },
   props: [
@@ -108,11 +112,16 @@ export default {
   },
   methods: {
     // Sends view infos
-    sendView() {
+    sendView(e) {
         let payload = {
             mapId: this.currentMap.id,
             view: this.$openlayers.getView(this.currentMap.id),
         }
+        let rect = this.$refs.exploreMap.getBoundingClientRect();
+        this.mousePosition = [
+            e.clientX - rect.left,
+            e.clientY - rect.top
+        ]
         this.$emit('dragged', payload);
     },
     // Sends which map is linked to this one to the parent
