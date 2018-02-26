@@ -1,6 +1,7 @@
 <template>
   <div>
       <ul>
+          <li><button @click="removeInteraction">Select</button></li>
           <li><button @click="addInteraction('Point')">Point</button></li>
           <li><button @click="addInteraction('Arrow')">Arrow</button></li>
           <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
@@ -120,7 +121,7 @@ export default {
     addInteraction(geomType, freehand = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
 
-        currentMap.removeInteraction(this.draw.interaction);
+        this.removeInteraction();
 
         // Creates layer if not found
         if(this.layerIndex(this.layersArray, 'draw') < 0) {
@@ -205,8 +206,11 @@ export default {
             geometryFunction,
             freehand,
         })
-        this.$openlayers.getMap(this.currentMap.id).addInteraction(this.draw.interaction);
+        currentMap.addInteraction(this.draw.interaction);
     },
+    removeInteraction() {
+        this.$openlayers.getMap(this.currentMap.id).removeInteraction(this.draw.interaction);
+    }
   },
   mounted() {
       api.get(`/api/project/1493/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
