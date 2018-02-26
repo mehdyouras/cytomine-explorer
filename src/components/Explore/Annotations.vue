@@ -32,6 +32,7 @@ import Collection from 'ol/collection';
 import Draw from 'ol/interaction/draw';
 import Polygon from 'ol/geom/polygon';
 
+
 export default {
   name: 'Annotations',
   props: [
@@ -150,7 +151,30 @@ export default {
                 break;
             case 'Ellipse':
                 type = 'Circle'
-                geometryFunction = Draw.createRegularPolygon(15);
+                geometryFunction = function(coord, geometry) {
+                    if (!geometry) {
+                        geometry = new Polygon(null);
+                    }
+                    let originX = coord[0][0],
+                        originY = coord[0][1],
+                        mouseX = coord[1][0],
+                        mouseY = coord[1][1],
+                        newCoordinates = [],
+                        deltaX = mouseX - originX,
+                        deltaY = mouseY - originY;
+
+                    for (var i = 0 * Math.PI; i < 2 * Math.PI; i += 0.01 ) {
+                        let centerX = originX + deltaX/2,
+                            centerY = originY + deltaY/2;
+
+                        let xPos = centerX - (deltaX/2 * Math.sin(i)) + (deltaY/2 * Math.cos(i));
+                        let yPos = centerY + (deltaY/2 * Math.cos(i)) + (deltaY/2 * Math.sin(i));
+
+                        newCoordinates.push([xPos, yPos]);
+                    }
+                    geometry.setCoordinates([newCoordinates]);
+                    return geometry;
+                }
                 break;
             case 'Arrow':
                 type = 'Circle'
