@@ -30,6 +30,7 @@ import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
 import Draw from 'ol/interaction/draw';
+import Polygon from 'ol/geom/polygon';
 
 export default {
   name: 'Annotations',
@@ -152,6 +153,27 @@ export default {
                 geometryFunction = Draw.createRegularPolygon(15);
                 break;
             case 'Arrow':
+                type = 'Circle'
+                geometryFunction = function(coord, geometry) {
+                    if (!geometry) {
+                        geometry = new Polygon(null);
+                    }
+                    let size = 300;
+                    let originX = coord[0][0];
+                    let originY = coord[0][1];
+                    let newCoordinates = [
+                        coord[0],
+                        [originX - size/2, originY - size/2],
+                        [originX - size/4, originY - size/2],
+                        [originX - size/4, originY - size*2],
+                        [originX + size/4, originY - size*2],
+                        [originX + size/4, originY - size/2],
+                        [originX + size/2, originY - size/2],
+                        coord[0],
+                    ];
+                    geometry.setCoordinates([newCoordinates]);
+                    return geometry;
+                }
                 break;
         }
         this.draw.interaction = new Draw({
