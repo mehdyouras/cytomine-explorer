@@ -12,9 +12,10 @@
   "dependencies": {
     "axios": "^0.17.1",
     "lodash.difference": "^4.5.0",
+    "ol-ext": "^2.0.0",
     "uuid": "^3.2.1",
     "vue": "^2.5.11",
-    "vuejs-openlayers": "^1.0.14"
+    "vuejs-openlayers": "https://github.com/mehdyouras/vuejs-openlayers.git#patch-1"
   },
   "browserslist": [
     "> 1%",
