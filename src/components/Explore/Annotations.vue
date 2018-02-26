@@ -33,7 +33,6 @@ import Collection from 'ol/collection';
 import Draw from 'ol/interaction/draw';
 import Polygon from 'ol/geom/polygon';
 
-
 export default {
   name: 'Annotations',
   props: [
