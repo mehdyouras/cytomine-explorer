@@ -1,6 +1,6 @@
 <template>
     <div class="map">
-        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
+        <div @click="sendClick" @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
         <label :for="'link-'+currentMap.id">Link the map</label>
         <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
@@ -17,8 +17,8 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <annotations :currentMap="currentMap"></annotations>
-        <ontology></ontology>
+        <interactions :currentMap="currentMap"></interactions>
+        <ontology :lastClick="lastClick" :currentMap="currentMap"></ontology>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
         <button @click="deleteMap">Delete the map</button>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import Annotations from './Explore/Annotations';
+import Interactions from './Explore/Interactions';
 import Informations from './Explore/Informations';
 import Position from './Explore/Position'
 import Ontology from './Explore/Ontology'
@@ -38,7 +38,7 @@ import Group from 'ol/layer/group';
 export default {
   name: 'Explore',
   components: {
-      Annotations,
+      Interactions,
       Informations,
       Position,
       Ontology,
@@ -51,6 +51,7 @@ export default {
         filterSelected: "",
         extent: [],
         mousePosition: [0, 0],
+        lastClick: [],
     }
   },
   props: [
@@ -135,6 +136,10 @@ export default {
     deleteMap() {
         this.$emit('deleteMap', this.currentMap.id);
     },
+    sendClick() {
+        this.lastClick = this.mousePosition;
+        console.log(this.lastClick);
+    }
   },
   mounted() {
     this.extent = [0, 0, this.mapWidth, this.mapHeight];

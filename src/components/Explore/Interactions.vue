@@ -34,7 +34,7 @@ import Draw from 'ol/interaction/draw';
 import Polygon from 'ol/geom/polygon';
 
 export default {
-  name: 'Annotations',
+  name: 'Interactions',
   props: [
       'currentMap',
   ],
