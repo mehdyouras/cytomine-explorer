@@ -17,7 +17,7 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <interactions :currentMap="currentMap"></interactions>
+        <interactions :termsToShow="termsToShow" :currentMap="currentMap"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms"></ontology>
         <annotation-details :lastClick="lastClick" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>

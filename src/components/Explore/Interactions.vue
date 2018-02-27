@@ -14,7 +14,7 @@
           <option :value="{}">Choose an annotation layer</option>
           <option v-for="layer in layersNotAdded" :key="layer.id" :value="layer">{{userDisplayName(layer)}}</option>
       </select>
-      <button @click="addLayer">Add</button>
+      <button @click="addLayer(layerToBeAdded)">Add</button>
       <ul>
             <li v-for="layer in layersSelected" :key="layer.id">
                 {{userDisplayName(layer)}}
@@ -26,6 +26,7 @@
 
 <script>
 import difference from 'lodash.difference'
+import compact from 'lodash.compact'
 import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
@@ -37,6 +38,7 @@ export default {
   name: 'Interactions',
   props: [
       'currentMap',
+      'termsToShow'
   ],
   data() {
       return {
@@ -62,29 +64,44 @@ export default {
           return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
       }
   },
+  watch: {
+      termsToShow() {
+        this.layersSelected.map(layer => {
+            this.removeLayer(layer, false);
+            this.addLayer(layer, false);
+        });
+      },
+  },
   methods: {
     layerIndex(array, toFind) {
         return array.findIndex(item => item.get('title') === toFind);
     },
-    addLayer() {
-        if(this.layerToBeAdded.id) {            
-            api.get(`/api/annotation.json?&user=${this.layerToBeAdded.id}&image=${this.currentMap.imageId}&showWKT=true`).then(data => {
+    addLayer(toAdd, addToSelected = true) {
+        if(toAdd.id) {            
+            api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true`).then(data => {
                 
-                // Push added item to selected
-                this.layersSelected.push(this.layerToBeAdded);
+                if(addToSelected) {
+                    // Push added item to selected
+                    this.layersSelected.push(toAdd);
+                }
 
                 let format = new WKT();
                 let geoms = data.data.collection.map(element => {
-                    let feature = format.readFeature(element.location);
-                    feature.setId(element.id);
-                    return feature;
+                    let isToShow = difference(this.termsToShow, element.term).length < this.termsToShow.length;
+                    if(isToShow) {  
+                        let feature = format.readFeature(element.location);
+                        feature.setId(element.id);
+                        return feature;
+                    }
                 })
+
+                geoms = compact(geoms);
 
                 let features = new Collection(geoms)
 
                 // Create vector layer                
                 this.vectorLayer = new LayerVector({
-                    title: this.layerToBeAdded.id,  
+                    title: toAdd.id,  
                     source: new SrcVector({
                         features,
                     }),
@@ -93,7 +110,7 @@ export default {
 
                 this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
                 
-                // Clean field
+                // Clear field
                 this.layerToBeAdded = {};                
             })
 
@@ -102,12 +119,16 @@ export default {
     userDisplayName(user) {
         return `${user.lastname} ${user.firstname} (${user.username})`
     },
-    removeLayer(toRemove) {
-        // Removes the layer from the selected
-        let index = this.layersSelected.findIndex(layer => {
-            return layer.id === toRemove.id;
-        });
-        this.layersSelected.splice(index, 1);
+    removeLayer(toRemove, removeFromSelected = true) {
+        let index;
+
+        if(removeFromSelected) {
+            index = this.layersSelected.findIndex(layer => {
+                return layer.id === toRemove.id;
+            });
+            // Removes the layer from the selected
+            this.layersSelected.splice(index, 1);
+        }
 
         // Removes layer from the map
         index = this.layerIndex(this.layersArray, toRemove.id);

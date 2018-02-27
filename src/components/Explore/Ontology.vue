@@ -46,6 +46,7 @@ export default {
   created() {
       api.get(`/api/project/1493/stats/term.json`).then(data => {
           this.terms = data.data.collection;
+          this.termsChecked = this.termsId;
           this.$emit('showTerms', this.termsId);
       })
   }
