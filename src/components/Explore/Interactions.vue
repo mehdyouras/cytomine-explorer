@@ -27,12 +27,16 @@
 <script>
 import difference from 'lodash.difference'
 import compact from 'lodash.compact'
+import intersection from 'lodash.intersection'
+
 import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
 import Draw from 'ol/interaction/draw';
 import Polygon from 'ol/geom/polygon';
+import Style from 'ol/style/style';
+import Fill from 'ol/style/fill';
 
 export default {
   name: 'Interactions',
@@ -94,13 +98,19 @@ export default {
 
                 let format = new WKT();
                 let geoms = data.data.collection.map(element => {
-                    // Checks if show annotations without terms is enabled && element has no term
-                    // If false checks differences in terms 
-                    let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : difference(this.termsToShow, element.term).length < this.termsToShow.length;
+                    let termsIntersection = intersection(this.termsToShow, element.term);
+                    // Checks if element has no term && show annotations without terms is enabled 
+                    // If false checks terms intersection
+                    let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
 
                     if(isToShow) {  
                         let feature = format.readFeature(element.location);
                         feature.setId(element.id);
+                        feature.setStyle(new Style({
+                            fill: new Fill({
+                                color: termsIntersection.length == 1 ? element.term[0].color : undefined, // where to start tomorrow find term index and his color
+                            })
+                        }))
                         return feature;
                     }
                 })
