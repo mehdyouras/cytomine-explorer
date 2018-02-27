@@ -38,7 +38,8 @@ export default {
   name: 'Interactions',
   props: [
       'currentMap',
-      'termsToShow'
+      'termsToShow',
+      'showWithNoTerm'
   ],
   data() {
       return {
@@ -71,6 +72,12 @@ export default {
             this.addLayer(layer, false);
         });
       },
+      showWithNoTerm() {
+        this.layersSelected.map(layer => {
+            this.removeLayer(layer, false);
+            this.addLayer(layer, false);
+        });
+      }
   },
   methods: {
     layerIndex(array, toFind) {
@@ -87,7 +94,10 @@ export default {
 
                 let format = new WKT();
                 let geoms = data.data.collection.map(element => {
-                    let isToShow = difference(this.termsToShow, element.term).length < this.termsToShow.length;
+                    // Checks if show annotations without terms is enabled && element has no term
+                    // If false checks differences in terms 
+                    let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : difference(this.termsToShow, element.term).length < this.termsToShow.length;
+
                     if(isToShow) {  
                         let feature = format.readFeature(element.location);
                         feature.setId(element.id);

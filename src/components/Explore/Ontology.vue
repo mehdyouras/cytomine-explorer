@@ -5,7 +5,7 @@
             <label :key="'label-'+term.id" :for="'term-'+term.id">{{term.key}} ({{term.value}})</label>
         </template>
 
-        <input type="checkbox" name="showNoTermAnnotation" id="showNoTermAnnotation">
+        <input v-model="showWithNoTerm" type="checkbox" name="showNoTermAnnotation" id="showNoTermAnnotation">
         <label for="showNoTermAnnotation">Show annotations without terms</label>
 
         <button @click="showAllTerms">Show all</button>
@@ -23,6 +23,7 @@ export default {
       return {
           terms: [],
           termsChecked: [],
+          showWithNoTerm: true,
       }
   },
   computed: {
@@ -31,8 +32,11 @@ export default {
       }
   },
   watch: {
-      termsChecked(newValue, oldValue) {
+      termsChecked(newValue) {
           this.$emit('showTerms', newValue);
+      },
+      showWithNoTerm(newValue) {
+          this.$emit('showWithNoTerm', newValue);
       }
   },
   methods: {
