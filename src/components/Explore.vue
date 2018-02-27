@@ -18,7 +18,7 @@
             </div>
         </div>
         <interactions :currentMap="currentMap"></interactions>
-        <ontology></ontology>
+        <ontology :termsToShow="termsToShow" @showTerms="showTerms"></ontology>
         <annotation-details :lastClick="lastClick" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
@@ -55,6 +55,7 @@ export default {
         extent: [],
         mousePosition: [0, 0],
         lastClick: [],
+        termsToShow: [],
     }
   },
   props: [
@@ -142,7 +143,10 @@ export default {
     sendClick() {
         this.lastClick = this.mousePosition;
         console.log(this.lastClick);
-    }
+    },
+    showTerms(payload) {
+        this.termsToShow = payload;
+    },
   },
   mounted() {
     this.extent = [0, 0, this.mapWidth, this.mapHeight];
