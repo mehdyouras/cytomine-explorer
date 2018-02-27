@@ -18,7 +18,8 @@
             </div>
         </div>
         <interactions :currentMap="currentMap"></interactions>
-        <ontology :lastClick="lastClick" :currentMap="currentMap"></ontology>
+        <ontology></ontology>
+        <annotation-details :lastClick="lastClick" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
         <button @click="deleteMap">Delete the map</button>
@@ -30,6 +31,7 @@ import Interactions from './Explore/Interactions';
 import Informations from './Explore/Informations';
 import Position from './Explore/Position'
 import Ontology from './Explore/Ontology'
+import AnnotationDetails from './Explore/AnnotationDetails'
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -42,6 +44,7 @@ export default {
       Informations,
       Position,
       Ontology,
+      AnnotationDetails
   },
   data () {
     return {
