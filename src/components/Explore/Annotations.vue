@@ -73,16 +73,14 @@ export default {
                 // Push added item to selected
                 this.layersSelected.push(this.layerToBeAdded);
 
+                let format = new WKT();
                 let geoms = data.data.collection.map(element => {
-                    return element.location;
+                    let feature = format.readFeature(element.location);
+                    feature.setId(element.id);
+                    return feature;
                 })
 
-                let format = new WKT();
-                let features = new Collection(
-                    geoms.map(geom => {
-                        return format.readFeature(geom);
-                    })
-                )
+                let features = new Collection(geoms)
 
                 // Create vector layer                
                 this.vectorLayer = new LayerVector({
