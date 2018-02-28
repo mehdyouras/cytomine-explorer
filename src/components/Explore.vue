@@ -17,8 +17,8 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <interactions :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap"></interactions>
-        <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm"></ontology>
+        <interactions :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
+        <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         <annotation-details :lastClick="lastClick" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
@@ -57,6 +57,7 @@ export default {
         lastClick: [],
         termsToShow: [],
         showWithNoTerm: true,
+        allTerms: [],
     }
   },
   props: [
@@ -150,6 +151,9 @@ export default {
     },
     setShowWithNoTerm(payload) {
         this.showWithNoTerm = payload;
+    },
+    setAllTerms(payload) {
+        this.allTerms = payload; 
     }
   },
   mounted() {

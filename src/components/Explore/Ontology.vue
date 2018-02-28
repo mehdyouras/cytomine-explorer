@@ -52,6 +52,7 @@ export default {
           this.terms = data.data.collection;
           this.termsChecked = this.termsId;
           this.$emit('showTerms', this.termsId);
+          this.$emit('allTerms', this.terms);
       })
   }
 }

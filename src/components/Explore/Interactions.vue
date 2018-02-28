@@ -37,13 +37,15 @@ import Draw from 'ol/interaction/draw';
 import Polygon from 'ol/geom/polygon';
 import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
+import Stroke from 'ol/style/stroke';
 
 export default {
   name: 'Interactions',
   props: [
       'currentMap',
       'termsToShow',
-      'showWithNoTerm'
+      'showWithNoTerm',
+      'allTerms'
   ],
   data() {
       return {
@@ -87,6 +89,24 @@ export default {
     layerIndex(array, toFind) {
         return array.findIndex(item => item.get('title') === toFind);
     },
+    termIndex(array, toFind) {
+        return array.findIndex(item => item.id == toFind);
+    },
+    hexToRgb(hex, alpha = 1) {
+        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+            return r + r + g + g + b + b;
+        });
+
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? [
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16),
+            parseFloat(alpha),
+        ] : null;
+    },
     addLayer(toAdd, addToSelected = true) {
         if(toAdd.id) {            
             api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true`).then(data => {
@@ -102,13 +122,18 @@ export default {
                     // Checks if element has no term && show annotations without terms is enabled 
                     // If false checks terms intersection
                     let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
-
                     if(isToShow) {  
+                        // Sets the color specified by api if annotation has only one term
+                        let fillColor = termsIntersection.length == 1 ? this.hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color, 0.5) : [204, 204, 204   , 0.5];
                         let feature = format.readFeature(element.location);
                         feature.setId(element.id);
                         feature.setStyle(new Style({
                             fill: new Fill({
-                                color: termsIntersection.length == 1 ? element.term[0].color : undefined, // where to start tomorrow find term index and his color
+                                color: fillColor,
+                            }),
+                            stroke: new Stroke({
+                                color: [0,0,0, 0.5],
+                                width: 3,
                             })
                         }))
                         return feature;
