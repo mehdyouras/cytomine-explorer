@@ -28,6 +28,7 @@
 import difference from 'lodash.difference'
 import compact from 'lodash.compact'
 import intersection from 'lodash.intersection'
+import hexToRgb from '../../helpers/hexToRgb'
 
 import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
@@ -92,21 +93,6 @@ export default {
     termIndex(array, toFind) {
         return array.findIndex(item => item.id == toFind);
     },
-    hexToRgb(hex, alpha = 1) {
-        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-        hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-            return r + r + g + g + b + b;
-        });
-
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? [
-            parseInt(result[1], 16),
-            parseInt(result[2], 16),
-            parseInt(result[3], 16),
-            parseFloat(alpha),
-        ] : null;
-    },
     addLayer(toAdd, addToSelected = true) {
         if(toAdd.id) {            
             api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true`).then(data => {
@@ -124,7 +110,7 @@ export default {
                     let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
                     if(isToShow) {  
                         // Sets the color specified by api if annotation has only one term
-                        let fillColor = termsIntersection.length == 1 ? this.hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color, 0.5) : [204, 204, 204   , 0.5];
+                        let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color, 0.5) : [204, 204, 204   , 0.5];
                         let feature = format.readFeature(element.location);
                         feature.setId(element.id);
                         feature.setStyle(new Style({
