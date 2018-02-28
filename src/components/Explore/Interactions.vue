@@ -91,8 +91,35 @@ export default {
             this.addLayer(layer, false);
         });
       },
-      deepFeatureSelected(newValue) {
-          this.$emit('featureSelected', newValue);
+      deepFeatureSelected(newFeature, oldFeature) {
+        this.$emit('featureSelected', newFeature);
+
+        if(oldFeature !== undefined && oldFeature.hasOwnProperty('id_')) {
+            let color = oldFeature.getStyle().getFill().getColor();
+            color[color.length - 1] = 0.5;
+            oldFeature.setStyle(new Style({
+                fill: new Fill({
+                    color,
+                }),
+                stroke: new Stroke({
+                    color: [0, 0, 0, 0.5],
+                    width: 3,
+                })
+            }));
+        }
+        if(newFeature !== undefined) {
+            let color = newFeature.getStyle().getFill().getColor();
+            color[color.length - 1] = 0.8;
+            newFeature.setStyle(new Style({
+                fill: new Fill({
+                    color,
+                }),
+                stroke: new Stroke({
+                    color: [0, 0, 255, 0.5],
+                    width: 3,
+                })
+            }));
+        }
       },
   },
   methods: {
