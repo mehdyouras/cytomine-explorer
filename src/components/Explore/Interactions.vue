@@ -3,6 +3,7 @@
       <ul>
           <li><button @click="addInteraction('Select')">Select</button></li>
           <li><button @click="addInteraction('Point')">Point</button></li>
+          <li><button @click="addInteraction('Line')">Line</button></li>
           <li><button @click="addInteraction('Arrow')">Arrow</button></li>
           <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
           <li><button @click="addInteraction('Ellipse')">Ellipse</button></li>
@@ -263,6 +264,9 @@ export default {
                     geometry.setCoordinates([newCoordinates]);
                     return geometry;
                 }
+                break;
+            case 'Line':
+                type = "LineString"
                 break;
         }
         this.draw.interaction = new Draw({
