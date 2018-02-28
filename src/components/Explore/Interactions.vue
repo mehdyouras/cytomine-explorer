@@ -1,7 +1,7 @@
 <template>
   <div>
       <ul>
-          <li><button @click="removeInteraction">Select</button></li>
+          <li><button @click="addInteraction('Select')">Select</button></li>
           <li><button @click="addInteraction('Point')">Point</button></li>
           <li><button @click="addInteraction('Arrow')">Arrow</button></li>
           <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
@@ -39,6 +39,7 @@ import Polygon from 'ol/geom/polygon';
 import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
+import Select from 'ol/interaction/select';
 
 export default {
   name: 'Interactions',
@@ -58,7 +59,8 @@ export default {
           draw: {
               layer: {},
               interaction: {},
-          }
+          },
+          featureSelected: new Collection(),
       }
   },
   computed: {
@@ -70,7 +72,10 @@ export default {
       },
       layersArray() {
           return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
-      }
+      },
+      deepFeatureSelected() {
+          return this.featureSelected.getArray()[0];
+      },
   },
   watch: {
       termsToShow() {
@@ -84,7 +89,10 @@ export default {
             this.removeLayer(layer, false);
             this.addLayer(layer, false);
         });
-      }
+      },
+      deepFeatureSelected(newValue) {
+          this.$emit('featureSelected', newValue);
+      },
   },
   methods: {
     layerIndex(array, toFind) {
@@ -167,7 +175,7 @@ export default {
         this.layersArray.splice(index, 1);
         this.$openlayers.getMap(this.currentMap.id).render();
     },
-    addInteraction(geomType, freehand = false ) {
+    addInteraction(interactionType, freehand = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
 
         this.removeInteraction();
@@ -185,7 +193,15 @@ export default {
         let source = this.draw.layer.getSource(),
             geometryFunction, type;
 
-        switch (geomType) {
+        switch (interactionType) {
+            case 'Select':
+                this.removeInteraction();
+                this.draw.interaction = new Select({
+                    features: this.featureSelected,
+                });
+                currentMap.addInteraction(this.draw.interaction);
+                return;
+                break;
             case 'Rectangle':
                 geometryFunction = Draw.createBox();    
                 type = 'Circle';

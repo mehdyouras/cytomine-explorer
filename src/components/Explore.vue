@@ -1,6 +1,6 @@
 <template>
     <div class="map">
-        <div @click="sendClick" @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
+        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
         <label :for="'link-'+currentMap.id">Link the map</label>
         <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
@@ -17,9 +17,9 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <interactions :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
+        <interactions @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <annotation-details :lastClick="lastClick" :currentMap="currentMap"></annotation-details>
+        <annotation-details :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
         <button @click="deleteMap">Delete the map</button>
@@ -54,10 +54,10 @@ export default {
         filterSelected: "",
         extent: [],
         mousePosition: [0, 0],
-        lastClick: [],
         termsToShow: [],
         showWithNoTerm: true,
         allTerms: [],
+        featureSelected: {},
     }
   },
   props: [
@@ -142,10 +142,6 @@ export default {
     deleteMap() {
         this.$emit('deleteMap', this.currentMap.id);
     },
-    sendClick() {
-        this.lastClick = this.mousePosition;
-        console.log(this.lastClick);
-    },
     showTerms(payload) {
         this.termsToShow = payload;
     },
@@ -154,6 +150,9 @@ export default {
     },
     setAllTerms(payload) {
         this.allTerms = payload; 
+    },
+    setFeatureSelected(payload) {
+        this.featureSelected = payload;
     }
   },
   mounted() {
