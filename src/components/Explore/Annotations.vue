@@ -1,5 +1,7 @@
 <template>
   <div>
+      <button @click="filter = 'all'">All</button>
+      <button @click="filter = term.id" v-for="term in terms" :key="term.id">{{term.key}}</button>
       <ul class="container">
         <li class="img-box" v-for="annotation in annotationsToShow" :key="annotation.id">
             <popper>
@@ -52,9 +54,10 @@ export default {
             case 'all':
                 return this.annotations;
             break;
-            
             default:
-                return this.annotations;
+                return this.annotations.filter(annotation => {
+                    return annotation.term.findIndex(term => term == this.filter) < 0 ? false : true;
+                });
             break;
           }
       }
