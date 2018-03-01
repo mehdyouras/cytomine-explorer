@@ -116,7 +116,8 @@ export default {
             }),
             extent: this.extent,
         })
-        this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: [layer]}))
+        this.$openlayers.getMap(this.currentMap.id).getLayers().getArray()[0] = layer;
+        this.$openlayers.getMap(this.currentMap.id).render();
         this.$emit('updateOverviewMap');
     }
   },
