@@ -22,7 +22,7 @@
         <annotation-details :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
-        <annotations :currentMap="currentMap"></annotations>
+        <annotations :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
@@ -61,6 +61,7 @@ export default {
         showWithNoTerm: true,
         allTerms: [],
         featureSelected: {},
+        userLayers: [],
     }
   },
   props: [
