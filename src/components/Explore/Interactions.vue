@@ -311,6 +311,7 @@ export default {
   mounted() {
       api.get(`/api/project/1493/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
             this.userLayers = data.data.collection;
+            this.$emit('userLayers', this.userLayers);
         }
       )
   },

@@ -16,6 +16,7 @@
     "lodash.intersection": "^4.4.0",
     "uuid": "^3.2.1",
     "vue": "^2.5.11",
+    "vue-popperjs": "^1.2.5",
     "vuejs-openlayers": "https://github.com/mehdyouras/vuejs-openlayers.git#patch-1"
   },
   "browserslist": [
