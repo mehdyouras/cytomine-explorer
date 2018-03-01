@@ -22,6 +22,7 @@
         <annotation-details :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
+        <annotations :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
@@ -29,9 +30,10 @@
 <script>
 import Interactions from './Explore/Interactions';
 import Informations from './Explore/Informations';
-import Position from './Explore/Position'
-import Ontology from './Explore/Ontology'
-import AnnotationDetails from './Explore/AnnotationDetails'
+import Position from './Explore/Position';
+import Ontology from './Explore/Ontology';
+import AnnotationDetails from './Explore/AnnotationDetails';
+import Annotations from './Explore/Annotations';
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -44,7 +46,8 @@ export default {
       Informations,
       Position,
       Ontology,
-      AnnotationDetails
+      AnnotationDetails,
+      Annotations
   },
   data () {
     return {
