@@ -1,17 +1,35 @@
 <template>
-  <div v-if="annotationIsClicked">
-      <img :src="data.smallCropURL" alt="An image of the annotation area">
-      <dl>
-          <dt>Area</dt>
-          <dd>{{data.area}} {{data.areaUnit}}</dd>
-          <dt>Perimeter</dt>
-          <dd>{{data.perimeter}} {{data.perimeterUnit}}</dd>
-          <dt>Term(s)</dt>
-          <dd v-for="term in data.term" :key="'term-'+term">{{displayTerm(term)}}</dd>
-          <dt>User</dt>
-          <dd>{{displayName(data.user)}}</dd>
-      </dl>
-  </div>
+  <section v-if="annotationIsClicked">
+      <h3>Current selection</h3>
+      <section>
+          <h4>General information</h4>
+        <dl>
+            <dt>Area</dt>
+            <dd>{{data.area}} {{data.areaUnit}}</dd>
+            <dt>Perimeter</dt>
+            <dd>{{data.perimeter}} {{data.perimeterUnit}}</dd>
+            <dt>Term(s)</dt>
+            <dd v-for="term in data.term" :key="'term-'+term">{{displayTerm(term)}}</dd>
+            <dt>User</dt>
+            <dd>{{displayName(data.user)}}</dd>
+        </dl>
+      </section>
+      <section>
+          <h4>Annotation preview</h4>
+        <img :src="data.smallCropURL" alt="An image of the annotation area">
+      </section>
+      <section>
+          <h4>Similarities</h4>
+      </section>
+      <section>
+          <h4>Properties</h4>
+          <a :href="'#tabs-annotationproperties-'+ data.container +'-'+data.id">Add a property</a>
+      </section>
+      <section>
+          <h4>Description</h4>
+          <a :href="'#descriptionModal'+data.id">Add description</a>
+      </section>
+  </section>
 </template>
 
 <script>
