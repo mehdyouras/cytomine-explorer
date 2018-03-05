@@ -3,9 +3,9 @@
       <select v-model="colorSelected" name="property-color" id="property-color">
           <option v-for="color in colors" :key="color.value" :value="color.value">{{color.name}}</option>
       </select>
-      <select v-model="propertySelected" name="properties" id="properties">
+      <select @change="handleKey" v-model="propertySelected" name="properties" id="properties">
           <option value="">No key selected</option>
-          <option v-for="property in properties" :key="property.key" :value="property">{{property.key}}</option>
+          <option v-for="property in propertiesAvailable" :key="property.key" :value="property">{{property.key}}</option>
       </select>
   </div>
 </template>
@@ -15,7 +15,7 @@ export default {
     name: 'Properties',
     data() {
         return {
-            properties: [],
+            propertiesAvailable: [],
             propertySelected: "",
             colors: [
                 {
