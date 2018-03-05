@@ -51,12 +51,15 @@ export default {
     }
   },
   methods: {
+      findIndex(array, toFind) {
+          return array.findIndex(item => item.id === toFind);
+      },
       displayName(userId) {
-          let index = this.users.findIndex(user => user.id === userId);
+          let index = this.findIndex(this.users, userId);
           return `${this.users[index].lastname} ${this.users[index].firstname} (${this.users[index].username})`;
       },
       displayTerm(termId) {
-          let index = this.terms.findIndex(term => term.id === termId);
+          let index = this.findIndex(this.terms, termId);
           return this.terms[index].key;
       }
   },
