@@ -199,7 +199,8 @@ export default {
 
         // Removes layer from the map
         index = this.layerIndex(this.layersArray, toRemove.id);
-
+        if(index < 0) return;
+        
         this.layersArray.splice(index, 1);
         this.$openlayers.getMap(this.currentMap.id).render();
     },
