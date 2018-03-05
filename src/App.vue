@@ -101,6 +101,7 @@ export default {
       let id = uuid();
       this.lastEventMapId = id;
       this.images = data.data.collection;
+      this.projectId = this.images[0].project;
       this.addMap(this.baseImage, id);
     })
 
