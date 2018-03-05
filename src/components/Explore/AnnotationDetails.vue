@@ -6,8 +6,10 @@
           <dd>{{data.area}} {{data.areaUnit}}</dd>
           <dt>Perimeter</dt>
           <dd>{{data.perimeter}} {{data.perimeterUnit}}</dd>
+          <dt>Term(s)</dt>
+          <dd v-for="term in data.term" :key="'term-'+term">{{displayTerm(term)}}</dd>
           <dt>User</dt>
-          <dd></dd>
+          <dd>{{displayName(data.user)}}</dd>
       </dl>
   </div>
 </template>
@@ -29,7 +31,9 @@ export default {
   },
   props: [
       'currentMap',
-      'featureSelected'
+      'featureSelected',
+      'users',
+      'terms',
   ],
   watch: {
     featureSelected(newFeature, oldFeature) {
@@ -45,6 +49,16 @@ export default {
             this.annotationIsClicked = false;
         }
     }
+  },
+  methods: {
+      displayName(userId) {
+          let index = this.users.findIndex(user => user.id === userId);
+          return `${this.users[index].lastname} ${this.users[index].firstname} (${this.users[index].username})`;
+      },
+      displayTerm(termId) {
+          let index = this.terms.findIndex(term => term.id === termId);
+          return this.terms[index].key;
+      }
   },
 }
 </script>
