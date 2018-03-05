@@ -42,9 +42,11 @@ export default {
   methods: {
       showAllTerms() {
           this.termsChecked = this.termsId;
+          this.showWithNoTerm = true;
       },
       hideAllTerms() {
           this.termsChecked = [];
+          this.showWithNoTerm = false;
       },
   },
   created() {
