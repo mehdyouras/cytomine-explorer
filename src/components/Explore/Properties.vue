@@ -57,9 +57,20 @@ export default {
     props: [
         'currentMap',
     ],
+    methods: {
+        handleKey() {
+            let layers = this.$openlayers.getMap(this.currentMap.id).getLayers();
+            let index = layers.getArray().findIndex(layer => layer.get('title') === 33)
+            let layer = layers.getArray()[index];
+            layer.getSource().addFeature();
+        }
+    },
     created() {
         api.get(`/api/annotation/property/key.json?idImage=${this.currentMap.imageId}&user=true`).then(data => {
-            this.properties = data.data.collection;
+            this.propertiesAvailable = data.data.collection;
+        })
+        api.get(`/api/user/33/imageinstance/1577/annotationposition.json?key=slot`).then(data => {
+            this.keys = data.data.collection;
         })
     }
 }
