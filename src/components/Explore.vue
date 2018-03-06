@@ -17,9 +17,9 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <interactions @userLayers="setUserLayers" @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
+        <interactions @layersSelected="setLayersSelected" @userLayers="setUserLayers" @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <properties :currentMap="currentMap"></properties>
+        <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
@@ -65,6 +65,7 @@ export default {
         allTerms: [],
         featureSelected: {},
         userLayers: [],
+        layersSelected: [],
     }
   },
   props: [
@@ -164,6 +165,9 @@ export default {
     },
     setUserLayers(payload) {
         this.userLayers = payload;
+    },
+    setLayersSelected(payload) {
+        this.layersSelected = payload;
     }
   },
   mounted() {
