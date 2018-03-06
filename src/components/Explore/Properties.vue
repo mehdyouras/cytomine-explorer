@@ -41,7 +41,7 @@ export default {
                     name: 'Yellow'
                 },
                 {
-                    value: '#0080000',
+                    value: '#008000',
                     name: 'Green',
                 },
                 {
