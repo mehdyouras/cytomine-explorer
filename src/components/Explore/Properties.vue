@@ -73,11 +73,12 @@ export default {
             this.keys.map(key => {
                 let index = this.features.findIndex(feature => feature.getId() == key.idAnnotation);
                 let text = new Text({
-                    font: '20px sans-serif',
+                    font: '24px sans-serif',
                     fill: new Fill({
                         color: this.colorSelected,
                     }),
                     text: key.value,
+                    overflow: true,
                 })
                 this.features[index].getStyle().setText(text);
                 this.$openlayers.getMap(this.currentMap.id).renderSync();
