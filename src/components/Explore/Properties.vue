@@ -13,6 +13,7 @@
 <script>
 import Text from 'ol/style/text';
 import Fill from 'ol/style/fill';
+import uniqby from 'lodash.uniqby'
 
 export default {
     name: 'Properties',
