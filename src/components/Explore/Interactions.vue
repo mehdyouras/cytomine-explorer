@@ -100,28 +100,24 @@ export default {
         if(oldFeature !== undefined && oldFeature.hasOwnProperty('id_')) {
             let color = oldFeature.getStyle().getFill().getColor();
             color[color.length - 1] = 0.5;
-            oldFeature.setStyle(new Style({
-                fill: new Fill({
-                    color,
-                }),
-                stroke: new Stroke({
+            oldFeature.getStyle().setStroke(
+                new Stroke({
                     color: [0, 0, 0, 0.5],
                     width: 3,
-                })
-            }));
+                })  
+            )
+            oldFeature.changed();
         }
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
             color[color.length - 1] = 0.8;
-            newFeature.setStyle(new Style({
-                fill: new Fill({
-                    color,
-                }),
-                stroke: new Stroke({
+            newFeature.getStyle().setStroke(
+                new Stroke({
                     color: [0, 0, 255, 0.5],
                     width: 3,
-                })
-            }));
+                }) 
+            )
+            newFeature.changed();
         }
       },
   },
