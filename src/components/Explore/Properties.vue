@@ -57,7 +57,7 @@ export default {
                     name: 'Black',
                 },
             ],
-            colorSelected: '#ffffff',
+            colorSelected: '#000000',
             keys: [],
         }
     },
