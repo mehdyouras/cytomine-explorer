@@ -27,27 +27,27 @@ export default {
                     name: 'Red'
                 },
                 {
-                    value: 'ff6600',
+                    value: '#ff6600',
                     name: 'Orange'
                 },
                 {
-                    value: 'ffff00',
+                    value: '#ffff00',
                     name: 'Yellow'
                 },
                 {
-                    value: '0080000',
+                    value: '#0080000',
                     name: 'Green',
                 },
                 {
-                    value: '0000ff',
+                    value: '#0000ff',
                     name: 'Blue',
                 },
                 {
-                    value: '800080',
+                    value: '#800080',
                     name: 'Purple',
                 },
                 {
-                    value: '000000',
+                    value: '#000000',
                     name: 'Black',
                 },
             ],
