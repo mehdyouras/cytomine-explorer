@@ -64,26 +64,31 @@ export default {
             keys: [],
         }
     },
-    computed: {
-        features() {
-            let layers = this.$openlayers.getMap(this.currentMap.id).getLayers();
-            let index = layers.getArray().findIndex(layer => layer.get('title') === 33)
-            return layers.getArray()[index].getSource() ? layers.getArray()[index].getSource().getFeatures() : null;
-        },
-    },
     watch: {
         layersSelected(newValue) {
-           this.propertiesToShow = newValue === [] ? [] : this.propertiesAvailable;
+            let toShow = uniqby(this.propertiesAvailable, 'key');
+            this.propertiesToShow = newValue === [] ? [] : toShow;
+            this.handleKey();
         }
     },
     methods: {
+        getLayers() {
+            return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+        },
+        getLayerIndex(userId) {
+            return this.getLayers().findIndex(layer => layer.get('title') == userId)
+        },
+        getFeatures(userId) {
+            let index = this.getLayerIndex(userId);
+            return this.getLayers()[index].getSource() ? this.getLayers()[index].getSource().getFeatures() : null;
+        },
         handleKey() {
-            this.removeKeys(); 
             this.layersSelected.map(layer => {
+                this.removeKeys(layer.id); 
                 api.get(`/api/user/${layer.id}/imageinstance/1577/annotationposition.json?key=${this.propertySelected.key}`).then(data => {
                     this.keys = data.data.collection;
                     this.keys.map(key => {
-                        let index = this.features.findIndex(feature => feature.getId() == key.idAnnotation);
+                        let index = this.getFeatures(layer.id).findIndex(feature => feature.getId() == key.idAnnotation);
                         let text = new Text({
                             font: '24px sans-serif',
                             fill: new Fill({
@@ -92,14 +97,18 @@ export default {
                             text: key.value,
                             overflow: true,
                         })
-                        this.features[index].getStyle().setText(text);
+                        this.getFeatures(layer.id)[index].getStyle().setText(text);
                     })
-                    this.$openlayers.getMap(this.currentMap.id).render();
+                    this.updateSource(layer.id);
                 })
             })        
         },
-        removeKeys() {
-            this.features.map(feature => feature.getStyle().setText(new Text({text: ""})));
+        removeKeys(userId) {
+            this.getFeatures(userId).map(feature => feature.getStyle().setText(new Text({text: ""})));
+        },
+        updateSource(userId) {
+            let index = this.getLayerIndex(userId)
+            this.getLayers()[index].getSource().changed();
         }
     },
     created() {
