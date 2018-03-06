@@ -1,4 +1,4 @@
-# Cytomine-explorer
+# Cytomine-explorer [![CircleCI](https://circleci.com/gh/mehdyouras/cytomine-explorer.svg?style=svg)](https://circleci.com/gh/mehdyouras/cytomine-explorer)
 
 > Cytomine-explorer from scratch in vuejs
 
