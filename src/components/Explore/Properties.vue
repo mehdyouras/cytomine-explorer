@@ -1,6 +1,6 @@
 <template>
   <div>
-      <select v-model="colorSelected" name="property-color" id="property-color">
+      <select @change="handleKey" v-model="colorSelected" name="property-color" id="property-color">
           <option v-for="color in colors" :key="color.value" :value="color.value">{{color.name}}</option>
       </select>
       <select @change="handleKey" v-model="propertySelected" name="properties" id="properties">
@@ -11,8 +11,14 @@
 </template>
 
 <script>
+import Text from 'ol/style/text';
+import Fill from 'ol/style/fill';
+
 export default {
     name: 'Properties',
+    props: [
+        'currentMap',
+    ],
     data() {
         return {
             propertiesAvailable: [],
@@ -52,18 +58,31 @@ export default {
                 },
             ],
             colorSelected: '#ffffff',
+            keys: [],
         }
     },
-    props: [
-        'currentMap',
-    ],
-    methods: {
-        handleKey() {
+    computed: {
+        features() {
             let layers = this.$openlayers.getMap(this.currentMap.id).getLayers();
             let index = layers.getArray().findIndex(layer => layer.get('title') === 33)
-            let layer = layers.getArray()[index];
-            layer.getSource().addFeature();
-        }
+            return layers.getArray()[index].getSource().getFeatures();
+        },
+    },
+    methods: {
+        handleKey() {         
+            this.keys.map(key => {
+                let index = this.features.findIndex(feature => feature.getId() == key.idAnnotation);
+                let text = new Text({
+                    font: '20px sans-serif',
+                    fill: new Fill({
+                        color: this.colorSelected,
+                    }),
+                    text: key.value,
+                })
+                this.features[index].getStyle().setText(text);
+                this.$openlayers.getMap(this.currentMap.id).renderSync();
+            })
+        },
     },
     created() {
         api.get(`/api/annotation/property/key.json?idImage=${this.currentMap.imageId}&user=true`).then(data => {
