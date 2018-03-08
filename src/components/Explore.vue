@@ -19,7 +19,7 @@
         </div>
         <interactions @layersSelected="setLayersSelected" @userLayers="setUserLayers" @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <multidimension></multidimension>
+        <multidimension :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>

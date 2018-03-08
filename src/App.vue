@@ -38,9 +38,9 @@ export default {
       maps: [],
       lastEventMapId: null,
       images: [],
-      projectId: '1493',
+      projectId: '82029',
       imageToAdd: "",
-      baseImage: '1577',
+      baseImage: '82364',
       filters: [],
     }
   },
