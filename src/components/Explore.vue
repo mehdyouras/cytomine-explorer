@@ -19,6 +19,7 @@
         </div>
         <interactions @layersSelected="setLayersSelected" @userLayers="setUserLayers" @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
+        <multidimension></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
@@ -35,7 +36,8 @@ import Position from './Explore/Position';
 import Ontology from './Explore/Ontology';
 import AnnotationDetails from './Explore/AnnotationDetails';
 import Annotations from './Explore/Annotations';
-import Properties from './Explore/Properties'
+import Properties from './Explore/Properties';
+import Multidimension from './Explore/Multidimension';
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -51,6 +53,7 @@ export default {
       AnnotationDetails,
       Annotations,
       Properties,
+      Multidimension,
   },
   data () {
     return {
