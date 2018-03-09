@@ -19,7 +19,7 @@
         </div>
         <interactions @layersSelected="setLayersSelected" @userLayers="setUserLayers" @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <multidimension :currentMap="currentMap"></multidimension>
+        <multidimension :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
@@ -171,8 +171,11 @@ export default {
     },
     setLayersSelected(payload) {
         this.layersSelected = payload;
+    },
+    changeImage(payload) {
+        this.$emit('changeImage', {old: this.currentMap, new: payload});
     }
-  },
+  }, 
   mounted() {
     this.extent = [0, 0, this.mapWidth, this.mapHeight];
 
