@@ -16,6 +16,7 @@ export default {
     ],
     data() {
         return {
+            spectra: {},
             hdf5: {},
             yAxis: [],
         }
@@ -27,17 +28,35 @@ export default {
             return xAxis;
         }
     },
+    methods: {
+        updateSpectra(newdata) {
+            let trace = {
+                y: newData,
+                type: 'scatter',
+            };
+            let layout = {
+                xaxis: {
+                    range: [0, this.imageGroup.length],
+                }
+            }
+            Plotly.newPlot('spectra', [trace], layout)
+        },
+    },
     created() {
         api.get(`/api/imagegroup/${this.imageSequence.imageGroup}/imagegroupHDF5.json`).then(data => {
             this.hdf5 = data.data;
             api.get(`/api/imagegroupHDF5/${this.hdf5.id}/816/61/pixel.json`).then(response => {
                 this.yAxis = response.data.spectra;
                 let trace = {
-                    x: this.xAxis,
                     y: this.yAxis,
                     type: 'scatter',
                 }
-                new Plotly.newPlot('spectra', [trace]);
+                let layout = {
+                    xaxis: {
+                        range: [0, this.imageGroup.length],
+                    }
+                }
+                new Plotly.newPlot('spectra', [trace], layout);
             })
         })
     },
