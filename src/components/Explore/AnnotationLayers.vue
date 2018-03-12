@@ -7,6 +7,8 @@
       <button @click="addLayer(layerToBeAdded)">Add</button>
       <ul>
             <li v-for="layer in layersSelected" :key="layer.id">
+                <input @click="toggleVisibility(layer)" v-model="layer.visible" type="checkbox" :name="'hide-layer-' + layer.id" :id="'hide-layer-' + layer.id">
+                <label :for="'hide-layer-' + layer.id">Visible</label>
                 {{userDisplayName(layer)}}
                 <button @click="removeLayer(layer)">Remove</button>
             </li>
@@ -85,6 +87,7 @@ export default {
                     
                     if(addToSelected) {
                         // Push added item to selected
+                        toAdd.visible = true;
                         this.layersSelected.push(toAdd);
                     }
 
@@ -124,7 +127,6 @@ export default {
                         }),
                         extent : this.extent,
                     })
-
                     this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
                     
                     // Clear field
@@ -150,6 +152,10 @@ export default {
             
             this.layersArray.splice(index, 1);
             this.$openlayers.getMap(this.currentMap.id).render();
+        },
+        toggleVisibility(layer) {
+            let index = this.layerIndex(this.layersArray, layer.id);
+            this.layersArray[index].setVisible(!layer.visible);
         },
     },
     mounted() {
