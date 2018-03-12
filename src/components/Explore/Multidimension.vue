@@ -14,16 +14,22 @@
       </dl>
       <input v-model.number="sequenceSelected" min="1" :max="imageGroup.length" type="number" name="channel-select" id="channel-select">
       <button @click="selectImageSequence">Select</button>
+      <spectra></spectra>
   </div>
 </template>
 
 <script>
+import Spectra from './Multidimension/Spectra'
+
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
 
 export default {
     name: 'Multidimension',
+    components: {
+        Spectra,
+    },
     props: [
         'currentMap',
         'imsBaseUrl',
