@@ -58,6 +58,9 @@ export default {
       },
     },
     watch: {
+        layersSelected(newValue) {
+            this.$emit('layersSelected', newValue)
+        },
         termsToShow() {
             this.layersSelected.map(layer => {
                 this.removeLayer(layer, false);

@@ -51,9 +51,6 @@ export default {
       },
   },
   watch: {
-      layersSelected(newValue) {
-          this.$emit('layersSelected', newValue)
-      },
       deepFeatureSelected(newFeature, oldFeature) {
         this.$emit('featureSelected', newFeature);
 

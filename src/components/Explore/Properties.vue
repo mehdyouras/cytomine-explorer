@@ -85,7 +85,7 @@ export default {
         handleKey() {
             this.layersSelected.map(layer => {
                 this.removeKeys(layer.id); 
-                api.get(`/api/user/${layer.id}/imageinstance/1577/annotationposition.json?key=${this.propertySelected.key}`).then(data => {
+                api.get(`/api/user/${layer.id}/imageinstance/${this.currentMap.imageId}/annotationposition.json?key=${this.propertySelected.key}`).then(data => {
                     this.keys = data.data.collection;
                     this.keys.map(key => {
                         let index = this.getFeatures(layer.id).findIndex(feature => feature.getId() == key.idAnnotation);
