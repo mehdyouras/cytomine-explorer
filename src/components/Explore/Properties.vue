@@ -80,7 +80,7 @@ export default {
         },
         getFeatures(userId) {
             let index = this.getLayerIndex(userId);
-            return this.getLayers()[index].getSource() ? this.getLayers()[index].getSource().getFeatures() : null;
+            return index > 0 ? this.getLayers()[index].getSource().getFeatures() : null;
         },
         handleKey() {
             this.layersSelected.map(layer => {
