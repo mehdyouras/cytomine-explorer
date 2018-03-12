@@ -17,7 +17,8 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <interactions @layersSelected="setLayersSelected" @userLayers="setUserLayers" @featureSelected="setFeatureSelected" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :currentMap="currentMap" :allTerms="allTerms"></interactions>
+        <annotation-layers @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+        <interactions @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         <multidimension :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
@@ -30,6 +31,7 @@
 </template>
 
 <script>
+import AnnotationLayers from './Explore/AnnotationLayers'
 import Interactions from './Explore/Interactions';
 import Informations from './Explore/Informations';
 import Position from './Explore/Position';
@@ -46,6 +48,7 @@ import Group from 'ol/layer/group';
 export default {
   name: 'Explore',
   components: {
+      AnnotationLayers,
       Interactions,
       Informations,
       Position,
@@ -69,6 +72,7 @@ export default {
         featureSelected: {},
         userLayers: [],
         layersSelected: [],
+        vectorLayersOpacity: 0.5,
     }
   },
   props: [
@@ -174,6 +178,9 @@ export default {
     },
     changeImage(payload) {
         this.$emit('changeImage', {old: this.currentMap, new: payload});
+    },
+    setVectorLayersOpacity(payload) {
+        this.vectorLayersOpacity = payload;
     }
   }, 
   mounted() {
