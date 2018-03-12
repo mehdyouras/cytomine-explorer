@@ -17,8 +17,8 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <annotation-layers @layersSelected="setLayersSelected" @userLayers="setUserLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
-        <interactions @featureSelected="setFeatureSelected" :currentMap="currentMap"></interactions>
+        <annotation-layers @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+        <interactions @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         <multidimension :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
@@ -72,6 +72,7 @@ export default {
         featureSelected: {},
         userLayers: [],
         layersSelected: [],
+        vectorLayersOpacity: 0.5,
     }
   },
   props: [
@@ -177,6 +178,9 @@ export default {
     },
     changeImage(payload) {
         this.$emit('changeImage', {old: this.currentMap, new: payload});
+    },
+    setVectorLayersOpacity(payload) {
+        this.vectorLayersOpacity = payload;
     }
   }, 
   mounted() {

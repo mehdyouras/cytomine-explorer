@@ -13,6 +13,7 @@
                 <button @click="removeLayer(layer)">Remove</button>
             </li>
       </ul>
+      <input v-model.number="vectorLayersOpacity" min="0" max="1" step="0.01" type="range" name="layers-opacity" id="layers-opacity">
   </div>
 </template>
 
@@ -44,6 +45,7 @@ export default {
         layerToBeAdded: {},
         layersSelected: [],
         vectorLayer: {},
+        vectorLayersOpacity: 0.5,
       }
     },
     computed: {
@@ -72,6 +74,14 @@ export default {
                 this.removeLayer(layer, false);
                 this.addLayer(layer, false);
             });
+        },
+        vectorLayersOpacity(newValue) {
+            this.$emit('vectorLayersOpacity', newValue)
+            this.layersArray.map(layer => {
+                if(layer.getType() === "VECTOR") {
+                    layer.setOpacity(newValue);
+                }
+            })
         },
     },
     methods: {
@@ -102,7 +112,7 @@ export default {
                         let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
                         if(isToShow) {  
                             // Sets the color specified by api if annotation has only one term
-                            let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color, 0.5) : [204, 204, 204   , 0.5];
+                            let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
                             let feature = format.readFeature(element.location);
                             feature.setId(element.id);
                             feature.setStyle(new Style({
@@ -110,7 +120,7 @@ export default {
                                     color: fillColor,
                                 }),
                                 stroke: new Stroke({
-                                    color: [0,0,0, 0.5],
+                                    color: [0,0,0],
                                     width: 3,
                                 })
                             }))
@@ -130,6 +140,7 @@ export default {
                         }),
                         extent : this.extent,
                     })
+                    this.vectorLayer.setOpacity(this.vectorLayersOpacity);
                     this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
                     
                     // Clear field

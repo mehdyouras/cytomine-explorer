@@ -29,6 +29,7 @@ export default {
   name: 'Interactions',
   props: [
       'currentMap',
+      'vectorLayersOpacity',
   ],
   data() {
       return {
@@ -56,10 +57,12 @@ export default {
 
         if(oldFeature !== undefined && oldFeature.hasOwnProperty('id_')) {
             let color = oldFeature.getStyle().getFill().getColor();
-            color[color.length - 1] = 0.5;
+            if(color.length > 3) {
+                color.splice(color.length - 1, 1);
+            }
             oldFeature.getStyle().setStroke(
                 new Stroke({
-                    color: [0, 0, 0, 0.5],
+                    color: [0, 0, 0],
                     width: 3,
                 })  
             )
@@ -67,10 +70,10 @@ export default {
         }
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
-            color[color.length - 1] = 0.8;
+            color.push(this.vectorLayersOpacity + 0.3);
             newFeature.getStyle().setStroke(
                 new Stroke({
-                    color: [0, 0, 255, 0.5],
+                    color: [0, 0, 255],
                     width: 3,
                 }) 
             )
