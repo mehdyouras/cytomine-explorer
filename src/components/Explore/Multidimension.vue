@@ -14,7 +14,7 @@
       </dl>
       <input v-model.number="sequenceSelected" min="1" :max="imageGroup.length" type="number" name="channel-select" id="channel-select">
       <button @click="selectImageSequence">Select</button>
-      <spectra></spectra>
+      <spectra :imageSequence="imageSequence" :imageGroup="imageGroup"></spectra>
   </div>
 </template>
 
