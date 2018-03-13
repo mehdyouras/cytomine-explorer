@@ -20,7 +20,7 @@
         <annotation-layers @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
         <interactions @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :termsToShow="termsToShow" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <multidimension :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
+        <multidimension v-if="imageGroupIndex[0]" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
@@ -80,7 +80,8 @@ export default {
     'maps',
     'currentMap',
     'lastEventMapId',
-    'filters'
+    'filters',
+    'imageGroupIndex',
   ],
   computed: {
     linkedTo() {
