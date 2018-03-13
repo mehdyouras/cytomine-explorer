@@ -1,11 +1,20 @@
 <template>
   <div>
     <div v-if="maps.length < maxMapsToShow">
-      <select v-model.number="imageToAdd" name="images" id="images">
-        <option value="">Select an image to add</option>
-        <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
-      </select>
-      <button @click="addMap(imageToAdd)">Add a map</button>
+      <template v-if="imageGroupIndex != []">
+        <select v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
+          <option value="">Select an imagegroup</option>
+          <option v-for="imageGroup in imageGroupIndex" :key="imageGroup.id" :value="imageGroup.id">{{imageGroup.name}}</option>
+        </select>
+        <button @click="addImageGroup()">Add image group</button>
+      </template>
+      <template v-else>
+        <select v-model.number="imageToAdd" name="images" id="images">
+          <option value="">Select an image to add</option>
+          <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
+        </select>
+        <button @click="addMap(imageToAdd)">Add a map</button>
+      </template>
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
@@ -40,8 +49,11 @@ export default {
       images: [],
       projectId: '82029',
       imageToAdd: "",
+      imageGroupToAdd: "",
       baseImage: '82224',
       filters: [],
+      imageGroupIndex: [],
+      imageSequences: [],
     }
   },
   methods: {
@@ -77,12 +89,20 @@ export default {
       this.maps[index].linkedTo = payload[0];
     },
     addMap(imageId = this.imageToAdd, id = uuid()) {
-      if(this.maps.length < this.maxMapsToShow) {
+      if(this.maps.length < this.maxMapsToShow && imageId !== "") {
         this.maps.push({
           id,
           imageId,
           linkedTo: "",
           data: this.images[this.imageIndex(imageId)]
+        })
+      }
+    },
+    addImageGroup() {
+      if(this.imageGroupToAdd !== "") {
+        api.get(`/api/imagegroup/${this.imageGroupToAdd}/imagesequence.json`).then(data => {
+          this.imageSequences = data.data.collection;
+          this.addMap(this.imageSequences[0].image);
         })
       }
     },
@@ -102,6 +122,10 @@ export default {
     }
   },
   created() {
+    api.get(`api/project/${this.projectId}/imagegroup.json`).then(data => {
+      this.imageGroupIndex = data.data.collection;
+    })
+
     api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
       let id = uuid();
       this.lastEventMapId = id;
