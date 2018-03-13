@@ -10,6 +10,7 @@
           <li><button @click="addInteraction('Circle')">Circle</button></li>
           <li><button @click="addInteraction('Polygon')">Polygon</button></li>
           <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
+          <li><button @click="addInteraction('Ruler')">Ruler</button></li>
       </ul>
   </div>
 </template>
