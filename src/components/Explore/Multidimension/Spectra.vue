@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4>Spectra</h4>
-        <div id="spectra"></div>
+        <div :id="'spectra-'+currentMap.id"></div>
     </div>
 </template>
 
@@ -36,11 +36,12 @@ export default {
                 type: 'scatter',
             };
             let layout = {
+                title: 'Spectral distribution',
                 xaxis: {
                     range: [0, this.imageGroup.length],
                 }
             }
-            Plotly.newPlot('spectra', [trace], layout)
+            Plotly.newPlot('spectra-'+this.currentMap.id, [trace], layout)
         },
         getPixelData(event) {
             api.get(`/api/imagegroupHDF5/${this.hdf5.id}/${event.pixel[0]}/${event.pixel[1]}/pixel.json`).then(data => {
@@ -50,7 +51,7 @@ export default {
         }
     },
     created() {
-        api.get(`/api/imagegroup/${this.imageSequence.imageGroup}/imagegroupHDF5.json`).then(data => {
+        api.get(`/api/imagegroup/${this.currentMap.imageGroup}/imagegroupHDF5.json`).then(data => {
             this.hdf5 = data.data;
             this.$openlayers.getMap(this.currentMap.id).on('click', this.getPixelData)
         })

@@ -1,16 +1,25 @@
 <template>
   <div>
     <div v-if="maps.length < maxMapsToShow">
-      <select v-model.number="imageToAdd" name="images" id="images">
-        <option value="">Select an image to add</option>
-        <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
-      </select>
-      <button @click="addMap(imageToAdd)">Add a map</button>
+      <template v-if="imageGroupIndex[0]">
+        <select v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
+          <option value="">Select an imagegroup</option>
+          <option v-for="imageGroup in imageGroupIndex" :key="imageGroup.id" :value="imageGroup.id">{{imageGroup.name}}</option>
+        </select>
+        <button @click="addImageGroup()">Add image group</button>
+      </template>
+      <template v-else>
+        <select v-model.number="imageToAdd" name="images" id="images">
+          <option value="">Select an image to add</option>
+          <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
+        </select>
+        <button @click="addMap(imageToAdd)">Add a map</button>
+      </template>
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
     <div class="container">
-      <explore v-for="map in maps" :key="map.id" @changeImage="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters"></explore>
+      <explore v-for="map in maps" :key="map.id" @changeImage="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
     </div>
   </div>
 </template>
@@ -38,10 +47,14 @@ export default {
       maps: [],
       lastEventMapId: null,
       images: [],
-      projectId: '82029',
+      projectId: '1493',
       imageToAdd: "",
-      baseImage: '82224',
+      imageGroupToAdd: "",
+      baseImage: '1577',
       filters: [],
+      imageGroupIndex: [],
+	  imageSequences: [],
+	  baseSequence: {},
     }
   },
   methods: {
@@ -76,13 +89,22 @@ export default {
       index = this.mapIndex(payload[1])
       this.maps[index].linkedTo = payload[0];
     },
-    addMap(imageId = this.imageToAdd, id = uuid()) {
-      if(this.maps.length < this.maxMapsToShow) {
+    addMap(imageId = this.imageToAdd, imageGroup = "", id = uuid()) {
+      if(this.maps.length < this.maxMapsToShow && imageId !== "") {
         this.maps.push({
           id,
           imageId,
           linkedTo: "",
+          imageGroup,
           data: this.images[this.imageIndex(imageId)]
+        })
+      }
+    },
+    addImageGroup() {
+      if(this.imageGroupToAdd !== "") {
+        api.get(`/api/imagegroup/${this.imageGroupToAdd}/imagesequence.json`).then(data => {
+          this.imageSequences = data.data.collection;
+          this.addMap(this.imageSequences[0].image, this.imageGroupToAdd);
         })
       }
     },
@@ -102,12 +124,25 @@ export default {
     }
   },
   created() {
+    api.get(`api/project/${this.projectId}/imagegroup.json`).then(data => {
+      this.imageGroupIndex = data.data.collection;
+    })
+
     api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
       let id = uuid();
       this.lastEventMapId = id;
       this.images = data.data.collection;
       this.projectId = this.images[0].project;
-      this.addMap(this.baseImage, id);
+
+      if(this.imageGroupIndex[0]) {
+        api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
+          	this.baseSequence = resp.data.collection[0];
+			this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+        })
+      } else {
+		  this.addMap(this.baseImage, "", id);
+	  }
+
     })
 
     api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {
