@@ -36,6 +36,7 @@ export default {
                 type: 'scatter',
             };
             let layout = {
+                title: 'Spectral distribution',
                 xaxis: {
                     range: [0, this.imageGroup.length],
                 }
