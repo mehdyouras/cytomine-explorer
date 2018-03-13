@@ -47,13 +47,14 @@ export default {
       maps: [],
       lastEventMapId: null,
       images: [],
-      projectId: '1493',
+      projectId: '82029',
       imageToAdd: "",
       imageGroupToAdd: "",
-      baseImage: '1577',
+      baseImage: '82230',
       filters: [],
       imageGroupIndex: [],
-      imageSequences: [],
+	  imageSequences: [],
+	  baseSequence: {},
     }
   },
   methods: {
@@ -88,12 +89,13 @@ export default {
       index = this.mapIndex(payload[1])
       this.maps[index].linkedTo = payload[0];
     },
-    addMap(imageId = this.imageToAdd, id = uuid()) {
+    addMap(imageId = this.imageToAdd, imageGroup = "", id = uuid()) {
       if(this.maps.length < this.maxMapsToShow && imageId !== "") {
         this.maps.push({
           id,
           imageId,
           linkedTo: "",
+          imageGroup,
           data: this.images[this.imageIndex(imageId)]
         })
       }
@@ -102,7 +104,7 @@ export default {
       if(this.imageGroupToAdd !== "") {
         api.get(`/api/imagegroup/${this.imageGroupToAdd}/imagesequence.json`).then(data => {
           this.imageSequences = data.data.collection;
-          this.addMap(this.imageSequences[0].image);
+          this.addMap(this.imageSequences[0].image, this.imageGroupToAdd);
         })
       }
     },
@@ -131,7 +133,16 @@ export default {
       this.lastEventMapId = id;
       this.images = data.data.collection;
       this.projectId = this.images[0].project;
-      this.addMap(this.baseImage, id);
+
+      if(this.imageGroupIndex[0]) {
+        api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
+          	this.baseSequence = resp.data.collection[0];
+			this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+        })
+      } else {
+		  this.addMap(this.baseImage, "", id);
+	  }
+
     })
 
     api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {

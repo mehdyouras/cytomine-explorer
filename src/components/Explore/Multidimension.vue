@@ -1,20 +1,23 @@
 <template>
-  <div v-if="imageInAGroup">
+  <div>
       <h4>Multidimension</h4>
+      <select @change="switchImageGroup(imageGroupSelected)" v-model="imageGroupSelected" name="imageGroupSelect" id="imageGroupSelect">
+          <option v-for="sequence in imageSequences" :key="sequence.id" :value="sequence.imageGroup">{{getImageGroupName(sequence.imageGroup)}}</option>
+      </select>
       <p>Picture is in position</p>
       <dl>
           <dt>c:</dt>
-          <dd>{{imageSequence.channel}}</dd>
+          <dd>{{currentSequence.channel}}</dd>
           <dt>z:</dt>
-          <dd>{{imageSequence.zStack}}</dd>
+          <dd>{{currentSequence.zStack}}</dd>
           <dt>s:</dt>
-          <dd>{{imageSequence.slice}}</dd>
+          <dd>{{currentSequence.slice}}</dd>
           <dt>t:</dt>
-          <dd>{{imageSequence.time}}</dd>
+          <dd>{{currentSequence.time}}</dd>
       </dl>
       <input v-model.number="sequenceSelected" min="1" :max="imageGroup.length" type="number" name="channel-select" id="channel-select">
       <button @click="selectImageSequence">Select</button>
-      <spectra :imageSequence="imageSequence" :imageGroup="imageGroup" :currentMap="currentMap"></spectra>
+      <spectra :imageSequence="currentSequence" :imageGroup="imageGroup" :currentMap="currentMap"></spectra>
   </div>
 </template>
 
@@ -34,18 +37,20 @@ export default {
         'currentMap',
         'imsBaseUrl',
         'filterUrl',
+        'imageGroupIndex',
     ],
     data() {
         return {
-            imageInAGroup: false,
-            imageSequence: [],
+            imageSequences: [],
             imageGroup: [],
             sequenceSelected: "",
+            imageGroupSelected: "",
+            currentSequence: {},
         }
     },
     methods: {
         selectImageSequence() {
-            this.imageSequence = this.imageGroup[this.sequenceSelected - 1];
+            this.currentSequence = this.imageGroup[this.sequenceSelected - 1];
             this.$emit('imageHasChanged', this.imageGroup[this.sequenceSelected - 1].model);
 
             let layer = new OlTile({
@@ -58,14 +63,27 @@ export default {
             })
             
             this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: [layer]}));
+        },
+        getImageGroupName(imageGroupId) {
+            let index = this.imageGroupIndex.findIndex(group => {
+                return group.id === imageGroupId;
+            })
+
+            return this.imageGroupIndex[index].name;
+        },
+        switchImageGroup(imageGroupId) {
+            let index = this.imageSequences.findIndex(sequence => {
+                return sequence.imageGroup === imageGroupId;
+            })
+            this.currentSequence = this.imageSequences[index];
         }
     },
     created() {
+        this.imageGroupSelected = this.currentMap.imageGroup;
         api.get(`/api/imageinstance/${this.currentMap.imageId}/imagesequence.json`).then(data => {
             if(data.data) {
-                this.imageInAGroup = true
-                this.imageSequence = data.data;
-                api.get(`/api/imagegroup/${this.imageSequence.imageGroup}/imagesequence.json`).then(data => {
+                this.imageSequences = data.data.collection;
+                api.get(`/api/imagegroup/${this.currentMap.imageGroup}/imagesequence.json`).then(data => {
                     if(data.data.collection) {
                         this.imageGroup = data.data.collection.sort((a, b) => {
                             return a.channel - b.channel;
@@ -74,6 +92,7 @@ export default {
                             return image.image == this.currentMap.imageId;
                         }) 
                         this.sequenceSelected = index + 1;
+                        this.switchImageGroup(this.currentMap.imageGroup)
                     }
                 })
             }

@@ -50,7 +50,7 @@ export default {
         }
     },
     created() {
-        api.get(`/api/imagegroup/${this.imageSequence.imageGroup}/imagegroupHDF5.json`).then(data => {
+        api.get(`/api/imagegroup/${this.currentMap.imageGroup}/imagegroupHDF5.json`).then(data => {
             this.hdf5 = data.data;
             this.$openlayers.getMap(this.currentMap.id).on('click', this.getPixelData)
         })
