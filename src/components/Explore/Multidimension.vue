@@ -1,7 +1,7 @@
 <template>
   <div>
       <h4>Multidimension</h4>
-      <select @change="switchImageGroup(imageGroupSelected)" v-model="imageGroupSelected" name="imageGroupSelect" id="imageGroupSelect">
+      <select @change="setImageGroup(currentMap.imageId, imageGroupSelected)" v-model="imageGroupSelected" name="imageGroupSelect" id="imageGroupSelect">
           <option v-for="sequence in imageSequences" :key="sequence.id" :value="sequence.imageGroup">{{getImageGroupName(sequence.imageGroup)}}</option>
       </select>
       <p>Picture is in position</p>
@@ -71,19 +71,10 @@ export default {
 
             return this.imageGroupIndex[index].name;
         },
-        switchImageGroup(imageGroupId) {
-            let index = this.imageSequences.findIndex(sequence => {
-                return sequence.imageGroup === imageGroupId;
-            })
-            this.currentSequence = this.imageSequences[index];
-        }
-    },
-    created() {
-        this.imageGroupSelected = this.currentMap.imageGroup;
-        api.get(`/api/imageinstance/${this.currentMap.imageId}/imagesequence.json`).then(data => {
-            if(data.data) {
+        setImageGroup(imageId, imageGroupId) {
+            api.get(`/api/imageinstance/${imageId}/imagesequence.json`).then(data => {
                 this.imageSequences = data.data.collection;
-                api.get(`/api/imagegroup/${this.currentMap.imageGroup}/imagesequence.json`).then(data => {
+                api.get(`/api/imagegroup/${imageGroupId}/imagesequence.json`).then(data => {
                     if(data.data.collection) {
                         this.imageGroup = data.data.collection.sort((a, b) => {
                             return a.channel - b.channel;
@@ -92,11 +83,18 @@ export default {
                             return image.image == this.currentMap.imageId;
                         }) 
                         this.sequenceSelected = index + 1;
-                        this.switchImageGroup(this.currentMap.imageGroup)
+                        index = this.imageSequences.findIndex(sequence => {
+                            return sequence.imageGroup === imageGroupId;
+                        })
+                        this.currentSequence = this.imageSequences[index];
                     }
                 })
-            }
-        })
+            })
+        }
+    },
+    created() {
+        this.imageGroupSelected = this.currentMap.imageGroup;
+        this.setImageGroup(this.currentMap.imageId, this.currentMap.imageGroup)
     }
 }
 </script>
