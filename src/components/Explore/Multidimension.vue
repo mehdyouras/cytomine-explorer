@@ -72,6 +72,7 @@ export default {
             return this.imageGroupIndex[index].name;
         },
         setImageGroup(imageId, imageGroupId) {
+            this.$emit('imageGroupHasChanged', imageGroupId);
             api.get(`/api/imageinstance/${imageId}/imagesequence.json`).then(data => {
                 this.imageSequences = data.data.collection;
                 api.get(`/api/imagegroup/${imageGroupId}/imagesequence.json`).then(data => {
