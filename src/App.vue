@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="maps.length < maxMapsToShow">
-      <template v-if="imageGroupIndex != []">
+      <template v-if="imageGroupIndex[0]">
         <select v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
           <option value="">Select an imagegroup</option>
           <option v-for="imageGroup in imageGroupIndex" :key="imageGroup.id" :value="imageGroup.id">{{imageGroup.name}}</option>
