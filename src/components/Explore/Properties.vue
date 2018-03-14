@@ -90,7 +90,7 @@ export default {
                     this.keys.map(key => {
                         let index = this.getFeatures(layer.id).findIndex(feature => feature.getId() == key.idAnnotation);
                         let text = new Text({
-                            font: '24px sans-serif',
+                            font: 'bold 24px sans-serif',
                             fill: new Fill({
                                 color: this.colorSelected,
                             }),
