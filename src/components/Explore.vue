@@ -2,6 +2,7 @@
     <div class="map">
         <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
+        <digital-zoom :currentMap="currentMap"></digital-zoom>
         <label :for="'link-'+currentMap.id">Link the map</label>
         <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
             <option value="">Select a map</option>
@@ -40,6 +41,7 @@ import AnnotationDetails from './Explore/AnnotationDetails';
 import Annotations from './Explore/Annotations';
 import Properties from './Explore/Properties';
 import Multidimension from './Explore/Multidimension';
+import DigitalZoom from './Explore/DigitalZoom'
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -57,6 +59,7 @@ export default {
       Annotations,
       Properties,
       Multidimension,
+      DigitalZoom,
   },
   data () {
     return {
