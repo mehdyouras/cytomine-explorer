@@ -61,6 +61,7 @@ export default {
         if(newFeature !== undefined) {
             api.get(`/api/annotation/${newFeature.getId()}.json`).then(data => {
                 this.data = data.data;
+                this.$emit('featureSelectedData', this.data);
                 this.annotationIsClicked = true;
             })
         } else {
