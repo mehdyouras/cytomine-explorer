@@ -2,7 +2,7 @@
   <div>
         <ul>
             <li v-for="term in terms" :key="'term-'+term.id">
-                <input v-model="featureTerms" :value="term.id" type="checkbox" :name="'term-'+term.id" :id="'term-'+term.id">
+                <input @change="handlePost(term.id)" v-model="featureTerms" :value="term.id" type="checkbox" :name="'term-'+term.id" :id="'term-'+term.id">
                 <label :for="'term-'+term.id">{{term.key}} ({{term.value}})</label>
                 <label :for="'show-term-'+term.id">Show</label>
                 <input v-model="visibleTerms" :value="term.id" type="checkbox" :id="'show-term-'+term.id">
@@ -18,9 +18,15 @@
 </template>
 
 <script>
+import intersection from 'lodash.intersection'
+import Style from 'ol/style/style';
+import Fill from 'ol/style/fill';
+import Stroke from 'ol/style/stroke';
+
 export default {
   name: 'Ontology',
   props: [
+      'featureSelectedData',
       'featureSelected',
   ],
   data() {
@@ -35,9 +41,9 @@ export default {
       termsId() {
           return this.terms.map(term => term.id);
       },
-      featureSelectedData() {
+      featureSelectedDataToShow() {
           if(this.featureSelected !== undefined && this.featureSelected.hasOwnProperty('id_')) {
-              return this.featureSelected.get('data');
+              return this.featureSelectedData;
           } else {
               return undefined;
           }
@@ -50,7 +56,7 @@ export default {
       showWithNoTerm(newValue) {
           this.$emit('showWithNoTerm', newValue);
       },
-      featureSelectedData(newValue, oldValue) {
+      featureSelectedDataToShow(newValue) {
           if(newValue === undefined) {
               this.featureTerms = [];
           } else {
@@ -67,6 +73,32 @@ export default {
           this.visibleTerms = [];
           this.showWithNoTerm = false;
       },
+      changeFeatureColor() {
+            let index = this.terms.findIndex(term => term.id === this.featureSelectedData.term[0])
+            let fillColor = this.featureSelectedData.term.length > 1 ? this.terms[index].color : [204, 204, 204];
+
+            console.log(index, fillColor)
+            this.featureSelected.setStyle(new Style({
+                fill: new Fill({
+                    color: fillColor,
+                }),
+                stroke: new Stroke({
+                    color: [0,0,0],
+                    width: 3,
+                })
+            }))
+      },
+      handlePost(termId) {
+          console.log(termId)
+          if(this.featureSelectedDataToShow.term.length > this.featureTerms.length) {
+              api.delete(`/api/annotation/${this.featureSelected.getId()}/term/${termId}.json`).then(data => this.changeFeatureColor())
+          } else {
+                api.post(`/api/annotation/1655/term/1481.json`, {
+                    term: termId, 
+                    userannotation: this.featureSelected.getId()
+                }).then(data => this.changeFeatureColor())
+          }
+      }
   },
   created() {
       api.get(`/api/project/1493/stats/term.json`).then(data => {

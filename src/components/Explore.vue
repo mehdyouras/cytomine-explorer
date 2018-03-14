@@ -20,7 +20,7 @@
         </div>
         <annotation-layers @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
         <interactions @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
-        <ontology :termsToShow="termsToShow" :featureSelected="featureSelected" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
+        <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
@@ -73,6 +73,7 @@ export default {
         showWithNoTerm: true,
         allTerms: [],
         featureSelected: {},
+        featureSelectedData: {},
         userLayers: [],
         layersSelected: [],
         vectorLayersOpacity: 0.5,
@@ -190,7 +191,7 @@ export default {
         this.currentMap.imageGroup = payload;
     },
     setFeatureSelectedData(payload) {
-        this.featureSelected.set('data', payload);
+        this.featureSelectedData = payload;
     }
   }, 
   mounted() {
