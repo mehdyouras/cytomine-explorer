@@ -1,9 +1,13 @@
 <template>
   <div>
-        <template v-for="term in terms">
-            <input v-model="termsChecked" :value="term.id" type="checkbox" :id="'term-'+term.id" :key="'term-'+term.id">
-            <label :key="'label-'+term.id" :for="'term-'+term.id">{{term.key}} ({{term.value}})</label>
-        </template>
+        <ul>
+            <li v-for="term in terms" :key="'term-'+term.id">
+                <input v-model="featureTerms" :value="term.id" type="checkbox" :name="'term-'+term.id" :id="'term-'+term.id">
+                <label :for="'term-'+term.id">{{term.key}} ({{term.value}})</label>
+                <label :for="'show-term-'+term.id">Show</label>
+                <input v-model="visibleTerms" :value="term.id" type="checkbox" :id="'show-term-'+term.id">
+            </li>
+        </ul>
 
         <input v-model="showWithNoTerm" type="checkbox" name="showNoTermAnnotation" id="showNoTermAnnotation">
         <label for="showNoTermAnnotation">Show annotations without terms</label>
@@ -17,42 +21,57 @@
 export default {
   name: 'Ontology',
   props: [
-      'termsToShow'
+      'featureSelected',
   ],
   data() {
       return {
           terms: [],
-          termsChecked: [],
+          visibleTerms: [],
           showWithNoTerm: true,
+          featureTerms: [],
       }
   },
   computed: {
       termsId() {
           return this.terms.map(term => term.id);
+      },
+      featureSelectedData() {
+          if(this.featureSelected !== undefined && this.featureSelected.hasOwnProperty('id_')) {
+              return this.featureSelected.get('data');
+          } else {
+              return undefined;
+          }
       }
   },
   watch: {
-      termsChecked(newValue) {
+      visibleTerms(newValue) {
           this.$emit('showTerms', newValue);
       },
       showWithNoTerm(newValue) {
           this.$emit('showWithNoTerm', newValue);
+      },
+      featureSelectedData(newValue, oldValue) {
+          if(newValue === undefined) {
+              this.featureTerms = [];
+          } else {
+              this.featureTerms = newValue.term;
+          }
       }
   },
   methods: {
       showAllTerms() {
-          this.termsChecked = this.termsId;
+          this.visibleTerms = this.termsId;
           this.showWithNoTerm = true;
       },
       hideAllTerms() {
-          this.termsChecked = [];
+          this.visibleTerms = [];
           this.showWithNoTerm = false;
       },
   },
   created() {
       api.get(`/api/project/1493/stats/term.json`).then(data => {
           this.terms = data.data.collection;
-          this.termsChecked = this.termsId;
+          this.visibleTerms = this.termsId;
           this.$emit('showTerms', this.termsId);
           this.$emit('allTerms', this.terms);
       })
