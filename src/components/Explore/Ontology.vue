@@ -21,6 +21,7 @@
 export default {
   name: 'Ontology',
   props: [
+      'featureSelectedData',
       'featureSelected',
   ],
   data() {
@@ -35,9 +36,9 @@ export default {
       termsId() {
           return this.terms.map(term => term.id);
       },
-      featureSelectedData() {
+      featureSelectedDataToShow() {
           if(this.featureSelected !== undefined && this.featureSelected.hasOwnProperty('id_')) {
-              return this.featureSelected.get('data');
+              return this.featureSelectedData;
           } else {
               return undefined;
           }
@@ -50,7 +51,7 @@ export default {
       showWithNoTerm(newValue) {
           this.$emit('showWithNoTerm', newValue);
       },
-      featureSelectedData(newValue, oldValue) {
+      featureSelectedDataToShow(newValue) {
           if(newValue === undefined) {
               this.featureTerms = [];
           } else {
