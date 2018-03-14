@@ -2,7 +2,7 @@
   <div>
         <ul>
             <li v-for="term in terms" :key="'term-'+term.id">
-                <input type="checkbox" :name="'term-'+term.id" :id="'term-'+term.id">
+                <input v-model="featureTerms" :value="term.id" type="checkbox" :name="'term-'+term.id" :id="'term-'+term.id">
                 <label :for="'term-'+term.id">{{term.key}} ({{term.value}})</label>
                 <label :for="'show-term-'+term.id">Show</label>
                 <input v-model="visibleTerms" :value="term.id" type="checkbox" :id="'show-term-'+term.id">
@@ -28,14 +28,19 @@ export default {
           terms: [],
           visibleTerms: [],
           showWithNoTerm: true,
+          featureTerms: [],
       }
   },
   computed: {
       termsId() {
           return this.terms.map(term => term.id);
       },
-      featureSelectedId() {
-          return this.featureSelected.getId();
+      featureSelectedData() {
+          if(this.featureSelected !== undefined && this.featureSelected.hasOwnProperty('id_')) {
+              return this.featureSelected.get('data');
+          } else {
+              return undefined;
+          }
       }
   },
   watch: {
@@ -44,6 +49,13 @@ export default {
       },
       showWithNoTerm(newValue) {
           this.$emit('showWithNoTerm', newValue);
+      },
+      featureSelectedData(newValue, oldValue) {
+          if(newValue === undefined) {
+              this.featureTerms = [];
+          } else {
+              this.featureTerms = newValue.term;
+          }
       }
   },
   methods: {
