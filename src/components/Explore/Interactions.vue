@@ -13,9 +13,9 @@
             <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
             <li><button @click="addInteraction('Union', true)">Union</button></li>
             <li><button @click="addInteraction('Difference', true)">Difference</button></li>
+            <li><button @click="addInteraction('Ruler')">Ruler</button></li>
             <template v-if="featureSelected.getArray()[0]">
                 <li><button @click="addInteraction('Fill')">Fill</button></li>
-                <li><button @click="addInteraction('Ruler')">Ruler</button></li>
                 <li><button @click="addInteraction('Edit')">Edit</button></li>
                 <li><button @click="addInteraction('Rotate')">Rotate</button></li>
                 <li><button @click="addInteraction('Resize')">Resize</button></li>
