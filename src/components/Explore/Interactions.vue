@@ -35,6 +35,7 @@ import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
 import Select from 'ol/interaction/select';
 import Translate from 'ol/interaction/translate';
+import Modify from 'ol/interaction/modify';
 
 export default {
   name: 'Interactions',
@@ -57,6 +58,10 @@ export default {
       },
       layersArray() {
           return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+      },
+      currentUserLayer() {
+          let index = this.layersArray.findIndex(layer => layer.get('title') == this.currentMap.user.id);
+          return this.layersArray[index];
       },
       deepFeatureSelected() {
           return this.featureSelected.getArray()[0];
@@ -108,18 +113,20 @@ export default {
         this.removeInteraction();
 
         // Creates layer if not found
-        if(this.layerIndex(this.layersArray, 'draw') < 0) {
+        if(this.currentUserLayer == undefined && this.layerIndex(this.layersArray, 'draw') < 0) {
             this.draw.layer = new LayerVector({
                 title: 'draw',  
                 source: new SrcVector(),
                 extent: this.extent,
             })
             currentMap.addLayer(this.draw.layer);
+        } else if(this.currentUserLayer != undefined) {
+            this.draw.layer = this.currentUserLayer;
         }
         // Adds interaction
         let source = this.draw.layer.getSource(),
             geometryFunction, type;
-
+        console.log(source)
         switch (interactionType) {
             case 'Select':
                 // this.removeInteraction();
@@ -193,6 +200,16 @@ export default {
                 break;
             case 'Line':
                 type = "LineString"
+                break;
+            case 'Edit':
+                let sources = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray().filter(layer => layer.getType() === "VECTOR").map(layer => layer.getSource())
+                sources.map(source => {
+                    this.draw.interaction = new Modify({
+                        source,
+                    });
+                    currentMap.addInteraction(this.draw.interaction);
+                })
+                return;
                 break;
             case 'Drag':
                 this.draw.interaction = new Translate()
