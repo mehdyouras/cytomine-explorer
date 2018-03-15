@@ -86,10 +86,11 @@ export default {
         }
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
-            color.push(this.vectorLayersOpacity + 0.3);
+            color[3] = this.vectorLayersOpacity + 0.3;
+            console.log(color)
             newFeature.getStyle().setStroke(
                 new Stroke({
-                    color: [0, 0, 255],
+                    color: [0, 0, 255, this.vectorLayersOpacity + 0.3],
                     width: 3,
                 }) 
             )
