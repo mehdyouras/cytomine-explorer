@@ -75,9 +75,8 @@ export default {
       },
       changeFeatureColor() {
             let index = this.terms.findIndex(term => term.id === this.featureSelectedData.term[0])
-            let fillColor = this.featureSelectedData.term.length > 1 ? this.terms[index].color : [204, 204, 204];
+            let fillColor = this.featureSelectedData.term.length == 1 ? this.terms[index].color : [204, 204, 204];
 
-            console.log(index, fillColor)
             this.featureSelected.setStyle(new Style({
                 fill: new Fill({
                     color: fillColor,
@@ -89,14 +88,20 @@ export default {
             }))
       },
       handlePost(termId) {
-          console.log(termId)
           if(this.featureSelectedDataToShow.term.length > this.featureTerms.length) {
-              api.delete(`/api/annotation/${this.featureSelected.getId()}/term/${termId}.json`).then(data => this.changeFeatureColor())
+                api.delete(`/api/annotation/${this.featureSelected.getId()}/term/${termId}.json`).then(data => {
+                    let index = this.featureSelectedDataToShow.term.findIndex(term => term.id === termId);
+                    this.featureSelectedData.term.splice(index+1, 1);
+                    this.changeFeatureColor()
+                })
           } else {
                 api.post(`/api/annotation/1655/term/1481.json`, {
                     term: termId, 
                     userannotation: this.featureSelected.getId()
-                }).then(data => this.changeFeatureColor())
+                }).then(data => {
+                    this.featureSelectedData.term.push(termId);
+                    this.changeFeatureColor()
+                })
           }
       }
   },
