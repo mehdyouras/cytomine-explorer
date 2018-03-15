@@ -22,12 +22,14 @@ import intersection from 'lodash.intersection'
 import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
+import hexToRgb from '../../helpers/hexToRgb'
 
 export default {
   name: 'Ontology',
   props: [
       'featureSelectedData',
       'featureSelected',
+      'vectorLayersOpacity',
   ],
   data() {
       return {
@@ -74,15 +76,15 @@ export default {
           this.showWithNoTerm = false;
       },
       changeFeatureColor() {
+            let alpha = this.vectorLayersOpacity + 0.3;
             let index = this.terms.findIndex(term => term.id === this.featureSelectedData.term[0])
-            let fillColor = this.featureSelectedData.term.length == 1 ? this.terms[index].color : [204, 204, 204];
-
+            let fillColor = this.featureSelectedData.term.length == 1 ? hexToRgb(this.terms[index].color, alpha) : [204, 204, 204, alpha];
             this.featureSelected.setStyle(new Style({
                 fill: new Fill({
                     color: fillColor,
                 }),
                 stroke: new Stroke({
-                    color: [0,0,0],
+                    color: [0,0,0, alpha],
                     width: 3,
                 })
             }))
@@ -90,8 +92,8 @@ export default {
       handlePost(termId) {
           if(this.featureSelectedDataToShow.term.length > this.featureTerms.length) {
                 api.delete(`/api/annotation/${this.featureSelected.getId()}/term/${termId}.json`).then(data => {
-                    let index = this.featureSelectedDataToShow.term.findIndex(term => term.id === termId);
-                    this.featureSelectedData.term.splice(index+1, 1);
+                    let index = this.featureSelectedDataToShow.term.findIndex(term => term === termId);
+                    this.featureSelectedData.term.splice(index, 1);
                     this.changeFeatureColor()
                 })
           } else {
