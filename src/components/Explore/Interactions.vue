@@ -1,17 +1,26 @@
 <template>
   <div>
-      <ul>
-          <li><button @click="addInteraction('Select')">Select</button></li>
-          <li><button @click="addInteraction('Point')">Point</button></li>
-          <li><button @click="addInteraction('Line')">Line</button></li>
-          <li><button @click="addInteraction('Arrow')">Arrow</button></li>
-          <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
-          <li><button @click="addInteraction('Ellipse')">Ellipse</button></li>
-          <li><button @click="addInteraction('Circle')">Circle</button></li>
-          <li><button @click="addInteraction('Polygon')">Polygon</button></li>
-          <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
-          <li><button @click="addInteraction('Ruler')">Ruler</button></li>
-      </ul>
+        <ul>
+            <li><button @click="addInteraction('Select')">Select</button></li>
+            <li><button @click="addInteraction('Point')">Point</button></li>
+            <li><button @click="addInteraction('Line')">Line</button></li>
+            <li><button @click="addInteraction('Arrow')">Arrow</button></li>
+            <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
+            <li><button @click="addInteraction('Ellipse')">Ellipse</button></li>
+            <li><button @click="addInteraction('Circle')">Circle</button></li>
+            <li><button @click="addInteraction('Polygon')">Polygon</button></li>
+            <li><button @click="addInteraction('MagicWand')">MagicWand</button></li>
+            <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
+            <li><button @click="addInteraction('Union', true)">Union</button></li>
+            <li><button @click="addInteraction('Difference', true)">Difference</button></li>
+            <li><button @click="addInteraction('Fill')">Fill</button></li>
+            <li><button @click="addInteraction('Ruler')">Ruler</button></li>
+            <li><button @click="addInteraction('Edit')">Edit</button></li>
+            <li><button @click="addInteraction('Rotate')">Rotate</button></li>
+            <li><button @click="addInteraction('Resize')">Resize</button></li>
+            <li><button @click="addInteraction('Drag')">Drag</button></li>
+            <li><button @click="addInteraction('Remove')">Remove</button></li>
+        </ul>
   </div>
 </template>
 
