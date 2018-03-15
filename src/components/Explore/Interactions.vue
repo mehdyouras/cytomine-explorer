@@ -202,13 +202,10 @@ export default {
                 type = "LineString"
                 break;
             case 'Edit':
-                let sources = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray().filter(layer => layer.getType() === "VECTOR").map(layer => layer.getSource())
-                sources.map(source => {
-                    this.draw.interaction = new Modify({
-                        source,
-                    });
-                    currentMap.addInteraction(this.draw.interaction);
-                })
+                this.draw.interaction = new Modify({
+                    features: this.featureSelected,
+                });
+                currentMap.addInteraction(this.draw.interaction);
                 return;
                 break;
             case 'Drag':
