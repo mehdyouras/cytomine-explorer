@@ -34,6 +34,7 @@ import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
 import Select from 'ol/interaction/select';
+import Translate from 'ol/interaction/translate';
 
 export default {
   name: 'Interactions',
@@ -121,7 +122,7 @@ export default {
 
         switch (interactionType) {
             case 'Select':
-                this.removeInteraction();
+                // this.removeInteraction();
                 this.draw.interaction = new Select({
                     features: this.featureSelected,
                 });
@@ -192,6 +193,11 @@ export default {
                 break;
             case 'Line':
                 type = "LineString"
+                break;
+            case 'Drag':
+                this.draw.interaction = new Translate()
+                currentMap.addInteraction(this.draw.interaction);
+                return;
                 break;
         }
         this.draw.interaction = new Draw({
