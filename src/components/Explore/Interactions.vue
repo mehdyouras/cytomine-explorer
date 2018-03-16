@@ -1,17 +1,28 @@
 <template>
   <div>
-      <ul>
-          <li><button @click="addInteraction('Select')">Select</button></li>
-          <li><button @click="addInteraction('Point')">Point</button></li>
-          <li><button @click="addInteraction('Line')">Line</button></li>
-          <li><button @click="addInteraction('Arrow')">Arrow</button></li>
-          <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
-          <li><button @click="addInteraction('Ellipse')">Ellipse</button></li>
-          <li><button @click="addInteraction('Circle')">Circle</button></li>
-          <li><button @click="addInteraction('Polygon')">Polygon</button></li>
-          <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
-          <li><button @click="addInteraction('Ruler')">Ruler</button></li>
-      </ul>
+        <ul>
+            <li><button @click="addInteraction('Select')">Select</button></li>
+            <li><button @click="addInteraction('Point')">Point</button></li>
+            <li><button @click="addInteraction('Line')">Line</button></li>
+            <li><button @click="addInteraction('Arrow')">Arrow</button></li>
+            <li><button @click="addInteraction('Rectangle')">Rectangle</button></li>
+            <li><button @click="addInteraction('Ellipse')">Ellipse</button></li>
+            <li><button @click="addInteraction('Circle')">Circle</button></li>
+            <li><button @click="addInteraction('Polygon')">Polygon</button></li>
+            <li><button @click="addInteraction('MagicWand')">MagicWand</button></li>
+            <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
+            <li><button @click="addInteraction('Union', true)">Union</button></li>
+            <li><button @click="addInteraction('Difference', true)">Difference</button></li>
+            <li><button @click="addInteraction('Ruler')">Ruler</button></li>
+            <template v-if="featureSelected.getArray()[0]">
+                <li><button @click="addInteraction('Fill')">Fill</button></li>
+                <li><button @click="addInteraction('Edit')">Edit</button></li>
+                <li><button @click="addInteraction('Rotate')">Rotate</button></li>
+                <li><button @click="addInteraction('Resize')">Resize</button></li>
+                <li><button @click="addInteraction('Drag')">Drag</button></li>
+                <li><button @click="addInteraction('Remove')">Remove</button></li>
+            </template>
+        </ul>
   </div>
 </template>
 
@@ -25,6 +36,8 @@ import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
 import Select from 'ol/interaction/select';
+import Translate from 'ol/interaction/translate';
+import Modify from 'ol/interaction/modify';
 
 export default {
   name: 'Interactions',
@@ -47,6 +60,10 @@ export default {
       },
       layersArray() {
           return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+      },
+      currentUserLayer() {
+          let index = this.layersArray.findIndex(layer => layer.get('title') == this.currentMap.user.id);
+          return this.layersArray[index];
       },
       deepFeatureSelected() {
           return this.featureSelected.getArray()[0];
@@ -71,10 +88,11 @@ export default {
         }
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
-            color.push(this.vectorLayersOpacity + 0.3);
+            color[3] = this.vectorLayersOpacity + 0.3;
+            console.log(color)
             newFeature.getStyle().setStroke(
                 new Stroke({
-                    color: [0, 0, 255],
+                    color: [0, 0, 255, this.vectorLayersOpacity + 0.3],
                     width: 3,
                 }) 
             )
@@ -98,21 +116,23 @@ export default {
         this.removeInteraction();
 
         // Creates layer if not found
-        if(this.layerIndex(this.layersArray, 'draw') < 0) {
+        if(this.currentUserLayer == undefined && this.layerIndex(this.layersArray, 'draw') < 0) {
             this.draw.layer = new LayerVector({
                 title: 'draw',  
                 source: new SrcVector(),
                 extent: this.extent,
             })
             currentMap.addLayer(this.draw.layer);
+        } else if(this.currentUserLayer != undefined) {
+            this.draw.layer = this.currentUserLayer;
         }
         // Adds interaction
         let source = this.draw.layer.getSource(),
             geometryFunction, type;
-
+        console.log(source)
         switch (interactionType) {
             case 'Select':
-                this.removeInteraction();
+                // this.removeInteraction();
                 this.draw.interaction = new Select({
                     features: this.featureSelected,
                 });
@@ -183,6 +203,18 @@ export default {
                 break;
             case 'Line':
                 type = "LineString"
+                break;
+            case 'Edit':
+                this.draw.interaction = new Modify({
+                    features: this.featureSelected,
+                });
+                currentMap.addInteraction(this.draw.interaction);
+                return;
+                break;
+            case 'Drag':
+                this.draw.interaction = new Translate()
+                currentMap.addInteraction(this.draw.interaction);
+                return;
                 break;
         }
         this.draw.interaction = new Draw({

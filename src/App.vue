@@ -54,7 +54,9 @@ export default {
       filters: [],
       imageGroupIndex: [],
 	  imageSequences: [],
-	  baseSequence: {},
+    baseSequence: {},
+	onlineUsers: [],
+	currentUser: {},
     }
   },
   methods: {
@@ -95,7 +97,8 @@ export default {
           id,
           imageId,
           linkedTo: "",
-          imageGroup,
+		  imageGroup,
+		  user: this.currentUser,
           data: this.images[this.imageIndex(imageId)]
         })
       }
@@ -129,24 +132,30 @@ export default {
     })
 
     api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
-      let id = uuid();
-      this.lastEventMapId = id;
-      this.images = data.data.collection;
-      this.projectId = this.images[0].project;
-
-      if(this.imageGroupIndex[0]) {
-        api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
-          	this.baseSequence = resp.data.collection[0];
-			this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
-        })
-      } else {
-		  this.addMap(this.baseImage, "", id);
-	  }
+		let id = uuid();
+		this.lastEventMapId = id;
+		this.images = data.data.collection;
+		this.projectId = this.images[0].project;
+		api.get(`api/user/current.json`).then(data => {
+			this.currentUser = data.data;
+			if(this.imageGroupIndex[0]) {
+				api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
+					this.baseSequence = resp.data.collection[0];
+					this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+				})
+			} else {
+				this.addMap(this.baseImage, "", id);
+			}
+		})
 
     })
 
     api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {
       this.filters = data.data.collection;
+    })
+
+    api.get(`/api/project/82029/online/user.json`).then(data => {
+      this.onlineUsers = data.data.collection;
     })
     
   },
