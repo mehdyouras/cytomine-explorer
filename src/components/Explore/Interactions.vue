@@ -96,7 +96,7 @@ export default {
                     width: 3,
                 }) 
             )
-            // newFeature.changed();
+            newFeature.changed();
         }
       },
   },
