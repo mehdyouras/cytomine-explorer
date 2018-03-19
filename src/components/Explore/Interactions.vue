@@ -89,7 +89,6 @@ export default {
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
             color[3] = this.vectorLayersOpacity + 0.3;
-            console.log(color)
             newFeature.getStyle().setStroke(
                 new Stroke({
                     color: [0, 0, 255, this.vectorLayersOpacity + 0.3],
@@ -129,7 +128,6 @@ export default {
         // Adds interaction
         let source = this.draw.layer.getSource(),
             geometryFunction, type;
-        console.log(source)
         switch (interactionType) {
             case 'Select':
                 // this.removeInteraction();
@@ -212,8 +210,22 @@ export default {
                 return;
                 break;
             case 'Drag':
-                this.draw.interaction = new Translate()
+                this.draw.interaction = new Translate({
+                    features: this.featureSelected,
+                })
                 currentMap.addInteraction(this.draw.interaction);
+                return;
+                break;
+            case 'Remove':
+                let id = this.featureSelected.getArray()[0].getId(); 
+                let userId = this.featureSelected.getArray()[0].get('user');
+                let layerIndex = this.layersArray.findIndex(layer => layer.get('title') == userId);
+                let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == id)
+
+                this.layersArray[layerIndex].getSource().removeFeature(this.layersArray[layerIndex].getSource().getFeatures()[featureIndex]);
+                this.featureSelected.getArray().splice(0, 1);
+                api.delete(`/api/annotation/${id}.json`);
+                this.addInteraction('Select');
                 return;
                 break;
         }
