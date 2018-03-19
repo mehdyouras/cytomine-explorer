@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import WKT from 'ol/format/wkt';
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
@@ -38,6 +39,7 @@ import Stroke from 'ol/style/stroke';
 import Select from 'ol/interaction/select';
 import Translate from 'ol/interaction/translate';
 import Modify from 'ol/interaction/modify';
+import Rotate from 'ol-rotate-feature';
 
 export default {
   name: 'Interactions',
@@ -68,6 +70,9 @@ export default {
       deepFeatureSelected() {
           return this.featureSelected.getArray()[0];
       },
+      featureSelectedId() {
+          return this.featureSelected.getArray()[0].getId();
+      }
   },
   watch: {
       deepFeatureSelected(newFeature, oldFeature) {
@@ -89,7 +94,6 @@ export default {
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
             color[3] = this.vectorLayersOpacity + 0.3;
-            console.log(color)
             newFeature.getStyle().setStroke(
                 new Stroke({
                     color: [0, 0, 255, this.vectorLayersOpacity + 0.3],
@@ -129,7 +133,6 @@ export default {
         // Adds interaction
         let source = this.draw.layer.getSource(),
             geometryFunction, type;
-        console.log(source)
         switch (interactionType) {
             case 'Select':
                 // this.removeInteraction();
@@ -212,7 +215,52 @@ export default {
                 return;
                 break;
             case 'Drag':
-                this.draw.interaction = new Translate()
+                this.draw.interaction = new Translate({
+                    features: this.featureSelected,
+                })
+                currentMap.addInteraction(this.draw.interaction);
+                return;
+                break;
+            case 'Remove':
+                let userId = this.featureSelected.getArray()[0].get('user');
+                let layerIndex = this.layersArray.findIndex(layer => layer.get('title') == userId);
+                let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == this.featureSelectedId)
+
+                this.layersArray[layerIndex].getSource().removeFeature(this.layersArray[layerIndex].getSource().getFeatures()[featureIndex]);
+                this.featureSelected.getArray().splice(0, 1);
+                api.delete(`/api/annotation/${this.featureSelectedId}.json`);
+                this.addInteraction('Select');
+                return;
+                break;
+            case 'Resize':
+
+                return;
+                break;
+            case 'Fill':
+                api.put(`/api/annotation/${this.featureSelectedId}.json?&fill=true`, {fill: true, id: this.featureSelectedId}).then(data => {
+                    let format = new WKT();
+                    let newCoordinates = format.readFeature(data.data.data.annotation.location).getGeometry().getCoordinates()[0];
+                    let userId = this.featureSelected.getArray()[0].get('user');
+                    let layerIndex = this.layersArray.findIndex(layer => layer.get('title') == userId);
+                    let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == this.featureSelectedId)
+
+                    this.layersArray[layerIndex].getSource().getFeatures()[featureIndex].getGeometry().setCoordinates([newCoordinates]);
+                })
+                this.addInteraction('Select');
+                return;
+                break;
+            case 'Rotate':
+                this.draw.interaction = new Rotate({
+                    features: this.featureSelected,
+                })
+                this.draw.interaction.on('rotateend', evt => {
+                    let format = new WKT();
+                    let newCoordinates = format.writeFeature(this.featureSelected.getArray()[0]);
+                    api.get(`/api/annotation/${this.featureSelectedId}.json`).then(data => {
+                        data.data.location = newCoordinates;
+                        api.put(`api/annotation/${this.featureSelectedId}.json`, data.data);
+                    })
+                })
                 currentMap.addInteraction(this.draw.interaction);
                 return;
                 break;
