@@ -28,7 +28,6 @@
 
 <script>
 import WKT from 'ol/format/wkt';
-
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
@@ -40,6 +39,7 @@ import Stroke from 'ol/style/stroke';
 import Select from 'ol/interaction/select';
 import Translate from 'ol/interaction/translate';
 import Modify from 'ol/interaction/modify';
+import Rotate from 'ol-rotate-feature';
 
 export default {
   name: 'Interactions',
@@ -247,6 +247,21 @@ export default {
                     this.layersArray[layerIndex].getSource().getFeatures()[featureIndex].getGeometry().setCoordinates([newCoordinates]);
                 })
                 this.addInteraction('Select');
+                return;
+                break;
+            case 'Rotate':
+                this.draw.interaction = new Rotate({
+                    features: this.featureSelected,
+                })
+                this.draw.interaction.on('rotateend', evt => {
+                    let format = new WKT();
+                    let newCoordinates = format.writeFeature(this.featureSelected.getArray()[0]);
+                    api.get(`/api/annotation/${this.featureSelectedId}.json`).then(data => {
+                        data.data.location = newCoordinates;
+                        api.put(`api/annotation/${this.featureSelectedId}.json`, data.data);
+                    })
+                })
+                currentMap.addInteraction(this.draw.interaction);
                 return;
                 break;
         }
