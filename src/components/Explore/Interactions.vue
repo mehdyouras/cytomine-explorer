@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import WKT from 'ol/format/wkt';
+
 import LayerVector from 'ol/layer/vector';
 import SrcVector from 'ol/source/vector';
 import Collection from 'ol/collection';
@@ -68,6 +70,9 @@ export default {
       deepFeatureSelected() {
           return this.featureSelected.getArray()[0];
       },
+      featureSelectedId() {
+          return this.featureSelected.getArray()[0].getId();
+      }
   },
   watch: {
       deepFeatureSelected(newFeature, oldFeature) {
@@ -217,14 +222,30 @@ export default {
                 return;
                 break;
             case 'Remove':
-                let id = this.featureSelected.getArray()[0].getId(); 
                 let userId = this.featureSelected.getArray()[0].get('user');
                 let layerIndex = this.layersArray.findIndex(layer => layer.get('title') == userId);
-                let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == id)
+                let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == this.featureSelectedId)
 
                 this.layersArray[layerIndex].getSource().removeFeature(this.layersArray[layerIndex].getSource().getFeatures()[featureIndex]);
                 this.featureSelected.getArray().splice(0, 1);
-                api.delete(`/api/annotation/${id}.json`);
+                api.delete(`/api/annotation/${this.featureSelectedId}.json`);
+                this.addInteraction('Select');
+                return;
+                break;
+            case 'Resize':
+
+                return;
+                break;
+            case 'Fill':
+                api.put(`/api/annotation/${this.featureSelectedId}.json?&fill=true`, {fill: true, id: this.featureSelectedId}).then(data => {
+                    let format = new WKT();
+                    let newCoordinates = format.readFeature(data.data.data.annotation.location).getGeometry().getCoordinates()[0];
+                    let userId = this.featureSelected.getArray()[0].get('user');
+                    let layerIndex = this.layersArray.findIndex(layer => layer.get('title') == userId);
+                    let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == this.featureSelectedId)
+
+                    this.layersArray[layerIndex].getSource().getFeatures()[featureIndex].getGeometry().setCoordinates([newCoordinates]);
+                })
                 this.addInteraction('Select');
                 return;
                 break;
