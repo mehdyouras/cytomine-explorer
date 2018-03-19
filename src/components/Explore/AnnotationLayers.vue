@@ -115,6 +115,7 @@ export default {
                             let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
                             let feature = format.readFeature(element.location);
                             feature.setId(element.id);
+                            feature.set('user', toAdd.id);
                             feature.setStyle(new Style({
                                 fill: new Fill({
                                     color: fillColor,
