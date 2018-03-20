@@ -278,7 +278,7 @@ export default {
             this.draw.interaction.on('drawend', evt => {
                 let format = new WKT();
                 let location = format.writeFeature(evt.feature);
-                let layers = this.layersArray.filter(layer => layer.getType() == "VECTOR").map(layer => layer.get('title'))
+                let layers = this.layersArray.filter(layer => layer.getType() == "VECTOR" && layer.get('title') != 'draw').map(layer => layer.get('title'))
                 api.post(`/api/annotationcorrection.json`, {
                     image: parseInt(this.currentMap.imageId),
                     layers,
