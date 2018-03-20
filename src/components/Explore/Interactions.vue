@@ -114,6 +114,10 @@ export default {
     userDisplayName(user) {
         return `${user.lastname} ${user.firstname} (${user.username})`
     },
+    getWktLocation(feature) {
+        let format = new WKT();
+        return format.writeFeature(feature);
+    },
     addInteraction(interactionType, freehand = false, remove = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
 
@@ -276,8 +280,7 @@ export default {
         })
         if(interactionType == 'Correction') {
             this.draw.interaction.on('drawend', evt => {
-                let format = new WKT();
-                let location = format.writeFeature(evt.feature);
+                let location = this.getWktLocation(evt.feature);
                 let layers = this.layersArray.filter(layer => layer.getType() == "VECTOR" && layer.get('title') != 'draw').map(layer => layer.get('title'))
                 api.post(`/api/annotationcorrection.json`, {
                     image: parseInt(this.currentMap.imageId),
