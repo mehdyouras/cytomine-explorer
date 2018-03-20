@@ -37,7 +37,8 @@ export default {
         'currentMap',
         'termsToShow',
         'showWithNoTerm',
-        'allTerms'
+        'allTerms',
+        'updateLayers'
     ],
     data() {
       return {
@@ -83,6 +84,15 @@ export default {
                 }
             })
         },
+        updateLayers(newValue) {
+            if(newValue == true) {
+                this.layersSelected.map(layer => {
+                    this.removeLayer(layer, false)
+                    this.addLayer(layer, false)
+                })
+                this.$emit('updateLayers', false);
+            }
+        }
     },
     methods: {
         layerIndex(array, toFind) {

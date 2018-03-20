@@ -18,8 +18,8 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
-        <annotation-layers @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
-        <interactions @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
+        <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+        <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
@@ -77,6 +77,7 @@ export default {
         userLayers: [],
         layersSelected: [],
         vectorLayersOpacity: 0.5,
+        updateLayers: false,
     }
   },
   props: [
@@ -192,6 +193,9 @@ export default {
     },
     setFeatureSelectedData(payload) {
         this.featureSelectedData = payload;
+    },
+    setUpdateLayers(payload) {
+        this.updateLayers = payload;
     }
   }, 
   mounted() {
