@@ -11,8 +11,8 @@
             <li><button @click="addInteraction('Polygon')">Polygon</button></li>
             <li><button @click="addInteraction('MagicWand')">MagicWand</button></li>
             <li><button @click="addInteraction('Polygon', true)">Freehand</button></li>
-            <li><button @click="addInteraction('Union', true)">Union</button></li>
-            <li><button @click="addInteraction('Difference', true)">Difference</button></li>
+            <li><button @click="addInteraction('Correction', true)">Union</button></li>
+            <li><button @click="addInteraction('Correction', true, true)">Difference</button></li>
             <li><button @click="addInteraction('Ruler')">Ruler</button></li>
             <template v-if="featureSelected.getArray()[0]">
                 <li><button @click="addInteraction('Fill')">Fill</button></li>
@@ -114,7 +114,7 @@ export default {
     userDisplayName(user) {
         return `${user.lastname} ${user.firstname} (${user.username})`
     },
-    addInteraction(interactionType, freehand = false ) {
+    addInteraction(interactionType, freehand = false, remove = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
 
         this.removeInteraction();
@@ -264,6 +264,9 @@ export default {
                 currentMap.addInteraction(this.draw.interaction);
                 return;
                 break;
+            case 'Correction':
+                type = 'Polygon'
+                break;
         }
         this.draw.interaction = new Draw({
             source,
@@ -271,6 +274,22 @@ export default {
             geometryFunction,
             freehand,
         })
+        if(interactionType == 'Correction') {
+            this.draw.interaction.on('drawend', evt => {
+                let format = new WKT();
+                let location = format.writeFeature(evt.feature);
+                let layers = this.layersArray.filter(layer => layer.getType() == "VECTOR").map(layer => layer.get('title'))
+                api.post(`/api/annotationcorrection.json`, {
+                    image: parseInt(this.currentMap.imageId),
+                    layers,
+                    location,
+                    remove,
+                    review: false,
+                }).then(data => {
+                    this.$emit('updateLayers', true);
+                })
+            })
+        }
         currentMap.addInteraction(this.draw.interaction);
     },
     removeInteraction() {
