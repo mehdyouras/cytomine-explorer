@@ -40,6 +40,9 @@ import Select from 'ol/interaction/select';
 import Translate from 'ol/interaction/translate';
 import Modify from 'ol/interaction/modify';
 import Rotate from 'ol-rotate-feature';
+import Sphere from 'ol/sphere';
+import Observable from 'ol/observable';
+import Overlay from 'ol/overlay';
 
 export default {
   name: 'Interactions',
@@ -117,6 +120,26 @@ export default {
     getWktLocation(feature) {
         let format = new WKT();
         return format.writeFeature(feature);
+    },
+    /**
+    * Creates a new measure tooltip
+    */
+    createMeasureTooltip(measureTooltipElement, measureTooltip) {
+        if (measureTooltipElement) {
+            measureTooltipElement.parentNode.removeChild(measureTooltipElement);
+        }
+        measureTooltipElement = document.createElement('div');
+        measureTooltipElement.className = 'tooltip tooltip-measure';
+        measureTooltip = new Overlay({
+            element: measureTooltipElement,
+            offset: [0, -15],
+            positioning: 'bottom-center'
+        });
+        this.$openlayers.getMap(this.currentMap.id).addOverlay(measureTooltip);
+        return {
+            measureTooltipElement,
+            measureTooltip,
+        }
     },
     addInteraction(interactionType, freehand = false, remove = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
@@ -271,6 +294,164 @@ export default {
             case 'Correction':
                 type = 'Polygon'
                 break;
+            case 'Ruler':
+                /**
+                * Currently drawn feature.
+                * @type {ol.Feature}
+                */
+                var sketch;
+
+
+                /**
+                * The help tooltip element.
+                * @type {Element}
+                */
+                var helpTooltipElement;
+
+
+                /**
+                * Overlay to show the help messages.
+                * @type {ol.Overlay}
+                */
+                var helpTooltip;
+
+
+                /**
+                * The measure tooltip element.
+                * @type {Element}
+                */
+                var measureTooltipElement;
+
+
+                /**
+                * Overlay to show the measurement.
+                * @type {ol.Overlay}
+                */
+                var measureTooltip;
+
+
+                /**
+                * Message to show when the user is drawing a polygon.
+                * @type {string}
+                */
+                var continuePolygonMsg = 'Click to continue drawing the polygon';
+
+
+                /**
+                * Message to show when the user is drawing a line.
+                * @type {string}
+                */
+                var continueLineMsg = 'Click to continue drawing the line';
+
+
+                /**
+                * Handle pointer move.
+                * @param {ol.MapBrowserEvent} evt The event.
+                */
+                var pointerMoveHandler = function(evt) {
+                    if (evt.dragging) {
+                    return;
+                    }
+                    /** @type {string} */
+                    var helpMsg = 'Click to start drawing';
+
+                    if (sketch) {
+                    var geom = (sketch.getGeometry());
+                    helpMsg = continueLineMsg;
+                    
+                    }
+
+                    helpTooltipElement.innerHTML = helpMsg;
+                    helpTooltip.setPosition(evt.coordinate);
+
+                    helpTooltipElement.classList.remove('hidden');
+                };
+
+                /**
+            * Creates a new help tooltip
+            */
+            function createHelpTooltip() {
+                if (helpTooltipElement) {
+                helpTooltipElement.parentNode.removeChild(helpTooltipElement);
+                }
+                helpTooltipElement = document.createElement('div');
+                helpTooltipElement.className = 'tooltip hidden';
+                helpTooltip = new Overlay({
+                element: helpTooltipElement,
+                offset: [15, 0],
+                positioning: 'center-left'
+                });
+                currentMap.addOverlay(helpTooltip);
+            }
+
+
+                currentMap.on('pointermove', pointerMoveHandler);
+
+                currentMap.getViewport().addEventListener('mouseout', function() {
+                    helpTooltipElement.classList.add('hidden');
+                });
+
+
+                /**
+                * Format length output.
+                * @param {ol.geom.LineString} line The line.
+                * @return {string} The formatted length.
+                */
+                var formatLength = function(line) {
+                    var length = Sphere.getLength(line);
+                    return length + ' px';
+                };
+
+
+                /**
+                * Format area output.
+                * @param {ol.geom.Polygon} polygon The polygon.
+                * @return {string} Formatted area.
+                */
+                var formatArea = function(polygon) {
+                    var area = Sphere.getArea(polygon);
+                    var output;
+                    if (area > 10000) {
+                    output = (Math.round(area / 1000000 * 100) / 100) +
+                        ' ' + 'km<sup>2</sup>';
+                    } else {
+                    output = (Math.round(area * 100) / 100) +
+                        ' ' + 'm<sup>2</sup>';
+                    }
+                    return output;
+                };
+
+                let result = this.createMeasureTooltip(measureTooltipElement, measureTooltip);
+                measureTooltipElement = result.measureTooltipElement;
+                measureTooltip = result.measureTooltip;
+                createHelpTooltip();
+
+                var listener;
+            
+            // var draw = new Draw({
+            //     source: source,
+            //     type: 'LineString',
+            //     style: new Style({
+            //         fill: new Fill({
+            //         color: 'rgba(255, 255, 255, 0.2)'
+            //         }),
+            //         stroke: new .Stroke({
+            //         color: 'rgba(0, 0, 0, 0.5)',
+            //         lineDash: [10, 10],
+            //         width: 2
+            //         }),
+            //         image: new Circle({
+            //         radius: 5,
+            //         stroke: new Stroke({
+            //             color: 'rgba(0, 0, 0, 0.7)'
+            //         }),
+            //         fill: new Fill({
+            //             color: 'rgba(255, 255, 255, 0.2)'
+            //         })
+            //         })
+            //     })})
+                type = 'LineString';
+                break;
         }
         this.draw.interaction = new Draw({
             source,
@@ -292,6 +473,40 @@ export default {
                     this.$emit('updateLayers', true);
                 })
             })
+        } else if (interactionType == 'Ruler'){
+            this.draw.interaction.on('drawstart',
+                function(evt) {
+                // set sketch
+                sketch = evt.feature;
+
+                /** @type {ol.Coordinate|undefined} */
+                var tooltipCoord = evt.coordinate;
+
+                listener = sketch.getGeometry().on('change', function(evt) {
+                    var geom = evt.target;
+                    var output;
+                    
+                    output = formatLength(geom);
+                    tooltipCoord = geom.getLastCoordinate();
+                    
+                    measureTooltipElement.innerHTML = output;
+                    measureTooltip.setPosition(tooltipCoord);
+                });
+                }, this);
+
+            this.draw.interaction.on('drawend',
+                () => {
+                    measureTooltipElement.className = 'tooltip tooltip-static';
+                    measureTooltip.setOffset([0, -7]);
+                    // unset sketch
+                    sketch = null;
+                    // unset tooltip so that a new one can be created
+                    measureTooltipElement = null;
+                    let result = this.createMeasureTooltip(measureTooltipElement, measureTooltip);
+                    measureTooltipElement = result.measureTooltipElement;
+                    measureTooltip = result.measureTooltip;
+                    Observable.unByKey(listener);
+                }, this);
         } else {
             this.draw.interaction.on('drawend', evt => {
                 api.post(`/api/annotation.json`, {
