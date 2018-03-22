@@ -144,7 +144,7 @@ export default {
     },
     addInteraction(interactionType, freehand = false, remove = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
-
+        let style = undefined;
         this.removeInteraction();
 
         // Creates layer if not found
@@ -309,57 +309,20 @@ export default {
                 */
                 var helpTooltipElement;
 
-
-                /**
-                * Overlay to show the help messages.
-                * @type {ol.Overlay}
-                */
-                var helpTooltip;
-
-
-                /**
-                * The measure tooltip element.
-                * @type {Element}
-                */
-                var measureTooltipElement;
-
-
-                /**
-                * Overlay to show the measurement.
-                * @type {ol.Overlay}
-                */
-                var measureTooltip;
-
-
-                /**
-                * Message to show when the user is drawing a polygon.
-                * @type {string}
-                */
-                var continuePolygonMsg = 'Click to continue drawing the polygon';
-
-
-                /**
-                * Message to show when the user is drawing a line.
-                * @type {string}
-                */
-                var continueLineMsg = 'Click to continue drawing the line';
-
-
                 /**
                 * Handle pointer move.
                 * @param {ol.MapBrowserEvent} evt The event.
                 */
                 var pointerMoveHandler = (evt) => {
                     if (evt.dragging) {
-                    return;
+                        return;
                     }
                     /** @type {string} */
                     var helpMsg = 'Click to start drawing';
 
                     if (sketch) {
-                    var geom = (sketch.getGeometry());
-                    helpMsg = continueLineMsg;
-                    
+                        var geom = (sketch.getGeometry());
+                        helpMsg = 'Click to continue drawing the line';
                     }
 
                     helpTooltipElement.innerHTML = helpMsg;
@@ -369,21 +332,21 @@ export default {
                 };
 
                 /**
-            * Creates a new help tooltip
-            */
-            let createHelpTooltip = () => {
-                if (helpTooltipElement) {
-                helpTooltipElement.parentNode.removeChild(helpTooltipElement);
+                * Creates a new help tooltip
+                */
+                let createHelpTooltip = () => {
+                    if (helpTooltipElement) {
+                    helpTooltipElement.parentNode.removeChild(helpTooltipElement);
+                    }
+                    helpTooltipElement = document.createElement('div');
+                    helpTooltipElement.className = 'tooltip hidden';
+                    this.draw.overlay.helpTooltip = new Overlay({
+                    element: helpTooltipElement,
+                    offset: [15, 0],
+                    positioning: 'center-left'
+                    });
+                    currentMap.addOverlay(this.draw.overlay.helpTooltip);
                 }
-                helpTooltipElement = document.createElement('div');
-                helpTooltipElement.className = 'tooltip hidden';
-                this.draw.overlay.helpTooltip = new Overlay({
-                element: helpTooltipElement,
-                offset: [15, 0],
-                positioning: 'center-left'
-                });
-                currentMap.addOverlay(this.draw.overlay.helpTooltip);
-            }
 
 
                 currentMap.on('pointermove', pointerMoveHandler);
@@ -403,42 +366,21 @@ export default {
                     return Math.round(length * 100) / 1000 + ' px';
                 };
 
-                measureTooltipElement = this.createMeasureTooltip();
+                let measureTooltipElement = this.createMeasureTooltip();
                 createHelpTooltip();
 
                 var listener;
-            
-            // var draw = new Draw({
-            //     source: source,
-            //     type: 'LineString',
-            //     style: new Style({
-            //         fill: new Fill({
-            //         color: 'rgba(255, 255, 255, 0.2)'
-            //         }),
-            //         stroke: new .Stroke({
-            //         color: 'rgba(0, 0, 0, 0.5)',
-            //         lineDash: [10, 10],
-            //         width: 2
-            //         }),
-            //         image: new Circle({
-            //         radius: 5,
-            //         stroke: new Stroke({
-            //             color: 'rgba(0, 0, 0, 0.7)'
-            //         }),
-            //         fill: new Fill({
-            //             color: 'rgba(255, 255, 255, 0.2)'
-            //         })
-            //         })
-            //     })})
                 type = 'LineString';
                 break;
         }
+
         this.draw.interaction = new Draw({
             source,
             type,
             geometryFunction,
             freehand,
         })
+
         if(interactionType == 'Correction') {
             this.draw.interaction.on('drawend', evt => {
                 let location = this.getWktLocation(evt.feature);
@@ -485,6 +427,7 @@ export default {
                     let result = this.createMeasureTooltip();
                     Observable.unByKey(listener);
                 }, this);
+            console.log(this.draw.interaction)
         } else {
             this.draw.interaction.on('drawend', evt => {
                 api.post(`/api/annotation.json`, {
