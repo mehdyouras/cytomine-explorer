@@ -55,6 +55,10 @@ export default {
           draw: {
               layer: {},
               interaction: {},
+              overlay: {
+                  helpTooltip: {},
+                  measureTooltip: {},
+              }
           },
           featureSelected: new Collection(),
       }
@@ -124,22 +128,19 @@ export default {
     /**
     * Creates a new measure tooltip
     */
-    createMeasureTooltip(measureTooltipElement, measureTooltip) {
+    createMeasureTooltip(measureTooltipElement) {
         if (measureTooltipElement) {
             measureTooltipElement.parentNode.removeChild(measureTooltipElement);
         }
         measureTooltipElement = document.createElement('div');
         measureTooltipElement.className = 'tooltip tooltip-measure';
-        measureTooltip = new Overlay({
+        this.draw.overlay.measureTooltip = new Overlay({
             element: measureTooltipElement,
             offset: [0, -15],
             positioning: 'bottom-center'
         });
-        this.$openlayers.getMap(this.currentMap.id).addOverlay(measureTooltip);
-        return {
-            measureTooltipElement,
-            measureTooltip,
-        }
+        this.$openlayers.getMap(this.currentMap.id).addOverlay(this.draw.overlay.measureTooltip);
+        return measureTooltipElement;
     },
     addInteraction(interactionType, freehand = false, remove = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
@@ -348,7 +349,7 @@ export default {
                 * Handle pointer move.
                 * @param {ol.MapBrowserEvent} evt The event.
                 */
-                var pointerMoveHandler = function(evt) {
+                var pointerMoveHandler = (evt) => {
                     if (evt.dragging) {
                     return;
                     }
@@ -362,7 +363,7 @@ export default {
                     }
 
                     helpTooltipElement.innerHTML = helpMsg;
-                    helpTooltip.setPosition(evt.coordinate);
+                    this.draw.overlay.helpTooltip.setPosition(evt.coordinate);
 
                     helpTooltipElement.classList.remove('hidden');
                 };
@@ -370,18 +371,18 @@ export default {
                 /**
             * Creates a new help tooltip
             */
-            function createHelpTooltip() {
+            let createHelpTooltip = () => {
                 if (helpTooltipElement) {
                 helpTooltipElement.parentNode.removeChild(helpTooltipElement);
                 }
                 helpTooltipElement = document.createElement('div');
                 helpTooltipElement.className = 'tooltip hidden';
-                helpTooltip = new Overlay({
+                this.draw.overlay.helpTooltip = new Overlay({
                 element: helpTooltipElement,
                 offset: [15, 0],
                 positioning: 'center-left'
                 });
-                currentMap.addOverlay(helpTooltip);
+                currentMap.addOverlay(this.draw.overlay.helpTooltip);
             }
 
 
@@ -399,31 +400,10 @@ export default {
                 */
                 var formatLength = function(line) {
                     var length = Sphere.getLength(line);
-                    return length + ' px';
+                    return Math.round(length * 100) / 1000 + ' px';
                 };
 
-
-                /**
-                * Format area output.
-                * @param {ol.geom.Polygon} polygon The polygon.
-                * @return {string} Formatted area.
-                */
-                var formatArea = function(polygon) {
-                    var area = Sphere.getArea(polygon);
-                    var output;
-                    if (area > 10000) {
-                    output = (Math.round(area / 1000000 * 100) / 100) +
-                        ' ' + 'km<sup>2</sup>';
-                    } else {
-                    output = (Math.round(area * 100) / 100) +
-                        ' ' + 'm<sup>2</sup>';
-                    }
-                    return output;
-                };
-
-                let result = this.createMeasureTooltip(measureTooltipElement, measureTooltip);
-                measureTooltipElement = result.measureTooltipElement;
-                measureTooltip = result.measureTooltip;
+                measureTooltipElement = this.createMeasureTooltip();
                 createHelpTooltip();
 
                 var listener;
@@ -475,14 +455,14 @@ export default {
             })
         } else if (interactionType == 'Ruler'){
             this.draw.interaction.on('drawstart',
-                function(evt) {
+                (evt) => {
                 // set sketch
                 sketch = evt.feature;
 
                 /** @type {ol.Coordinate|undefined} */
                 var tooltipCoord = evt.coordinate;
 
-                listener = sketch.getGeometry().on('change', function(evt) {
+                listener = sketch.getGeometry().on('change', (evt) => {
                     var geom = evt.target;
                     var output;
                     
@@ -490,21 +470,19 @@ export default {
                     tooltipCoord = geom.getLastCoordinate();
                     
                     measureTooltipElement.innerHTML = output;
-                    measureTooltip.setPosition(tooltipCoord);
+                    this.draw.overlay.measureTooltip.setPosition(tooltipCoord);
                 });
-                }, this);
+                });
 
             this.draw.interaction.on('drawend',
                 () => {
                     measureTooltipElement.className = 'tooltip tooltip-static';
-                    measureTooltip.setOffset([0, -7]);
+                    this.draw.overlay.measureTooltip.setOffset([0, -7]);
                     // unset sketch
                     sketch = null;
                     // unset tooltip so that a new one can be created
                     measureTooltipElement = null;
-                    let result = this.createMeasureTooltip(measureTooltipElement, measureTooltip);
-                    measureTooltipElement = result.measureTooltipElement;
-                    measureTooltip = result.measureTooltip;
+                    let result = this.createMeasureTooltip();
                     Observable.unByKey(listener);
                 }, this);
         } else {
