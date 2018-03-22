@@ -58,6 +58,7 @@ export default {
               overlay: {
                   helpTooltip: {},
                   measureTooltip: {},
+                  measureTooltipElement: "",
               }
           },
           featureSelected: new Collection(),
@@ -146,7 +147,8 @@ export default {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
         let style = undefined;
         this.removeInteraction();
-
+        this.removeOverlay(this.draw.overlay.helpTooltip);
+        
         // Creates layer if not found
         if(this.currentUserLayer == undefined && this.layerIndex(this.layersArray, 'draw') < 0) {
             this.draw.layer = new LayerVector({
@@ -366,7 +368,7 @@ export default {
                     return Math.round(length * 100) / 1000 + ' px';
                 };
 
-                let measureTooltipElement = this.createMeasureTooltip();
+                this.draw.overlay.measureTooltipElement = this.createMeasureTooltip(this.draw.overlay.measureTooltipElement);
                 createHelpTooltip();
 
                 var listener;
@@ -411,19 +413,19 @@ export default {
                     output = formatLength(geom);
                     tooltipCoord = geom.getLastCoordinate();
                     
-                    measureTooltipElement.innerHTML = output;
+                    this.draw.overlay.measureTooltipElement.innerHTML = output;
                     this.draw.overlay.measureTooltip.setPosition(tooltipCoord);
                 });
                 });
 
             this.draw.interaction.on('drawend',
                 () => {
-                    measureTooltipElement.className = 'tooltip tooltip-static';
+                    this.draw.overlay.measureTooltipElement.className = 'tooltip tooltip-static';
                     this.draw.overlay.measureTooltip.setOffset([0, -7]);
                     // unset sketch
                     sketch = null;
                     // unset tooltip so that a new one can be created
-                    measureTooltipElement = null;
+                    this.draw.overlay.measureTooltipElement = null;
                     let result = this.createMeasureTooltip();
                     Observable.unByKey(listener);
                 }, this);
@@ -446,6 +448,9 @@ export default {
     },
     removeInteraction() {
         this.$openlayers.getMap(this.currentMap.id).removeInteraction(this.draw.interaction);
+    },
+    removeOverlay(overlay) {
+        this.$openlayers.getMap(this.currentMap.id).removeOverlay(overlay)
     }
   },
 }
