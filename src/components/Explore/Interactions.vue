@@ -129,26 +129,25 @@ export default {
     /**
     * Creates a new measure tooltip
     */
-    createMeasureTooltip(measureTooltipElement) {
-        if (measureTooltipElement) {
-            measureTooltipElement.parentNode.removeChild(measureTooltipElement);
+    createMeasureTooltip() {
+        if (this.draw.overlay.measureTooltipElement) {
+            this.draw.overlay.measureTooltipElement.parentNode.removeChild(this.draw.overlay.measureTooltipElement);
         }
-        measureTooltipElement = document.createElement('div');
-        measureTooltipElement.className = 'tooltip tooltip-measure';
+        this.draw.overlay.measureTooltipElement = document.createElement('div');
+        this.draw.overlay.measureTooltipElement.className = 'tooltip tooltip-measure';
         this.draw.overlay.measureTooltip = new Overlay({
-            element: measureTooltipElement,
+            element: this.draw.overlay.measureTooltipElement,
             offset: [0, -15],
             positioning: 'bottom-center'
         });
         this.$openlayers.getMap(this.currentMap.id).addOverlay(this.draw.overlay.measureTooltip);
-        return measureTooltipElement;
     },
     addInteraction(interactionType, freehand = false, remove = false ) {
         let currentMap = this.$openlayers.getMap(this.currentMap.id)
         let style = undefined;
         this.removeInteraction();
         this.removeOverlay(this.draw.overlay.helpTooltip);
-        
+
         // Creates layer if not found
         if(this.currentUserLayer == undefined && this.layerIndex(this.layersArray, 'draw') < 0) {
             this.draw.layer = new LayerVector({
@@ -368,7 +367,7 @@ export default {
                     return Math.round(length * 100) / 1000 + ' px';
                 };
 
-                this.draw.overlay.measureTooltipElement = this.createMeasureTooltip(this.draw.overlay.measureTooltipElement);
+                this.createMeasureTooltip();
                 createHelpTooltip();
 
                 var listener;
@@ -426,7 +425,7 @@ export default {
                     sketch = null;
                     // unset tooltip so that a new one can be created
                     this.draw.overlay.measureTooltipElement = null;
-                    let result = this.createMeasureTooltip();
+                    this.createMeasureTooltip();
                     Observable.unByKey(listener);
                 }, this);
             console.log(this.draw.interaction)
