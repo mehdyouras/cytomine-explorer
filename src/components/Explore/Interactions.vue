@@ -292,6 +292,19 @@ export default {
                     this.$emit('updateLayers', true);
                 })
             })
+        } else {
+            this.draw.interaction.on('drawend', evt => {
+                api.post(`/api/annotation.json`, {
+                    name: "",
+                    location: this.getWktLocation(evt.feature),
+                    image: this.currentMap.imageId,
+                    roi: false,
+                    term: [],
+                    user: this.currentMap.user.id,
+                }).then(() => {
+                    this.$emit('updateLayers', true)
+                })
+            })
         }
         currentMap.addInteraction(this.draw.interaction);
     },
