@@ -38,7 +38,8 @@ export default {
         'termsToShow',
         'showWithNoTerm',
         'allTerms',
-        'updateLayers'
+        'updateLayers',
+        'isReviewing'
     ],
     data() {
       return {
