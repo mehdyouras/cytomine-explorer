@@ -38,7 +38,8 @@ export default {
         'termsToShow',
         'showWithNoTerm',
         'allTerms',
-        'updateLayers'
+        'updateLayers',
+        'isReviewing'
     ],
     data() {
       return {
@@ -107,55 +108,70 @@ export default {
         addLayer(toAdd, addToSelected = true) {
             if(toAdd.id) {            
                 api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true`).then(data => {
-                    
-                    if(addToSelected) {
-                        // Push added item to selected
-                        toAdd.visible = true;
-                        this.layersSelected.push(toAdd);
-                    }
-
-                    let format = new WKT();
-                    let geoms = data.data.collection.map(element => {
-                        let termsIntersection = intersection(this.termsToShow, element.term);
-                        // Checks if element has no term && show annotations without terms is enabled 
-                        // If false checks terms intersection
-                        let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
-                        if(isToShow) {  
-                            // Sets the color specified by api if annotation has only one term
-                            let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
-                            let feature = format.readFeature(element.location);
-                            feature.setId(element.id);
-                            feature.set('user', toAdd.id);
-                            feature.setStyle(new Style({
-                                fill: new Fill({
-                                    color: fillColor,
-                                }),
-                                stroke: new Stroke({
-                                    color: [0,0,0],
-                                    width: 3,
-                                })
-                            }))
-                            return feature;
+                    let collection = data.data.collection;
+                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=true&notReviewedOnly=true`).then(resp => {
+                        if(addToSelected) {
+                            // Push added item to selected
+                            toAdd.visible = true;
+                            this.layersSelected.push(toAdd);
                         }
+                        if(this.isReviewing) {
+                            let response = resp.data.collection.map(annotation => {
+                                annotation.isReviewed = true;
+                                return annotation;
+                            })
+                            collection = collection.concat(response)
+                        }
+                        let format = new WKT();
+                        let geoms = collection.map(element => {
+                            let termsIntersection = intersection(this.termsToShow, element.term);
+                            // Checks if element has no term && show annotations without terms is enabled 
+                            // If false checks terms intersection
+                            let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
+                            if(isToShow) {  
+                                // Sets the color specified by api if annotation has only one term
+                                let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
+                                let feature = format.readFeature(element.location);
+                                feature.setId(element.id);
+                                feature.set('user', toAdd.id);
+                                let strokeColor;
+                                if(this.isReviewing) {
+                                    strokeColor = element.isReviewed ? [91, 183, 91] : [189, 54, 47];
+                                } else {
+                                    strokeColor = [0, 0, 0]
+                                }
+                                feature.setStyle(new Style({
+                                    fill: new Fill({
+                                        color: fillColor,
+                                    }),
+                                    stroke: new Stroke({
+                                        color: strokeColor,
+                                        width: 3,
+                                    }),
+                                }))
+                                return feature;
+                            }
+                        })
+
+                        geoms = compact(geoms);
+
+                        let features = new Collection(geoms)
+
+                        // Create vector layer                
+                        this.vectorLayer = new LayerVector({
+                            title: toAdd.id,  
+                            source: new SrcVector({
+                                features,
+                            }),
+                            extent : this.extent,
+                        })
+                        this.vectorLayer.setOpacity(this.vectorLayersOpacity);
+                        this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
+                        
+                        // Clear field
+                        this.layerToBeAdded = {};                
                     })
-
-                    geoms = compact(geoms);
-
-                    let features = new Collection(geoms)
-
-                    // Create vector layer                
-                    this.vectorLayer = new LayerVector({
-                        title: toAdd.id,  
-                        source: new SrcVector({
-                            features,
-                        }),
-                        extent : this.extent,
-                    })
-                    this.vectorLayer.setOpacity(this.vectorLayersOpacity);
-                    this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
                     
-                    // Clear field
-                    this.layerToBeAdded = {};                
                 })
 
             }
