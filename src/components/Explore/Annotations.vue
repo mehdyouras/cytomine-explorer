@@ -32,6 +32,7 @@
 <script>
 import Popper from 'vue-popperjs';
 import uuid from 'uuid'
+import humanDate from '../../helpers/humanDate'
 
 export default {
   name: 'Annotations',
@@ -79,10 +80,7 @@ export default {
           return index < 0 ? null : this.terms[index].key
       },
       humanDate(date) {
-          date = new Date(date).toISOString();
-          date = date.replace('T', ' ');
-          date = date.substring(0, date.indexOf('.'));
-          return date;
+          return humanDate(date);
       }
   },
   created() {
