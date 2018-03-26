@@ -12,6 +12,8 @@
         <dt>Term(s):</dt>
         <dd></dd>
       </dl>
+      <button :disabled="this.featureSelectedData.reviewed" @click="acceptReview">Accept</button>
+      <button :disabled="!this.featureSelectedData.reviewed" @click="rejectReview">Reject</button>
     </section>
   </div>
 </template>
@@ -45,6 +47,19 @@ export default {
         let index = this.userLayers.findIndex(user => user.id == userId);
         return index < 0 ? "" : `${this.userLayers[index].lastname} ${this.userLayers[index].firstname} (${this.userLayers[index].username})`
       },
+      acceptReview() {
+        api.put(`/api/annotation/${this.featureId}/review.json`, {
+          id:this.featureId,
+          terms: this.featureSelectedData.term,
+        }).then(() => {
+          this.$emit('updateLayers', true)
+        })
+      },
+      rejectReview() {
+        api.delete(`/api/annotation/${this.featureSelectedData.parentIdent}/review.json`).then(() => {
+          this.$emit('updateLayers', true)
+        })
+      }
     }
 }
 </script>
