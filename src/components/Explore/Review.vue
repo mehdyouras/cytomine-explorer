@@ -51,13 +51,24 @@ export default {
         api.put(`/api/annotation/${this.featureId}/review.json`, {
           id:this.featureId,
           terms: this.featureSelectedData.term,
-        }).then(() => {
-          this.$emit('updateLayers', true)
+        }).then(data => {
+          this.featureSelected.getStyle().getStroke().setColor([91, 183, 91]);
+          this.featureSelected.changed();
+          this.$emit('featureSelectedData', data.data.reviewedannotation);
+          // this.$emit('updateLayers', true);
         })
       },
       rejectReview() {
-        api.delete(`/api/annotation/${this.featureSelectedData.parentIdent}/review.json`).then(() => {
-          this.$emit('updateLayers', true)
+        api.delete(`/api/annotation/${this.featureSelectedData.parentIdent}/review.json`).then(data => {
+          this.featureSelected.getStyle().getStroke().setColor([189, 54, 47]);
+          this.featureSelected.changed();
+          api.get(`/api/annotation/${this.featureId}.json`).then(data => {
+            this.$emit('featureSelectedData', data.data);
+          })
+          // this.featureSelectedData.reviewed = false;
+          // let newFeature = data.data.reviewedannotation;
+          // newFeature.reviewed = false;
+          // this.$emit('updateLayers', true);
         })
       }
     }
