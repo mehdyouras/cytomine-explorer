@@ -26,7 +26,7 @@ export default {
     props: [
       'featureSelected',
       'featureSelectedData',
-      'userLayers'
+      'userLayers',
     ],
     computed: {
       featureId() {
@@ -56,6 +56,7 @@ export default {
           this.featureSelected.getStyle().getStroke().setColor([91, 183, 91]);
           this.featureSelected.changed();
           this.$emit('featureSelectedData', data.data.reviewedannotation);
+          this.$emit('updateLayers', true);
         })
       },
       rejectReview() {
@@ -65,6 +66,7 @@ export default {
           this.featureSelected.changed();
           api.get(`/api/annotation/${id}.json`).then(data => {
             this.$emit('featureSelectedData', data.data);
+            this.$emit('updateLayers', true);
           })
         })
       }
