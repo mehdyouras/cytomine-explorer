@@ -22,7 +22,8 @@
       <div>
         <button @click="acceptAll">Accept all</button>
         <button @click="rejectAll">Reject all</button>
-        <button>Validate Image</button>
+        <button v-if="currentMap.data.reviewed" @click="validateImage">Validate Image</button>
+        <button v-else @click="unvalidateImage">Unvalidate Image</button>
       </div>
     </section>
   </div>
@@ -104,6 +105,16 @@ export default {
           api.delete(`/api/imageinstance/${this.currentMap.imageId}/annotation/review.json?users=${this.currentMap.user.id}&task=${task.id}`).then(() => {
             this.$emit('updateLayers', true);
           });
+        })
+      },
+      validateImage() {
+        api.delete(`/api/imageinstance/${this.currentMap.imageId}/review.json`).then(data => {
+          this.$emit('updateMap', data.data.imageinstance);
+        })
+      },
+      unvalidateImage() {
+        api.delete(`/api/imageinstance/${this.currentMap.imageId}/review.json?cancel=true`).then(data => {
+          this.$emit('updateMap', data.data.imageinstance);
         })
       }
     }

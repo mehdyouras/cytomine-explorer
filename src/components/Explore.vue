@@ -21,8 +21,8 @@
         <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
         <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <review v-if="isReviewing" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
-        <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
+        <review v-if="isReviewing" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
+        <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
@@ -188,8 +188,8 @@ export default {
     setLayersSelected(payload) {
         this.layersSelected = payload;
     },
-    changeImage(payload) {
-        this.$emit('changeImage', {old: this.currentMap, new: payload});
+    updateMap(payload) {
+        this.$emit('updateMap', {old: this.currentMap, new: payload});
     },
     setVectorLayersOpacity(payload) {
         this.vectorLayersOpacity = payload;

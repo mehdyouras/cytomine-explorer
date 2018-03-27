@@ -19,7 +19,7 @@
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
     <div class="container">
-      <explore v-for="map in maps" :key="map.id" @changeImage="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
+      <explore v-for="map in maps" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
     </div>
   </div>
 </template>
