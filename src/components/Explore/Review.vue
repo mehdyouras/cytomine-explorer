@@ -2,18 +2,28 @@
   <div>
     <section>
       <h4>Review | Action selection</h4>
-      <dl v-if="isSelected()">
-        <dt>Annotation:</dt>
-        <dd>{{featureId}}</dd>
-        <dt>User</dt>
-        <dd>{{featureUser}}</dd>
-        <dt>Created:</dt>
-        <dd>{{featureDate}}</dd>
-        <dt>Term(s):</dt>
-        <dd></dd>
-      </dl>
-      <button :disabled="this.featureSelectedData.reviewed" @click="acceptReview">Accept</button>
-      <button :disabled="!this.featureSelectedData.reviewed" @click="rejectReview">Reject</button>
+      <div v-if="isSelected()">
+        <dl>
+          <dt>Annotation:</dt>
+          <dd>{{featureId}}</dd>
+          <dt>User</dt>
+          <dd>{{featureUser}}</dd>
+          <dt>Created:</dt>
+          <dd>{{featureDate}}</dd>
+          <dt>Term(s):</dt>
+          <dd></dd>
+        </dl>
+        <button :disabled="this.featureSelectedData.reviewed" @click="acceptReview">Accept</button>
+        <button :disabled="!this.featureSelectedData.reviewed" @click="rejectReview">Reject</button>
+      </div>  
+    </section>
+    <section>
+      <h4>Review | Action Image</h4>
+      <div>
+        <button @click="acceptAll">Accept all</button>
+        <button @click="rejectAll">Reject all</button>
+        <button>Validate Image</button>
+      </div>
     </section>
   </div>
 </template>
@@ -27,6 +37,8 @@ export default {
       'featureSelected',
       'featureSelectedData',
       'userLayers',
+      'currentMap',
+      'layersSelected',
     ],
     computed: {
       featureId() {
@@ -59,6 +71,20 @@ export default {
           this.$emit('updateLayers', true);
         })
       },
+      acceptAll() {
+        api.post(`/api/task.json?&project=${this.currentMap.data.project}`, {
+          project: this.currentMap.data.project,
+        }).then(data => {
+          let task = data.data.task;
+          api.put(`/api/imageinstance/${this.currentMap.imageId}/annotation/review.json?users=${this.currentMap.user.id}&task=${task.id}`, {
+            image: this.currentMap.imageId,
+            layers: this.layersSelected.map(layer => layer.id),
+            task: task.id
+          }).then(() => {
+            this.$emit('updateLayers', true);
+          })
+        })
+      },
       rejectReview() {
         let id = this.featureSelectedData.parentIdent;
         api.delete(`/api/annotation/${id}/review.json`).then(data => {
@@ -68,6 +94,16 @@ export default {
             this.$emit('featureSelectedData', data.data);
             this.$emit('updateLayers', true);
           })
+        })
+      },
+      rejectAll() {
+        api.post(`/api/task.json?&project=${this.currentMap.data.project}`, {
+          project: this.currentMap.data.project,
+        }).then(data => {
+          let task = data.data.task;
+          api.delete(`/api/imageinstance/${this.currentMap.imageId}/annotation/review.json?users=${this.currentMap.user.id}&task=${task.id}`).then(() => {
+            this.$emit('updateLayers', true);
+          });
         })
       }
     }
