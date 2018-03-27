@@ -19,14 +19,15 @@
             </div>
         </div>
         <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
-        <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
+        <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="changeImage" :currentMap="currentMap"></multidimension>
+        <review v-if="isReviewing" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
+        <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
         <informations :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
-        <annotations :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
+        <annotations :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
     </div>
 </template>
@@ -42,6 +43,7 @@ import Annotations from './Explore/Annotations';
 import Properties from './Explore/Properties';
 import Multidimension from './Explore/Multidimension';
 import DigitalZoom from './Explore/DigitalZoom'
+import Review from './Explore/Review'
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -60,6 +62,7 @@ export default {
       Properties,
       Multidimension,
       DigitalZoom,
+      Review,
   },
   data () {
     return {
@@ -72,7 +75,7 @@ export default {
         termsToShow: [],
         showWithNoTerm: true,
         allTerms: [],
-        featureSelected: {},
+        featureSelected: undefined,
         featureSelectedData: {},
         userLayers: [],
         layersSelected: [],
@@ -185,8 +188,8 @@ export default {
     setLayersSelected(payload) {
         this.layersSelected = payload;
     },
-    changeImage(payload) {
-        this.$emit('changeImage', {old: this.currentMap, new: payload});
+    updateMap(payload) {
+        this.$emit('updateMap', {old: this.currentMap, new: payload});
     },
     setVectorLayersOpacity(payload) {
         this.vectorLayersOpacity = payload;

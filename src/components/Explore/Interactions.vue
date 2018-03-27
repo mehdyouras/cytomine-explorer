@@ -49,6 +49,7 @@ export default {
   props: [
       'currentMap',
       'vectorLayersOpacity',
+      'isReviewing',
   ],
   data() {
       return {
@@ -88,12 +89,13 @@ export default {
 
         if(oldFeature !== undefined && oldFeature.hasOwnProperty('id_')) {
             let color = oldFeature.getStyle().getFill().getColor();
+            let strokeColor = oldFeature.get('strokeColor');
             if(color.length > 3) {
                 color.splice(color.length - 1, 1);
             }
             oldFeature.getStyle().setStroke(
                 new Stroke({
-                    color: [0, 0, 0],
+                    color: strokeColor,
                     width: 3,
                 })  
             )
@@ -101,13 +103,15 @@ export default {
         }
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
+            let strokeColor = this.isReviewing ? newFeature.getStyle().getStroke().getColor() : [0, 0, 255];
             color[3] = this.vectorLayersOpacity + 0.3;
             newFeature.getStyle().setStroke(
                 new Stroke({
-                    color: [0, 0, 255, this.vectorLayersOpacity + 0.3],
+                    color: strokeColor,
                     width: 3,
                 }) 
             )
+            newFeature.set('strokeColor', strokeColor)
             newFeature.changed();
         }
       },
