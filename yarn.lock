@@ -5095,9 +5095,9 @@ ol-rotate-feature@^1.4.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/ol-rotate-feature/-/ol-rotate-feature-1.4.2.tgz#120a81f3b1407dc28b1637e62f6a8b45b4e54b23"
 
-ol@^4.1.0:
-  version "4.6.4"
-  resolved "https://registry.yarnpkg.com/ol/-/ol-4.6.4.tgz#d9ba7dc850a310af7858adad69aa12704346a75a"
+ol@^4.6.5:
+  version "4.6.5"
+  resolved "https://registry.yarnpkg.com/ol/-/ol-4.6.5.tgz#3b628ffb65885f277ceb24bb0c6eee0a38727442"
   dependencies:
     pbf "3.1.0"
     pixelworks "1.1.0"
@@ -7689,12 +7689,6 @@ vue-template-es2015-compiler@^1.6.0:
 vue@^2.3.3, vue@^2.5.11:
   version "2.5.13"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.13.tgz#95bd31e20efcf7a7f39239c9aa6787ce8cf578e1"
-
-vuejs-openlayers@^1.0.16:
-  version "1.0.16"
-  resolved "https://registry.yarnpkg.com/vuejs-openlayers/-/vuejs-openlayers-1.0.16.tgz#c280c368a033a98d5c4b6ee5c5a91c27f74c41bd"
-  dependencies:
-    ol "^4.1.0"
 
 watchpack@^1.4.0:
   version "1.4.0"
