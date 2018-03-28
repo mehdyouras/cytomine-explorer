@@ -245,6 +245,13 @@ export default {
                     features: this.featureSelected,
                 });
                 currentMap.addInteraction(this.draw.interaction);
+                this.draw.interaction.on('modifyend', evt => {
+                    let newCoordinates = this.getWktLocation(this.featureSelected.getArray()[0]);
+                    api.get(`/api/annotation/${this.featureSelectedId}.json`).then(data => {
+                        data.data.location = newCoordinates;
+                        api.put(`/api/annotation/${this.featureSelectedId}.json`, data.data);
+                    })
+                })
                 return;
                 break;
             case 'Drag':
@@ -287,8 +294,7 @@ export default {
                     features: this.featureSelected,
                 })
                 this.draw.interaction.on('rotateend', evt => {
-                    let format = new WKT();
-                    let newCoordinates = format.writeFeature(this.featureSelected.getArray()[0]);
+                    let newCoordinates = this.getWktLocation(this.featureSelected.getArray()[0]);
                     api.get(`/api/annotation/${this.featureSelectedId}.json`).then(data => {
                         data.data.location = newCoordinates;
                         api.put(`api/annotation/${this.featureSelectedId}.json`, data.data);
@@ -432,7 +438,6 @@ export default {
                     this.createMeasureTooltip();
                     Observable.unByKey(listener);
                 }, this);
-            console.log(this.draw.interaction)
         } else {
             this.draw.interaction.on('drawend', evt => {
                 api.post(`/api/annotation.json`, {
