@@ -25,7 +25,7 @@
         <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
-        <informations :currentMap="currentMap"></informations>
+        <informations @updateMap="updateMap" :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
         <annotations :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
