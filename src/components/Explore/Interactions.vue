@@ -404,6 +404,7 @@ export default {
                     review: false,
                 }).then(data => {
                     this.$emit('updateLayers', true);
+                    this.$emit('updateAnnotationsIndex', true)
                 })
             })
         } else if (interactionType == 'Ruler'){
@@ -449,6 +450,7 @@ export default {
                     user: this.currentMap.user.id,
                 }).then(() => {
                     this.$emit('updateLayers', true)
+                    this.$emit('updateAnnotationsIndex', true)
                 })
             })
         }
