@@ -267,9 +267,12 @@ export default {
                 let featureIndex = this.layersArray[layerIndex].getSource().getFeatures().findIndex(feature => feature.getId() == this.featureSelectedId)
 
                 this.layersArray[layerIndex].getSource().removeFeature(this.layersArray[layerIndex].getSource().getFeatures()[featureIndex]);
-                this.featureSelected.getArray().splice(0, 1);
-                api.delete(`/api/annotation/${this.featureSelectedId}.json`);
-                this.addInteraction('Select');
+                
+                api.delete(`/api/annotation/${this.featureSelectedId}.json`).then(() => {
+                    this.featureSelected.getArray().splice(0, 1);
+                    this.addInteraction('Select');
+                });
+
                 return;
                 break;
             case 'Resize':
