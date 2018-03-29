@@ -70,6 +70,7 @@ export default {
           this.featureSelected.changed();
           this.$emit('featureSelectedData', data.data.reviewedannotation);
           this.$emit('updateLayers', true);
+          this.$emit('updateAnnotationsIndex', true);
         })
       },
       acceptAll() {
@@ -83,6 +84,7 @@ export default {
             task: task.id
           }).then(() => {
             this.$emit('updateLayers', true);
+            this.$emit('updateAnnotationsIndex', true);
           })
         })
       },
@@ -94,6 +96,7 @@ export default {
           api.get(`/api/annotation/${id}.json`).then(data => {
             this.$emit('featureSelectedData', data.data);
             this.$emit('updateLayers', true);
+            this.$emit('updateAnnotationsIndex', true);
           })
         })
       },
@@ -104,6 +107,7 @@ export default {
           let task = data.data.task;
           api.delete(`/api/imageinstance/${this.currentMap.imageId}/annotation/review.json?users=${this.currentMap.user.id}&task=${task.id}`).then(() => {
             this.$emit('updateLayers', true);
+            this.$emit('updateAnnotationsIndex', true);
           });
         })
       },

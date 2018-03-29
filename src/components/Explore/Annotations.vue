@@ -50,7 +50,8 @@ export default {
       'currentMap',
       'users',
       'terms',
-      'isReviewing'
+      'isReviewing',
+      'updateAnnotationsIndex'
   ],
   computed: {
       annotationsToShow() {
@@ -67,7 +68,25 @@ export default {
           }
       }
   },
+  watch: {
+    updateAnnotationsIndex(newValue) {
+        if(newValue == true) {
+            this.setAnnotations();
+            this.$emit('updateAnnotationsIndex', false);
+        }
+    }
+  },
   methods: {
+      setAnnotations() {
+        api.get(`/api/annotation.json?&image=${this.currentMap.imageId}&reviewed=false`).then(data => {
+            this.annotations = data.data.collection;
+        })
+        if(this.isReviewing) {
+            api.get(`/api/annotation.json?&image=${this.currentMap.imageId}&showTerm=true&reviewed=true&notReviewedOnly=true&showMeta=true`).then(data => {
+                this.reviewedAnnotations = data.data.collection;
+            })
+        }
+      },
       uuid() {
           return uuid();
       },
@@ -84,14 +103,7 @@ export default {
       }
   },
   created() {
-      api.get(`/api/annotation.json?&image=${this.currentMap.imageId}&reviewed=false`).then(data => {
-          this.annotations = data.data.collection;
-      })
-      if(this.isReviewing) {
-        api.get(`/api/annotation.json?&image=${this.currentMap.imageId}&showTerm=true&reviewed=true&notReviewedOnly=true&showMeta=true`).then(data => {
-            this.reviewedAnnotations = data.data.collection;
-        })
-      }
+      this.setAnnotations()
   }
 }
 </script>
