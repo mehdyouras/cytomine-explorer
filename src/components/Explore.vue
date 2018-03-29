@@ -25,7 +25,7 @@
         <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
         <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
-        <informations @updateMap="updateMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
+        <informations @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
         <annotations @updateAnnotationsIndex="setUpdateAnnotationsIndex" :updateAnnotationsIndex="updateAnnotationsIndex" :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
         <button @click="deleteMap">Delete the map</button>
@@ -146,7 +146,7 @@ export default {
         })
         this.$openlayers.getMap(this.currentMap.id).getLayers().getArray()[0] = layer;
         this.$openlayers.getMap(this.currentMap.id).render();
-        this.$emit('updateOverviewMap');
+        this.updateOverviewMap();
     }
   },
   methods: {
@@ -167,6 +167,9 @@ export default {
     sendLink() {
         let payload = [this.currentMap.id, this.linkValue];
         this.$emit('mapIsLinked', payload);
+    },
+    updateOverviewMap() {
+        this.$emit('updateOverviewMap');
     },
     deleteMap() {
         this.$emit('deleteMap', this.currentMap.id);
