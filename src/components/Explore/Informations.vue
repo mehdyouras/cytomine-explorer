@@ -26,6 +26,7 @@
       <div>
         <button @click="setAdjacentImage('previous')">Previous image</button>
         <button @click="setAdjacentImage('next')">Next image</button>
+        <small v-if="adjacentImageError != ''">{{adjacentImageError}}</small>
       </div>
   </div>
 </template>
@@ -45,6 +46,7 @@ export default {
   data() {
     return {
       adjacentImage: {},
+      adjacentImageError: '',
     }
   },
   watch: {
@@ -67,6 +69,11 @@ export default {
     },
     setAdjacentImage(position) {
       api.get(`/api/imageinstance/${this.currentMap.imageId}/${position}.json`).then(data => {
+        this.adjacentImageError = '';
+        if(!data.data.hasOwnProperty('id')) {
+          this.adjacentImageError = position == 'next' ? 'This is the last image' : 'This is the first image';;
+          return;
+        }
         this.adjacentImage = data.data;
         this.changeImage();
       })
