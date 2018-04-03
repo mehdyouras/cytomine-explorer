@@ -18,6 +18,7 @@
                 <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
             </div>
         </div>
+        <color-maps :currentMap="currentMap"></color-maps>
         <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
         <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
@@ -44,6 +45,7 @@ import Properties from './Explore/Properties';
 import Multidimension from './Explore/Multidimension';
 import DigitalZoom from './Explore/DigitalZoom'
 import Review from './Explore/Review'
+import ColorMaps from './Explore/Colormaps'
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -63,6 +65,7 @@ export default {
       Multidimension,
       DigitalZoom,
       Review,
+      ColorMaps,
   },
   data () {
     return {
