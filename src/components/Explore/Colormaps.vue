@@ -1,6 +1,12 @@
 <template>
   <div>
-    <div @mousedown="test2" :id="'colormaps-' + currentMap.id"></div>
+    <div @click="getMousePos" :id="'colormaps-' + currentMap.id"></div>
+    <label for="">X:</label>
+    <input v-model.number="xSelected" type="number" step="1" :max="[0, Math.pow(2, this.data.bitdepth) - 1]" :min="0">
+
+    <label for="">Y:</label>
+    <input  v-model.number="yValue" type="range" step="1" :max="255" :min="0">
+    <span>{{yValue}}</span>
   </div>
 </template>
 
@@ -17,18 +23,50 @@ export default {
         data: {
           bitdepth: 10,
           colorspace: 'rgb',
-        }
+        },
+        xSelected: 0,
+        yValue: 0,
+        yRange: [0, 255],
+        traces: {
+          r: {},
+          g: {},
+          b: {},
+          l: {},
+        },
+        layout: {},
+        datarevision: 0,
       }
     },
     computed: {
       xRange() {
-        return this.data.bitdepth ? Array.from(Array(Math.pow(2, this.data.bitdepth)).keys()) : Array.from(Array(Math.pow(2, 8)).keys())
-      },
-      yRange() {
-        return Array.from(Array(256).keys())
+        return this.data.bitdepth ? [0, Math.pow(2, this.data.bitdepth) - 1] : [0, Math.pow(2, 8) - 1]
       },
       graphDiv() {
-        return document.getElementById('colormaps-' + this.currentMap.id);
+        return document.getElementById(this.colormapId);
+      },
+      colormapId() {
+        return `colormaps-${this.currentMap.id}`;
+      },
+      tracesArray() {
+        return [this.traces.r, this.traces.g, this.traces.b];
+      }
+    },
+    watch: {
+      yValue() {
+        let index = this.traces.b.x.findIndex(item => item == this.xSelected);
+        if(index < 0) {
+          this.traces.b.x.push(this.xSelected);
+          this.traces.b.x = this.traces.b.x.sort((a, b) => {
+              return a - b;
+          });
+          this.traces.b.y.splice(index, 0, this.yValue);
+        } else {
+          this.traces.b.y[index] = this.yValue;
+        }
+
+        this.layout.datarevision++;
+
+        Plotly.update(this.colormapId, this.tracesArray, this.layout)
       }
     },
     methods: {
@@ -59,19 +97,13 @@ export default {
           }
         }
       },
-      test(data) {
-        console.log('click', data)
-      },
-      test2(evt) {
-        console.log(evt)
-      }
     },
     mounted() {
-      let traceR = this.newTrace('red');
-      let traceG = this.newTrace('green');
-      let traceB = this.newTrace('blue');
+      this.traces.r = this.newTrace('red');
+      this.traces.g = this.newTrace('green');
+      this.traces.b = this.newTrace('blue');
 
-      let layout = {
+      this.layout = {
         title: 'Colormaps',
         xaxis: {
           fixedrange: true,
@@ -79,12 +111,12 @@ export default {
         yaxis: {
           fixedrange: true,
         },
+        hovermode: 'closest',
+        hoverdistance: -1,
+        datarevision: this.datarevision,
       }
 
-      let data = [traceR, traceG, traceB];
-      Plotly.newPlot(`colormaps-${this.currentMap.id}`, data, layout, {displayModeBar: false});
-      this.graphDiv.on('plotly_click', (data) => this.test(data));
-      // this.graphDiv.addEventListener('mousedown', console.log('yo'))
+      Plotly.react(this.colormapId, this.tracesArray, this.layout, {displayModeBar: false});
     }
 }
 </script>
