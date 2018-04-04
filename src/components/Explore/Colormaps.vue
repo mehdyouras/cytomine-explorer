@@ -1,19 +1,24 @@
 <template>
   <div>
     <div :id="'colormaps-' + currentMap.id"></div>
-    <select v-model="colorSelected">
+    <button v-if="modeSelected" @click="switchMode">{{modeToShow}}</button>
+    <select v-if="modeSelected == 'rgb'" v-model="colorSelected">
       <option value="r">Red</option>
       <option value="g">Green</option>
       <option value="b">Blue</option>
-      <option value="l">Luminance</option>
     </select>
-    <label for="">X:</label>
-    <input v-model.number="xSelected" type="number" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
-    <input v-model.number="xSelected" type="range" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
+    <div>
+      <label for="">x:</label>
+      <input v-model.number="xSelected" type="number" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
+      <input v-model.number="xSelected" type="range" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
+    </div>
 
-    <label for="">Y:</label>
-    <input  v-model.number="yValue" type="range" step="1" :max="255" :min="0">
-    <span>{{yValue}}</span>
+    <div>
+      <label for="">y:</label>
+      <input v-model.number="yValue" type="number" step="1" max="255" min="0">
+      <input v-model.number="yValue" type="range" step="1" max="255" min="0">
+      <span>{{yValue}}</span>
+    </div>
   </div>
 </template>
 
@@ -28,10 +33,11 @@ export default {
     data() {
       return {
         data: {
-          bitdepth: 10,
+          bitdepth: 16,
           colorspace: 'rgb',
         },
         colorSelected: 'r',
+        modeSelected: 'grayscale',
         xSelected: 0,
         yValue: 0,
         yRange: [0, 255],
@@ -42,7 +48,6 @@ export default {
           l: {},
         },
         layout: {},
-        datarevision: 0,
       }
     },
     computed: {
@@ -53,14 +58,24 @@ export default {
         return `colormaps-${this.currentMap.id}`;
       },
       tracesArray() {
-        return [this.traces.r, this.traces.g, this.traces.b];
+        return this.modeSelected == 'rgb' ? [this.traces.r, this.traces.g, this.traces.b] : [this.traces.l];
+      },
+      modeToShow() {
+        if(this.data.colorspace == 'grayscale') {
+          return false;
+        } else if(this.data.colorspace == 'rgb' && this.modeSelected == 'grayscale') {
+          return 'RGB'
+        } else {
+          return 'Grayscale'
+        }
       }
     },
     watch: {
       yValue() {
-        let trace = this.traces[this.colorSelected];
+        let color = this.modeSelected == 'rgb' ? this.colorSelected : 'l'
+        let trace = this.traces[color];
         let index = () => trace.x.findIndex(item => item == this.xSelected);
-        
+
         if(index() < 0) {
           trace.x.push(this.xSelected);
           trace.x = trace.x.sort((a, b) => {
@@ -71,7 +86,7 @@ export default {
           trace.y[index()] = this.yValue;
         }
 
-        this.traces[this.colorSelected] = trace;
+        this.traces[color] = trace;
         this.layout.datarevision++;
 
         Plotly.update(this.colormapId, this.tracesArray, this.layout)
@@ -90,9 +105,8 @@ export default {
           case 'blue':
             lineColor = 'rgb(0, 0, 255)';
             break;
-          default:
-            lineColor = 'rgb(135, 135, 135)';
-            color = 'gray';
+          case 'luminance':
+            lineColor = 'rgb(0, 0, 0)';
             break;
         }
         return {
@@ -108,15 +122,21 @@ export default {
       setValueToEdit(data) {
         let xCoordinate = Math.round(data.points[0].xaxis.p2l(data.event.layerX - data.points[0].xaxis._offset));
         this.xSelected = xCoordinate;
+      },
+      switchMode() {
+        this.modeSelected == 'rgb' ? this.modeSelected = 'grayscale' : this.modeSelected = 'rgb'
+        this.layout.datarevision++;
+        Plotly.react(this.colormapId, this.tracesArray, this.layout)
       }
     },
     mounted() {
       this.traces.r = this.newTrace('red');
       this.traces.g = this.newTrace('green');
       this.traces.b = this.newTrace('blue');
+      this.traces.l = this.newTrace('luminance');
 
       this.layout = {
-        title: 'Colormaps',
+        title: 'Colormap',
         xaxis: {
           fixedrange: true,
         },
@@ -125,7 +145,7 @@ export default {
         },
         hovermode: 'closest',
         hoverdistance: -1,
-        datarevision: this.datarevision,
+        datarevision: 0,
       }
 
       Plotly.react(this.colormapId, this.tracesArray, this.layout, {displayModeBar: false});
