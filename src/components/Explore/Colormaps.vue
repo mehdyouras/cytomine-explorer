@@ -1,8 +1,9 @@
 <template>
   <div>
-    <div @click="getMousePos" :id="'colormaps-' + currentMap.id"></div>
+    <div :id="'colormaps-' + currentMap.id"></div>
     <label for="">X:</label>
-    <input v-model.number="xSelected" type="number" step="1" :max="[0, Math.pow(2, this.data.bitdepth) - 1]" :min="0">
+    <input v-model.number="xSelected" type="number" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
+    <input v-model.number="xSelected" type="range" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
 
     <label for="">Y:</label>
     <input  v-model.number="yValue" type="range" step="1" :max="255" :min="0">
@@ -38,9 +39,6 @@ export default {
       }
     },
     computed: {
-      xRange() {
-        return this.data.bitdepth ? [0, Math.pow(2, this.data.bitdepth) - 1] : [0, Math.pow(2, 8) - 1]
-      },
       graphDiv() {
         return document.getElementById(this.colormapId);
       },
@@ -53,15 +51,15 @@ export default {
     },
     watch: {
       yValue() {
-        let index = this.traces.b.x.findIndex(item => item == this.xSelected);
-        if(index < 0) {
+        let index = () => this.traces.b.x.findIndex(item => item == this.xSelected);
+        if(index() < 0) {
           this.traces.b.x.push(this.xSelected);
           this.traces.b.x = this.traces.b.x.sort((a, b) => {
               return a - b;
           });
-          this.traces.b.y.splice(index, 0, this.yValue);
+          this.traces.b.y.splice(index(), 0, this.yValue);
         } else {
-          this.traces.b.y[index] = this.yValue;
+          this.traces.b.y[index()] = this.yValue;
         }
 
         this.layout.datarevision++;
@@ -88,8 +86,8 @@ export default {
             break;
         }
         return {
-          x: this.xRange,
-          y: this.yRange,
+          x: this.data.bitdepth ? [0, Math.pow(2, this.data.bitdepth) - 1] : [0, Math.pow(2, 8) - 1],
+          y: [0, 255],
           type: 'scatter',
           name: color[0].toUpperCase() + color.substr(1),
           line: {
@@ -97,6 +95,10 @@ export default {
           }
         }
       },
+      setValueToEdit(data) {
+        let xCoordinate = Math.round(data.points[0].xaxis.p2l(data.event.layerX - data.points[0].xaxis._offset));
+        this.xSelected = xCoordinate;
+      }
     },
     mounted() {
       this.traces.r = this.newTrace('red');
@@ -117,6 +119,7 @@ export default {
       }
 
       Plotly.react(this.colormapId, this.tracesArray, this.layout, {displayModeBar: false});
+      this.graphDiv.on('plotly_click', (data) => this.setValueToEdit(data));
     }
 }
 </script>
