@@ -44,7 +44,7 @@ export default {
             Plotly.newPlot('spectra-'+this.currentMap.id, [trace], layout)
         },
         getPixelData(event) {
-            api.get(`/api/imagegroupHDF5/${this.hdf5.id}/${event.pixel[0]}/${event.pixel[1]}/pixel.json`).then(data => {
+            api.get(`/api/imagegroupHDF5/${this.hdf5.id}/${Math.round(event.pixel[0])}/${Math.round(event.pixel[1])}/pixel.json`).then(data => {
                 this.yAxis = data.data.spectra;
                 this.updateSpectra();
             })
