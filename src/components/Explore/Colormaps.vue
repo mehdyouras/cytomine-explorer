@@ -17,7 +17,6 @@
       <label for="">y:</label>
       <input v-model.number="yValue" type="number" step="1" max="255" min="0">
       <input v-model.number="yValue" type="range" step="1" max="255" min="0">
-      <span>{{yValue}}</span>
     </div>
   </div>
 </template>
@@ -40,7 +39,6 @@ export default {
         modeSelected: 'grayscale',
         xSelected: 0,
         yValue: 0,
-        yRange: [0, 255],
         traces: {
           r: {},
           g: {},
@@ -77,10 +75,13 @@ export default {
         let index = () => trace.x.findIndex(item => item == this.xSelected);
 
         if(index() < 0) {
+          // Adds new x to the trace
           trace.x.push(this.xSelected);
+          // Sorts the array to place the new x a the right place
           trace.x = trace.x.sort((a, b) => {
               return a - b;
           });
+          // Put the new y to the same index as new x
           trace.y.splice(index(), 0, this.yValue);
         } else {
           trace.y[index()] = this.yValue;
@@ -120,6 +121,7 @@ export default {
         }
       },
       setValueToEdit(data) {
+        // Uses p2l() method to determine coordinate from pixel postion
         let xCoordinate = Math.round(data.points[0].xaxis.p2l(data.event.layerX - data.points[0].xaxis._offset));
         this.xSelected = xCoordinate;
       },
@@ -127,7 +129,7 @@ export default {
         this.modeSelected == 'rgb' ? this.modeSelected = 'grayscale' : this.modeSelected = 'rgb'
         this.layout.datarevision++;
         Plotly.react(this.colormapId, this.tracesArray, this.layout)
-      }
+      },
     },
     mounted() {
       this.traces.r = this.newTrace('red');
