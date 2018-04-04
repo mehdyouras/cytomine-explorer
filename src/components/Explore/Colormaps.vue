@@ -1,6 +1,12 @@
 <template>
   <div>
     <div :id="'colormaps-' + currentMap.id"></div>
+    <select v-model="colorSelected">
+      <option value="r">Red</option>
+      <option value="g">Green</option>
+      <option value="b">Blue</option>
+      <option value="l">Luminance</option>
+    </select>
     <label for="">X:</label>
     <input v-model.number="xSelected" type="number" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
     <input v-model.number="xSelected" type="range" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
@@ -25,6 +31,7 @@ export default {
           bitdepth: 10,
           colorspace: 'rgb',
         },
+        colorSelected: 'r',
         xSelected: 0,
         yValue: 0,
         yRange: [0, 255],
@@ -51,17 +58,20 @@ export default {
     },
     watch: {
       yValue() {
-        let index = () => this.traces.b.x.findIndex(item => item == this.xSelected);
+        let trace = this.traces[this.colorSelected];
+        let index = () => trace.x.findIndex(item => item == this.xSelected);
+        
         if(index() < 0) {
-          this.traces.b.x.push(this.xSelected);
-          this.traces.b.x = this.traces.b.x.sort((a, b) => {
+          trace.x.push(this.xSelected);
+          trace.x = trace.x.sort((a, b) => {
               return a - b;
           });
-          this.traces.b.y.splice(index(), 0, this.yValue);
+          trace.y.splice(index(), 0, this.yValue);
         } else {
-          this.traces.b.y[index()] = this.yValue;
+          trace.y[index()] = this.yValue;
         }
 
+        this.traces[this.colorSelected] = trace;
         this.layout.datarevision++;
 
         Plotly.update(this.colormapId, this.tracesArray, this.layout)
