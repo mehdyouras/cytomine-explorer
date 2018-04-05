@@ -8,6 +8,11 @@
       <option value="b">Blue</option>
     </select>
     <div>
+      <label for="">Click tolerance</label>
+      <input v-model.number="clickTolerance" type="number" step="1" :max="(Math.pow(2, data.bitdepth) - 1) / 10" :min="0">
+      <input v-model.number="clickTolerance" type="range" step="1" :max="(Math.pow(2, data.bitdepth) - 1) / 10" :min="0">
+    </div>
+    <div>
       <label for="">x:</label>
       <input v-model.number="xSelected" type="number" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
       <input v-model.number="xSelected" type="range" step="1" :max="Math.pow(2, data.bitdepth) - 1" :min="0">
@@ -46,6 +51,7 @@ export default {
           l: {},
         },
         layout: {},
+        clickTolerance: 0,
       }
     },
     computed: {
@@ -123,23 +129,36 @@ export default {
       setValueToEdit(data) {
         let color = this.modeSelected == 'rgb' ? this.colorSelected : 'l'
         let trace = this.traces[color];
+        let yCoordinate;
         // Uses p2l() method to determine coordinate from pixel postion
         let xCoordinate = Math.round(data.points[0].xaxis.p2l(data.event.layerX - data.points[0].xaxis._offset));
+        let index = trace.x.findIndex(item => item == xCoordinate);
+        let deltaX = data.points[0].x - xCoordinate;
 
-        // Get firstPoint for 1st degree function
-        let firstPointIndex = trace.x.reverse().findIndex(item => item < xCoordinate);
-        trace.x.reverse();
-        firstPointIndex = (trace.x.length - 1) - firstPointIndex;
-        let firstPoint = [trace.x[firstPointIndex], trace.y[firstPointIndex]];
-        
-        // Get secondPoint
-        let secondPointIndex = trace.x.findIndex(item => item > xCoordinate);
-        let secondPoint = [trace.x[secondPointIndex], trace.y[secondPointIndex]]
+        if(index > 0) {
+          // If the point has already been created then get its y value
+          yCoordinate = trace.y[index];
+        } else if(deltaX < this.clickTolerance && deltaX > -this.clickTolerance) {
+          // If at less than 700 from closest point then use closest point
+          index = trace.x.findIndex(item => item == data.points[0].x);
+          yCoordinate = trace.y[index];
+          xCoordinate = trace.x[index];
+        } else {
+          // Get firstPoint for 1st degree function
+          let firstPointIndex = trace.x.reverse().findIndex(item => item < xCoordinate);
+          trace.x.reverse();
+          firstPointIndex = (trace.x.length - 1) - firstPointIndex;
+          let firstPoint = [trace.x[firstPointIndex], trace.y[firstPointIndex]];
+          
+          // Get secondPoint
+          let secondPointIndex = trace.x.findIndex(item => item > xCoordinate);
+          let secondPoint = [trace.x[secondPointIndex], trace.y[secondPointIndex]]
 
-        let m = (secondPoint[1] - firstPoint[1])/(secondPoint[0] - firstPoint[0]);
-        let b = firstPoint[1] + (m*firstPoint[0]); 
+          let m = (secondPoint[1] - firstPoint[1])/(secondPoint[0] - firstPoint[0]);
+          let b = firstPoint[1] - (m*firstPoint[0]); 
 
-        let yCoordinate = m*xCoordinate+b;
+          yCoordinate = Math.round(m*xCoordinate+b);
+        }
 
         this.yValue = yCoordinate;
         this.xSelected = xCoordinate;
@@ -171,6 +190,7 @@ export default {
 
       Plotly.react(this.colormapId, this.tracesArray, this.layout, {displayModeBar: false});
       this.graphDiv.on('plotly_click', (data) => this.setValueToEdit(data));
+      this.clickTolerance = Math.pow(2, this.data.bitdepth/2);
     }
 }
 </script>
