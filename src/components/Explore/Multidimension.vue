@@ -17,12 +17,14 @@
       </dl>
       <input v-model.number="sequenceSelected" min="1" :max="imageGroup.length" type="number" name="channel-select" id="channel-select">
       <button @click="selectImageSequence">Select</button>
+      <overlay :imageSequence="currentSequence" :imageGroup="imageGroup" :currentMap="currentMap" :imsBaseUrl="imsBaseUrl" :filterUrl="filterUrl"></overlay>
       <spectra :imageSequence="currentSequence" :imageGroup="imageGroup" :currentMap="currentMap"></spectra>
   </div>
 </template>
 
 <script>
 import Spectra from './Multidimension/Spectra'
+import Overlay from './Multidimension/Overlay'
 
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
@@ -32,6 +34,7 @@ export default {
     name: 'Multidimension',
     components: {
         Spectra,
+        Overlay,
     },
     props: [
         'currentMap',
@@ -62,7 +65,7 @@ export default {
                 extent: [0, 0, this.currentMap.data.width, this.currentMap.data.height],
             })
             
-            this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: [layer]}));
+            this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: [layer]}));    
         },
         getImageGroupName(imageGroupId) {
             let index = this.imageGroupIndex.findIndex(group => {

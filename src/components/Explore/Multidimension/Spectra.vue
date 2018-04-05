@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h4>Spectra</h4>
+        <h5>Spectra</h5>
         <div :id="'spectra-'+currentMap.id"></div>
     </div>
 </template>
