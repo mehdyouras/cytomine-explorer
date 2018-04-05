@@ -121,8 +121,27 @@ export default {
         }
       },
       setValueToEdit(data) {
+        let color = this.modeSelected == 'rgb' ? this.colorSelected : 'l'
+        let trace = this.traces[color];
         // Uses p2l() method to determine coordinate from pixel postion
         let xCoordinate = Math.round(data.points[0].xaxis.p2l(data.event.layerX - data.points[0].xaxis._offset));
+
+        // Get firstPoint for 1st degree function
+        let firstPointIndex = trace.x.reverse().findIndex(item => item < xCoordinate);
+        trace.x.reverse();
+        firstPointIndex = (trace.x.length - 1) - firstPointIndex;
+        let firstPoint = [trace.x[firstPointIndex], trace.y[firstPointIndex]];
+        
+        // Get secondPoint
+        let secondPointIndex = trace.x.findIndex(item => item > xCoordinate);
+        let secondPoint = [trace.x[secondPointIndex], trace.y[secondPointIndex]]
+
+        let m = (secondPoint[1] - firstPoint[1])/(secondPoint[0] - firstPoint[0]);
+        let b = firstPoint[1] + (m*firstPoint[0]); 
+
+        let yCoordinate = m*xCoordinate+b;
+
+        this.yValue = yCoordinate;
         this.xSelected = xCoordinate;
       },
       switchMode() {
