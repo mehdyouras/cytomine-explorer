@@ -30,9 +30,8 @@ export default {
         addOverlay() {
             let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
             let vectorIndex = layersArray.findIndex(layer => layer.getType() == 'VECTOR');
-            let index = this.imageGroup.findIndex(image => image.channel == this.sequenceSelected);
-            let imageToAdd = this.imageGroup[index];
-            console.log(imageToAdd)
+            let imageToAdd = this.imageGroup[this.sequenceSelected - 1];
+
             let layerToAdd = new OlTile({
                 source: new Zoomify({
                     url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${imageToAdd.model.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${imageToAdd.model.mime}`,
@@ -42,12 +41,17 @@ export default {
                 extent: [0, 0, parseInt(imageToAdd.model.width), parseInt(imageToAdd.model.height)],
             })
 
+            layerToAdd.set('channel', this.sequenceSelected);
+
             if(vectorIndex > 0) {
                 layersArray.splice(vectorIndex, 0, layerToAdd);
             } else {
                 layersArray.push(layerToAdd);
             }
-            this.$openlayers.getMap(this.currentMap.id).changed();
+
+            this.overlayedLayer.push(imageToAdd);
+
+            this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: layersArray}))
             console.log(this.$openlayers.getMap(this.currentMap.id).getLayers().getArray())
         }
     }
