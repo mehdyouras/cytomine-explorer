@@ -1,6 +1,13 @@
 <template>
   <div>
       <h5>Overlay</h5>
+      <ul>
+            <li v-for="overlay in overlayedLayer" :key="overlay.id">
+              <button @click="removeOverlay(overlay)">Remove</button>
+              Channel{{overlay.channel}}
+              <input type="text" placeholder="Color">
+            </li>
+      </ul>
       <label :for="'overlay-' + currentMap.id">Choose a channel to add as an overlay</label>
       <input v-model.number="sequenceSelected" type="number" :name="'overlay-' + currentMap.id" :id="'overlay-' + currentMap.id">
       <input v-model.number="sequenceSelected" type="range" step="1" min="1" :max="imageGroup.length">
@@ -11,6 +18,7 @@
 <script>
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
+import Group from 'ol/layer/group';
 
 export default {
     name: 'Overlay',
@@ -24,6 +32,7 @@ export default {
     data() {
         return {
             sequenceSelected: 1,
+            overlayedLayer: [],
         }
     },
     methods: {
@@ -53,6 +62,14 @@ export default {
 
             this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: layersArray}))
             console.log(this.$openlayers.getMap(this.currentMap.id).getLayers().getArray())
+        },
+        removeOverlay(overlay) {
+            let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+            let index = layersArray.findIndex(layer => layer.get('channel') == overlay.channel);
+            this.$openlayers.getMap(this.currentMap.id).removeLayer(layersArray[index]);
+
+            index = this.overlayedLayer.findIndex(item => overlay == item);
+            this.overlayedLayer.splice(index, 1);
         }
     }
 }
