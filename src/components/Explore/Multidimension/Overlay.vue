@@ -5,7 +5,8 @@
             <li v-for="overlay in overlayedLayer" :key="overlay.id">
               <button @click="removeOverlay(overlay)">Remove</button>
               Channel{{overlay.channel}}
-              <input type="text" placeholder="Color">
+              <input @change="setOverlayColor(overlay)" type="text" placeholder="Color">
+              <input @input="setOverlayOpacity($event, overlay)" type="range" step="0.1" min="0" max="1">
             </li>
       </ul>
       <label :for="'overlay-' + currentMap.id">Choose a channel to add as an overlay</label>
@@ -70,6 +71,16 @@ export default {
 
             index = this.overlayedLayer.findIndex(item => overlay == item);
             this.overlayedLayer.splice(index, 1);
+        },
+        setOverlayColor(overlay) {
+            //
+        },
+        setOverlayOpacity(evt, overlay) {
+            let opacity = evt.target.value;
+            let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
+            let index = layersArray.findIndex(layer => layer.get('channel') == overlay.channel);
+
+            layersArray[index].setOpacity(opacity);
         }
     }
 }
