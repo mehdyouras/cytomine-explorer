@@ -51,7 +51,7 @@ export default {
                 extent: [0, 0, parseInt(imageToAdd.model.width), parseInt(imageToAdd.model.height)],
             })
 
-            layerToAdd.set('channel', this.sequenceSelected);
+            layerToAdd.set('channel', imageToAdd.channel);
 
             if(vectorIndex > 0) {
                 layersArray.splice(vectorIndex, 0, layerToAdd);
@@ -67,8 +67,9 @@ export default {
         removeOverlay(overlay) {
             let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
             let index = layersArray.findIndex(layer => layer.get('channel') == overlay.channel);
-            this.$openlayers.getMap(this.currentMap.id).removeLayer(layersArray[index]);
-
+            layersArray.splice(index, 1);
+            this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: layersArray}));
+            console.log(layersArray)
             index = this.overlayedLayer.findIndex(item => overlay == item);
             this.overlayedLayer.splice(index, 1);
         },
