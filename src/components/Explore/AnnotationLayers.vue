@@ -9,6 +9,9 @@
             <li v-for="layer in layersSelected" :key="layer.id">
                 <input @click="toggleVisibility(layer)" v-model="layer.visible" type="checkbox" :name="'hide-layer-' + layer.id" :id="'hide-layer-' + layer.id">
                 <label :for="'hide-layer-' + layer.id">Visible</label>
+                <input @click="followUser(layer.id)" v-model="userToFollow" :value="layer.id" type="checkbox" :name="'follow-' + layer.id" :id="'follow-' + layer.id">
+                <label :for="'follow-' + layer.id">Follow</label>
+
                 {{userDisplayName(layer)}}
                 <button @click="removeLayer(layer)">Remove</button>
             </li>
@@ -49,6 +52,8 @@ export default {
         vectorLayer: {},
         vectorLayersOpacity: 0.5,
         annotationIndex: {},
+        userToFollow: '',
+        intervalId: '',
       }
     },
     computed: {
@@ -207,6 +212,24 @@ export default {
         getAnnotationIndex() {
             api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
                 this.annotationIndex = data.data.collection[0];
+            })
+        },
+        followUser(userId) {
+            let index = this.userToFollow.findIndex(user => user == userId);
+
+            if(index > 0) {
+                this.userToFollow = [];
+                clearInterval(this.intervalId);
+            } else {
+                this.userToFollow = [userId];
+                this.intervalId = setInterval(this.setUserPosition, 1000);
+            }
+        },
+        setUserPosition() {
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/position/${this.userToFollow[0]}.json`).then(data => {
+                let {x, y, zoom} = data.data;
+                this.$openlayers.getView(this.currentMap.id).setCenter([x, y]);
+                this.$openlayers.getView(this.currentMap.id).setZoom(zoom);
             })
         }
     },
