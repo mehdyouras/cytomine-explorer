@@ -48,6 +48,7 @@ export default {
         layersSelected: [],
         vectorLayer: {},
         vectorLayersOpacity: 0.5,
+        annotationIndex: {},
       }
     },
     computed: {
@@ -92,6 +93,11 @@ export default {
                     this.addLayer(layer, false)
                 })
                 this.$emit('updateLayers', false);
+            }
+        },
+        annotationIndex(newValue, oldValue) {
+            if(newValue.countAnnotation != oldValue.countAnnotation || newValue.countReviewedAnnotation != oldValue.countReviewedAnnotation) {
+                this.$emit('updateLayers', true)
             }
         }
     },
@@ -198,13 +204,21 @@ export default {
             let index = this.layerIndex(this.layersArray, layer.id);
             this.layersArray[index].setVisible(!layer.visible);
         },
+        getAnnotationIndex() {
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
+                this.annotationIndex = data.data.collection[0];
+            })
+        }
     },
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
                 this.userLayers = data.data.collection;
                 this.$emit('userLayers', this.userLayers);
-            })
-        },
+        })
+
+        this.getAnnotationIndex();
+        setInterval(this.getAnnotationIndex, 5000)
+    }
 }
 </script>
 
