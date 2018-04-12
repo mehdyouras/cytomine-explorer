@@ -47,10 +47,10 @@ export default {
       maps: [],
       lastEventMapId: null,
       images: [],
-      projectId: '1493',
+      projectId: '82029',
       imageToAdd: "",
       imageGroupToAdd: "",
-      baseImage: '1577',
+      baseImage: '82364',
       filters: [],
       imageGroupIndex: [],
 	  imageSequences: [],
@@ -161,7 +161,7 @@ export default {
       this.onlineUsers = data.data.collection;
     })
 
-    setInterval(this.ping, 20000);
+    // setInterval(this.ping, 20000);
     
   },
 }

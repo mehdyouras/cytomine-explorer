@@ -117,10 +117,11 @@ export default {
             return `${user.lastname} ${user.firstname} (${user.username})`
         },
         addLayer(toAdd, addToSelected = true) {
-            if(toAdd.id) {            
-                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true`).then(data => {
+            let bbox = this.$openlayers.getView(this.currentMap.id).calculateExtent().join();
+            if(toAdd.id) {
+                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${bbox}`).then(data => {
                     let collection = data.data.collection;
-                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=true&notReviewedOnly=true`).then(resp => {
+                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=true&notReviewedOnly=true&bbox=${bbox}`).then(resp => {
                         if(addToSelected) {
                             // Push added item to selected
                             toAdd.visible = true;

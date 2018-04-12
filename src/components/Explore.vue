@@ -1,6 +1,6 @@
 <template>
     <div class="map">
-        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
+        <div @mousemove="sendView" @mousewheel="sendView($event, true)" :id="currentMap.id" ref="exploreMap">
         </div>
         <digital-zoom :currentMap="currentMap"></digital-zoom>
         <label :for="'link-'+currentMap.id">Link the map</label>
@@ -155,7 +155,7 @@ export default {
   },
   methods: {
     // Sends view infos
-    sendView(e) {
+    sendView(e, updateLayers = false) {
         let payload = {
             mapId: this.currentMap.id,
             view: this.$openlayers.getView(this.currentMap.id),
@@ -165,6 +165,9 @@ export default {
             e.clientX - rect.left,
             e.clientY - rect.top
         ]
+        if(updateLayers) {
+            this.updateLayers = true;
+        }
         this.$emit('dragged', payload);
     },
     // Sends which map is linked to this one to the parent
