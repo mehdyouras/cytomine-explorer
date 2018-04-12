@@ -124,6 +124,9 @@ export default {
       let index = this.maps.findIndex(map => map == payload.old);
       this.maps[index].data = payload.new;
       this.maps[index].imageId = payload.new.id;
+    },
+    ping() {
+      api.post(`http://localhost-core:8080/server/ping.json`, {project: this.projectId});
     }
   },
   created() {
@@ -157,6 +160,8 @@ export default {
     api.get(`/api/project/82029/online/user.json`).then(data => {
       this.onlineUsers = data.data.collection;
     })
+
+    setInterval(this.ping, 20000);
     
   },
 }
