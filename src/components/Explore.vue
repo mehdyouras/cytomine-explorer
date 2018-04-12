@@ -171,6 +171,22 @@ export default {
         let payload = [this.currentMap.id, this.linkValue];
         this.$emit('mapIsLinked', payload);
     },
+    postPosition() {
+        let extent = this.$openlayers.getView(this.currentMap.id).calculateExtent();
+        let payload = {
+            bottomLeftX: Math.round(extent[0]),
+            bottomLeftY: Math.round(extent[1]),
+            bottomRightX: Math.round(extent[2]),
+            bottomLeftY: Math.round(extent[1]),
+            image: parseInt(this.currentMap.imageId),
+            topLeftX: Math.round(extent[0]),
+            topLeftY: Math.round(extent[3]),
+            topRightX: Math.round(extent[2]),
+            topRightY: Math.round(extent[3]),
+            zoom: this.$openlayers.getView(this.currentMap.id).getZoom(),
+        }
+        api.post(`/api/imageinstance/${this.currentMap.imageId}/position.json`, payload);
+    },
     updateOverviewMap() {
         this.$emit('updateOverviewMap');
     },
@@ -245,6 +261,10 @@ export default {
     })
     this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
+    this.$openlayers.getMap(this.currentMap.id).on('moveend', () => {
+        this.postPosition();
+    })
+    setInterval(this.postPosition, 5000);
   }
 }
 
