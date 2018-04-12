@@ -9,7 +9,7 @@
             <li v-for="layer in layersSelected" :key="layer.id">
                 <input @click="toggleVisibility(layer)" v-model="layer.visible" type="checkbox" :name="'hide-layer-' + layer.id" :id="'hide-layer-' + layer.id">
                 <label :for="'hide-layer-' + layer.id">Visible</label>
-                <input @click="followUser(layer.id)" v-model="userToFollow" :value="layer.id" type="checkbox" :name="'follow-' + layer.id" :id="'follow-' + layer.id">
+                <input @click="followUser(layer.id)" v-model="userToFollow" :disabled="isUserOnline(layer.id)" :value="layer.id" type="checkbox" :name="'follow-' + layer.id" :id="'follow-' + layer.id">
                 <label :for="'follow-' + layer.id">Follow</label>
 
                 {{userDisplayName(layer)}}
@@ -42,7 +42,8 @@ export default {
         'showWithNoTerm',
         'allTerms',
         'updateLayers',
-        'isReviewing'
+        'isReviewing',
+        'onlineUsers'
     ],
     data() {
       return {
@@ -232,6 +233,10 @@ export default {
                 this.$openlayers.getView(this.currentMap.id).setCenter([x, y]);
                 this.$openlayers.getView(this.currentMap.id).setZoom(zoom);
             })
+        },
+        isUserOnline(userId) {
+            let index = this.onlineUsers.findIndex(user => user.id == userId);
+            return index > 0 ? false : true;
         }
     },
     mounted() {
