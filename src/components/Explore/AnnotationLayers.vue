@@ -215,8 +215,6 @@ export default {
                 this.userLayers = data.data.collection;
                 this.$emit('userLayers', this.userLayers);
         })
-
-        this.getAnnotationIndex();
         setInterval(this.getAnnotationIndex, 5000)
     }
 }
