@@ -85,6 +85,7 @@ export default {
         vectorLayersOpacity: 0.5,
         updateLayers: false,
         updateAnnotationsIndex: false,
+        onlineUsers: [],
     }
   },
   props: [
@@ -187,6 +188,11 @@ export default {
         }
         api.post(`/api/imageinstance/${this.currentMap.imageId}/position.json`, payload);
     },
+    getOnlineUsers() {
+        api.get(`/api/project/${this.currentMap.data.project}/online/user.json`).then(data => {
+            this.onlineUsers = data.data.collection;
+        })
+    },
     updateOverviewMap() {
         this.$emit('updateOverviewMap');
     },
@@ -265,6 +271,7 @@ export default {
         this.postPosition();
     })
     setInterval(this.postPosition, 5000);
+    setInterval(this.getOnlineUsers, 5000)
   }
 }
 
