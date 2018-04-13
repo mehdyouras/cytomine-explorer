@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import hexToRgb from '../../helpers/hexToRgb'
+
 import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';

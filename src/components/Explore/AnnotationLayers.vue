@@ -143,7 +143,7 @@ export default {
                             let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
                             if(isToShow) {  
                                 // Sets the color specified by api if annotation has only one term
-                                let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color, 1) : [204, 204, 204];
+                                let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
                                 let feature = format.readFeature(element.location);
                                 feature.setId(element.id);
                                 feature.set('user', toAdd.id);
