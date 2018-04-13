@@ -53,7 +53,7 @@ export default {
         vectorLayer: {},
         vectorLayersOpacity: 0.5,
         annotationIndex: {},
-        userToFollow: '',
+        userToFollow: [],
         intervalId: '',
       }
     },
