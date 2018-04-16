@@ -2,23 +2,41 @@
     <div class="map">
         <div @mousemove="sendView" @mousewheel="sendView($event, true)" :id="currentMap.id" ref="exploreMap">
         </div>
-        <digital-zoom :currentMap="currentMap"></digital-zoom>
-        <label :for="'link-'+currentMap.id">Link the map</label>
-        <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
-            <option value="">Select a map</option>
-            <template v-for="(map, index) in maps">
-                <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
-            </template>
-        </select>
         <div>
-            <label :for="'original-filter-'+currentMap.id">Original</label>
-            <input v-model="filterSelected" type="radio" :name="'filter-original-'+currentMap.id" :id="'filter-original-'+currentMap.id" value="">
-            <div v-for="filter in filters" :key="filter.id">
-                <label :for="'filter-'+filter.id+'-'+currentMap.id">{{filter.name}}</label>
-                <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
+            <div class="bottom-panel">
+                <button @click="setShowComponent('linkmap')" class="btn show-link-map">
+                    <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
+                </button>
+                <button @click="setShowComponent('filter')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+                </button>
+                <button @click="setShowComponent('digitalZoom')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+                </button>
+                <button @click="setShowComponent('colormap')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
+                </button>
             </div>
+            <div v-show="showComponent == 'linkmap'">
+                <label :for="'link-'+currentMap.id">Link the map</label>
+                <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
+                    <option value="">Select a map</option>
+                    <template v-for="(map, index) in maps">
+                        <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
+                    </template>
+                </select>
+            </div>
+            <digital-zoom v-show="showComponent == 'digitalZoom'" :currentMap="currentMap"></digital-zoom>
+            <div v-show="showComponent == 'filter'">
+                <label :for="'original-filter-'+currentMap.id">Original</label>
+                <input v-model="filterSelected" type="radio" :name="'filter-original-'+currentMap.id" :id="'filter-original-'+currentMap.id" value="">
+                <div v-for="filter in filters" :key="filter.id">
+                    <label :for="'filter-'+filter.id+'-'+currentMap.id">{{filter.name}}</label>
+                    <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
+                </div>
+            </div>
+            <color-maps v-show="showComponent == 'colormap'" :currentMap="currentMap"></color-maps>
         </div>
-        <color-maps :currentMap="currentMap"></color-maps>
         <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
         <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
@@ -86,6 +104,7 @@ export default {
         updateLayers: false,
         updateAnnotationsIndex: false,
         onlineUsers: [],
+        showComponent: '',
     }
   },
   props: [
@@ -237,6 +256,13 @@ export default {
     },
     setUpdateAnnotationsIndex(payload) {
         this.updateAnnotationsIndex = payload;
+    },
+    setShowComponent(component) {
+        if(component == this.showComponent) {
+            this.showComponent = '';
+        } else {
+            this.showComponent = component;
+        }
     }
   }, 
   mounted() {
@@ -273,6 +299,12 @@ export default {
     this.$openlayers.getMap(this.currentMap.id).on('moveend', () => {
         this.postPosition();
     })
+    this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[0].element.childNodes.forEach(child => {
+        child.classList.add('btn');
+    })
+    this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[1].element.childNodes.forEach(child => {
+        child.classList.add('btn');
+    })
     setInterval(this.postPosition, 5000);
     setInterval(this.getOnlineUsers, 5000)
   }
@@ -282,7 +314,26 @@ export default {
 
 <style>
   .map {
+    position: relative;
     width: 100%;
     height: 100vh;
+  }
+  .ol-overlaycontainer-stopevent {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      flex-direction: column;
+  }
+  .ol-zoom {
+      margin-bottom: 1em;
+      display: flex;
+      flex-direction: column;
+  }
+  .ol-zoom-in {
+      margin-bottom: 1em;
+  }
+  .bottom-panel {
+      display: flex;
   }
 </style>

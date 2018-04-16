@@ -2,23 +2,23 @@
   <div>
     <div v-if="maps.length < maxMapsToShow">
       <template v-if="imageGroupIndex[0]">
-        <select v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
+        <select class="btn" v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
           <option value="">Select an imagegroup</option>
           <option v-for="imageGroup in imageGroupIndex" :key="imageGroup.id" :value="imageGroup.id">{{imageGroup.name}}</option>
         </select>
-        <button @click="addImageGroup()">Add image group</button>
+        <button class="btn" @click="addImageGroup()">Add image group</button>
       </template>
       <template v-else>
-        <select v-model.number="imageToAdd" name="images" id="images">
+        <select class="btn" v-model.number="imageToAdd" name="images" id="images">
           <option value="">Select an image to add</option>
           <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
         </select>
-        <button @click="addMap(imageToAdd)">Add a map</button>
+        <button class="btn" @click="addMap(imageToAdd)">Add a map</button>
       </template>
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
-    <div class="container">
+    <div>
       <explore v-for="map in maps" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
     </div>
   </div>
