@@ -555,8 +555,8 @@ export default {
         display: flex;
         flex-wrap: wrap;
         position: absolute;
-        top: 0;
-        left: 60px;
+        top: 1em;
+        left: 67px;
         list-style: none;
         padding: 0;
     }

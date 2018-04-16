@@ -1,9 +1,9 @@
 <template>
-    <div class="map">
-        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
+    <div :style="`height:${elementHeight}px; overflow:hidden; width:${elementWidth}%;`" class="map">
+        <div style="height:100vh;" @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
         <div>
-            <div class="bottom-panel">
+            <div v-show="this.lastEventMapId == this.currentMap.id" class="bottom-panel">
                 <button @click="setShowComponent('informations')" class="btn show-filter">
                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 </button>
@@ -34,8 +34,8 @@
                     <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
                 </button>
                 <button class="btn btn-danger" @click="deleteMap">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    Delete the map
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    Close
                 </button>
             </div>
             <div v-show="showComponent == 'linkmap'">
@@ -62,7 +62,7 @@
             <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
             <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         </div>
-        <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
+        <interactions v-show="this.lastEventMapId == this.currentMap.id" @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <review v-if="isReviewing" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
         <multidimension v-if="imageGroupIndex[0]" v-show="showComponent == 'multidimension'" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
         <properties v-show="showComponent == 'properties'" :layersSelected="layersSelected" :currentMap="currentMap"></properties>
@@ -127,6 +127,7 @@ export default {
         updateAnnotationsIndex: false,
         onlineUsers: [],
         showComponent: '',
+        showPanel: true,
     }
   },
   props: [
@@ -162,7 +163,30 @@ export default {
     },
     getCurrentZoom() {
         return this.mapView.mapResolution;
-    }
+    },
+    innerHeight() {
+        return window.innerHeight;
+    },
+    elementHeight() {
+        let fullHeight = this.innerHeight - (92+15);
+        let heights = [
+            [fullHeight],
+            [fullHeight, fullHeight],
+            [fullHeight/2, fullHeight/2, fullHeight/2],
+            [fullHeight/2, fullHeight/2, fullHeight/2, fullHeight/2],
+        ]
+        return heights[this.maps.length - 1][this.mapIndex]
+    },
+    elementWidth() {
+        let fullWidth = 100;
+        let widths = [
+            [fullWidth],
+            [fullWidth/2, fullWidth/2],
+            [fullWidth/2, fullWidth/2, fullWidth],
+            [fullWidth/2, fullWidth/2, fullWidth/2, fullWidth/2],
+        ]
+        return widths[this.maps.length - 1][this.mapIndex]
+    },
   },
   watch: {
     mapView: {
@@ -198,6 +222,13 @@ export default {
     },
     getCurrentZoom() {
         this.updateLayers = true;
+    },
+    lastEventMapId() {
+        if(this.lastEventMapId != this.currentMap.id) {
+            this.showPanel = false;
+        } else {
+            this.showPanel = true;
+        }
     }
   },
   methods: {
@@ -340,13 +371,13 @@ export default {
 <style>
   .map {
     position: relative;
-    width: 100%;
-    height: 100vh;
+    /* width: 100%; */
+    /* height: 100vh; */
   }
   .ol-overlaycontainer-stopevent {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 1em;
+      left: 1em;
       display: flex;
       flex-direction: column;
   }
@@ -360,5 +391,8 @@ export default {
   }
   .bottom-panel {
       display: flex;
+      position: absolute;
+      bottom: 1em;
+      left: 1em;
   }
 </style>

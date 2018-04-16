@@ -18,7 +18,7 @@
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
-    <div>
+    <div class="maps-container">
       <explore v-for="map in maps" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
     </div>
   </div>
@@ -73,6 +73,7 @@ export default {
         mapRotation: payload.view.getRotation(),
       }
       this.lastEventMapId = payload.mapId;
+      this.$openlayers.getMap(payload.mapId).updateSize();
     },
     linkMaps(payload) {
       // Removes last linked map
@@ -97,8 +98,8 @@ export default {
           id,
           imageId,
           linkedTo: "",
-		  imageGroup,
-		  user: this.currentUser,
+          imageGroup,
+          user: this.currentUser,
           data: this.images[this.imageIndex(imageId)]
         })
       }
@@ -127,7 +128,7 @@ export default {
     },
     ping() {
       api.post(`http://localhost-core:8080/server/ping.json`, {project: this.projectId});
-    }
+    },
   },
   created() {
     api.get(`api/project/${this.projectId}/imagegroup.json`).then(data => {
@@ -168,11 +169,9 @@ export default {
 </script>
 
 <style>
-  .container {
+  .maps-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
   }
 </style>
 
