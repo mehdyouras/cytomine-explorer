@@ -1,9 +1,12 @@
 <template>
     <div class="map">
-        <div @mousemove="sendView" @mousewheel="sendView($event, true)" :id="currentMap.id" ref="exploreMap">
+        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
         <div>
             <div class="bottom-panel">
+                <button @click="setShowComponent('informations')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                </button>
                 <button @click="setShowComponent('linkmap')" class="btn show-link-map">
                     <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
                 </button>
@@ -15,6 +18,24 @@
                 </button>
                 <button @click="setShowComponent('colormap')" class="btn show-filter">
                     <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
+                </button>
+                <button @click="setShowComponent('annotationLayers')" class="btn show-filter">
+                    Annotation layers
+                </button>
+                <button @click="setShowComponent('annotationList')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                    Annotation list
+                </button>
+                <button v-if="imageGroupIndex[0]" @click="setShowComponent('multidimension')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
+                    Multidimension
+                </button>
+                <button @click="setShowComponent('properties')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn-danger" @click="deleteMap">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    Delete the map
                 </button>
             </div>
             <div v-show="showComponent == 'linkmap'">
@@ -37,17 +58,18 @@
             </div>
             <color-maps v-show="showComponent == 'colormap'" :currentMap="currentMap"></color-maps>
         </div>
-        <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+        <div v-show="showComponent == 'annotationLayers'">
+            <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+            <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
+        </div>
         <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
-        <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         <review v-if="isReviewing" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
-        <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
-        <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
+        <multidimension v-if="imageGroupIndex[0]" v-show="showComponent == 'multidimension'" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
+        <properties v-show="showComponent == 'properties'" :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
-        <informations @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
+        <informations v-show="showComponent == 'informations'" @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
         <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
-        <annotations @updateAnnotationsIndex="setUpdateAnnotationsIndex" :updateAnnotationsIndex="updateAnnotationsIndex" :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
-        <button @click="deleteMap">Delete the map</button>
+        <annotations v-show="showComponent == ' '" @updateAnnotationsIndex="setUpdateAnnotationsIndex" :updateAnnotationsIndex="updateAnnotationsIndex" :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
     </div>
 </template>
 
@@ -137,6 +159,9 @@ export default {
     },
     isReviewing() {
         return false;
+    },
+    getCurrentZoom() {
+        return this.mapView.mapResolution;
     }
   },
   watch: {
@@ -170,11 +195,14 @@ export default {
         this.$openlayers.getMap(this.currentMap.id).getLayers().getArray()[0] = layer;
         this.$openlayers.getMap(this.currentMap.id).render();
         this.updateOverviewMap();
+    },
+    getCurrentZoom() {
+        this.updateLayers = true;
     }
   },
   methods: {
     // Sends view infos
-    sendView(e, updateLayers = false) {
+    sendView(e) {
         let payload = {
             mapId: this.currentMap.id,
             view: this.$openlayers.getView(this.currentMap.id),
@@ -184,9 +212,6 @@ export default {
             e.clientX - rect.left,
             e.clientY - rect.top
         ]
-        if(updateLayers) {
-            this.updateLayers = true;
-        }
         this.$emit('dragged', payload);
     },
     // Sends which map is linked to this one to the parent

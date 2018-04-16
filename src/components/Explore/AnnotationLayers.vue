@@ -51,7 +51,7 @@ export default {
         layerToBeAdded: {},
         layersSelected: [],
         vectorLayer: {},
-        vectorLayersOpacity: 0.5,
+        vectorLayersOpacity: 0.3,
         annotationIndex: {},
         userToFollow: [],
         intervalId: '',
