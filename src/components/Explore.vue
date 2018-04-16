@@ -30,6 +30,10 @@
                     <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
                     Multidimension
                 </button>
+                <button v-if="isReviewing" @click="setShowComponent('review')" class="btn show-filter">
+                    <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
+                    Multidimension
+                </button>
                 <button @click="setShowComponent('properties')" class="btn show-filter">
                     <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
                 </button>
@@ -63,7 +67,7 @@
             <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
         </div>
         <interactions v-show="this.lastEventMapId == this.currentMap.id" @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
-        <review v-if="isReviewing" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
+        <review v-if="isReviewing" v-show="showComponent == 'review'" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
         <multidimension v-if="imageGroupIndex[0]" v-show="showComponent == 'multidimension'" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
         <properties v-show="showComponent == 'properties'" :layersSelected="layersSelected" :currentMap="currentMap"></properties>
         <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
