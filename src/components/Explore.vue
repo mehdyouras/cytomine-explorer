@@ -31,8 +31,8 @@
                     Multidimension
                 </button>
                 <button v-if="isReviewing" @click="setShowComponent('review')" class="btn show-filter">
-                    <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
-                    Multidimension
+                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    Review
                 </button>
                 <button @click="setShowComponent('properties')" class="btn show-filter">
                     <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
@@ -163,7 +163,7 @@ export default {
         return parseInt(this.currentMap.data.height)
     },
     isReviewing() {
-        return false;
+        return true;
     },
     getCurrentZoom() {
         return this.mapView.mapResolution;
