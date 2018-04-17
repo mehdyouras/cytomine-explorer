@@ -5,37 +5,37 @@
         <interactions v-show="this.lastEventMapId == this.currentMap.id" @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <div>
             <div v-show="this.lastEventMapId == this.currentMap.id" class="bottom-panel">
-                <button @click="setShowComponent('informations')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('informations')" :class="['btn', 'btn-default', {active: showComponent == 'informations' }]">
                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('linkmap')" class="btn btn-default show-link-map">
+                <button @click="setShowComponent('linkmap')" :class="['btn', 'btn-default', {active: showComponent == 'linkmap' }]">
                     <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('filter')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('filter')" :class="['btn', 'btn-default', {active: showComponent == 'filter' }]">
                     <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('digitalZoom')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('digitalZoom')" :class="['btn', 'btn-default', {active: showComponent == 'digitalZoom' }]">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('colormap')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('colormap')" :class="['btn', 'btn-default', {active: showComponent == 'colormap' }]">
                     <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('annotationLayers')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('annotationLayers')" :class="['btn', 'btn-default', {active: showComponent == 'annotationLayers' }]">
                     Annotation layers
                 </button>
-                <button @click="setShowComponent('annotationList')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('annotationList')" :class="['btn', 'btn-default', {active: showComponent == 'annotationList' }]">
                     <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                     Annotation list
                 </button>
-                <button v-if="imageGroupIndex[0]" @click="setShowComponent('multidimension')" class="btn btn-default show-filter">
+                <button v-if="imageGroupIndex[0]" @click="setShowComponent('multidimension')" :class="['btn', 'btn-default', {active: showComponent == 'multidimension' }]">
                     <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
                     Multidimension
                 </button>
-                <button v-if="isReviewing" @click="setShowComponent('review')" class="btn btn-default show-filter">
+                <button v-if="isReviewing" @click="setShowComponent('review')" :class="['btn', 'btn-default', {active: showComponent == 'review' }]">
                     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                     Review
                 </button>
-                <button @click="setShowComponent('properties')" class="btn btn-default show-filter">
+                <button @click="setShowComponent('properties')" :class="['btn', 'btn-default', {active: showComponent == 'properties' }]">
                     <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
                 </button>
                 <button class="btn btn-danger" @click="deleteMap">
@@ -49,9 +49,10 @@
                 </div> -->
             </div>
         </div>
-        <div v-show="this.lastEventMapId == this.currentMap.id && showComponent != ''" class="panel component-panel" :style="`max-height:${elementHeight}px;max-width:${elementWidth - 2}%;`">
+        <div v-show="this.lastEventMapId == this.currentMap.id && showComponent != ''" class="panel component-panel" :style="`max-height:${2*elementHeight/3}px;overflow-y:${isComponentInformations};`">
             <div class="panel-body">
                 <div v-show="showComponent == 'linkmap'">
+                    <div class="alert alert-info">Choose a map to link</div>
                     <label :for="'link-'+currentMap.id">Link the map</label>
                     <select class="btn btn-default" @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
                         <option value="">Select a map</option>
@@ -62,6 +63,7 @@
                 </div>
                 <digital-zoom v-show="showComponent == 'digitalZoom'" :currentMap="currentMap"></digital-zoom>
                 <div v-show="showComponent == 'filter'">
+                    <div class="alert alert-info">Choose a filter to apply</div>
                     <label :for="'original-filter-'+currentMap.id">Original</label>
                     <input v-model="filterSelected" type="radio" :name="'filter-original-'+currentMap.id" :id="'filter-original-'+currentMap.id" value="">
                     <div v-for="filter in filters" :key="filter.id">
@@ -199,6 +201,9 @@ export default {
         ]
         return widths[this.maps.length - 1][this.mapIndex]
     },
+    isComponentInformations() {
+        return this.showComponent == 'informations' ? 'visible' : 'scroll'
+    }
   },
   watch: {
     mapView: {
@@ -385,6 +390,7 @@ export default {
 <style>
   .map {
     position: relative;
+    overflow: hidden;
     /* width: 100%; */
     /* height: 100vh; */
   }
