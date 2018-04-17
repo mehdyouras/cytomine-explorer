@@ -49,11 +49,11 @@
                 </div> -->
             </div>
         </div>
-        <div v-show="this.lastEventMapId == this.currentMap.id && showComponent != ''" class="panel component-panel">
+        <div v-show="this.lastEventMapId == this.currentMap.id && showComponent != ''" class="panel component-panel" :style="`max-height:${elementHeight}px;max-width:${elementWidth - 2}%;`">
             <div class="panel-body">
                 <div v-show="showComponent == 'linkmap'">
                     <label :for="'link-'+currentMap.id">Link the map</label>
-                    <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
+                    <select class="btn btn-default" @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
                         <option value="">Select a map</option>
                         <template v-for="(map, index) in maps">
                             <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
@@ -171,7 +171,7 @@ export default {
         return parseInt(this.currentMap.data.height)
     },
     isReviewing() {
-        return true;
+        return false;
     },
     getCurrentZoom() {
         return this.mapView.mapResolution;
