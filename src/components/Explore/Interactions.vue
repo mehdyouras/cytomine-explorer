@@ -2,103 +2,103 @@
   <div>
         <ul class="toolbar2">
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Select')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Select')">
                     <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
                     Select
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Point')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Point')">
                     <span class="glyphicon glyphicon-marker" aria-hidden="true"></span>
                     Point
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Line')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Line')">
                     Line
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Arrow')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Arrow')">
                     <span class="glyphicon glyphicon-up" aria-hidden="true"></span>
                     Arrow
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Rectangle')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Rectangle')">
                     Rectangle
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Ellipse')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Ellipse')">
                     Ellipse
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Circle')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Circle')">
                     Circle
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Polygon')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Polygon')">
                     Polygon
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('MagicWand')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('MagicWand')">
                     MagicWand
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Polygon', true)">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Polygon', true)">
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Correction', true)">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Correction', true)">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Correction', true, true)">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Correction', true, true)">
                     <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
             <li>
-                <button class="btn btn-xs" @click="addInteraction('Ruler')">
+                <button class="btn btn-default btn-xs" @click="addInteraction('Ruler')">
                     Ruler
                 </button>
             </li>
             <template v-if="featureSelected.getArray()[0]">
                 <li>
-                    <button class="btn btn-xs" @click="addInteraction('Fill')">
+                    <button class="btn btn-default btn-xs" @click="addInteraction('Fill')">
                         Fill
                     </button>
                 </li>
                 <li>
-                    <button class="btn btn-xs" @click="addInteraction('Edit')">
+                    <button class="btn btn-default btn-xs" @click="addInteraction('Edit')">
                         Edit
                     </button>
                 </li>
                 <li>
-                    <button class="btn btn-xs" @click="addInteraction('Rotate')">
+                    <button class="btn btn-default btn-xs" @click="addInteraction('Rotate')">
                         Rotate
                     </button>
                 </li>
                 <li>
-                    <button class="btn btn-xs" @click="addInteraction('Resize')">
+                    <button class="btn btn-default btn-xs" @click="addInteraction('Resize')">
                         Resize
                     </button>
                 </li>
                 <li>
-                    <button class="btn btn-xs" @click="addInteraction('Drag')">
+                    <button class="btn btn-default btn-xs" @click="addInteraction('Drag')">
                         Drag
                     </button>
                 </li>
                 <li>
-                    <button class="btn btn-xs" @click="addInteraction('Remove')">
+                    <button class="btn btn-default btn-xs" @click="addInteraction('Remove')">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>
                 </li>
