@@ -29,7 +29,6 @@
                     Annotation list
                 </button>
                 <button v-if="imageGroupIndex[0]" @click="setShowComponent('multidimension')" :class="['btn', 'btn-default', {active: showComponent == 'multidimension' }]">
-                    <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
                     Multidimension
                 </button>
                 <button v-if="isReviewing" @click="setShowComponent('review')" :class="['btn', 'btn-default', {active: showComponent == 'review' }]">
