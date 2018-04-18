@@ -2,6 +2,7 @@
     <div :style="`height:${elementHeight}px;width:${elementWidth}%;`" class="map">
         <div style="height:100vh;" @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
+        <div class="controls" :id="'controls-'+currentMap.id"></div>
         <interactions v-show="this.lastEventMapId == this.currentMap.id" @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <div>
             <div v-show="this.lastEventMapId == this.currentMap.id" class="bottom-panel">
@@ -104,6 +105,8 @@ import ColorMaps from './Explore/Colormaps'
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
+import ZoomControls from 'ol/control/zoom';
+import RotateControls from 'ol/control/rotate';
 
 export default {
   name: 'Explore',
@@ -346,11 +349,17 @@ export default {
       element: this.currentMap.id,
       center: [this.mapWidth/2, this.mapHeight/2],
       zoom: this.mapZoom,
-      enableZoomButton: true,
+      controls: [
+          new ZoomControls({
+            target: document.getElementById('controls-'+this.currentMap.id),
+          }),
+          new RotateControls({
+            target: document.getElementById('controls-'+this.currentMap.id),
+          })
+      ],
       enablePan: true,
       enableMouseWheelZoom: true,
       enableDoubleClickZoom: true,
-      enableScaleLine: true,
       minZoom: 2,
       projection: {
         code: 'CYTO',
@@ -367,6 +376,7 @@ export default {
         }),
         extent: this.extent,
     })
+
     this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
     this.$openlayers.getMap(this.currentMap.id).on('moveend', () => {
@@ -391,10 +401,8 @@ export default {
   .map {
     position: relative;
     overflow: hidden;
-    /* width: 100%; */
-    /* height: 100vh; */
   }
-  .ol-overlaycontainer-stopevent {
+  .controls {
       position: absolute;
       top: 1em;
       left: 1em;

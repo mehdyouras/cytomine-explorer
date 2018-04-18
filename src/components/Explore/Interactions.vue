@@ -219,7 +219,7 @@ export default {
             this.draw.overlay.measureTooltipElement.parentNode.removeChild(this.draw.overlay.measureTooltipElement);
         }
         this.draw.overlay.measureTooltipElement = document.createElement('div');
-        this.draw.overlay.measureTooltipElement.className = 'tooltip tooltip-measure';
+        this.draw.overlay.measureTooltipElement.className = 'measure tooltip-measure';
         this.draw.overlay.measureTooltip = new Overlay({
             element: this.draw.overlay.measureTooltipElement,
             offset: [0, -15],
@@ -434,7 +434,7 @@ export default {
                     helpTooltipElement.parentNode.removeChild(helpTooltipElement);
                     }
                     helpTooltipElement = document.createElement('div');
-                    helpTooltipElement.className = 'tooltip hidden';
+                    helpTooltipElement.className = 'measure hidden';
                     this.draw.overlay.helpTooltip = new Overlay({
                     element: helpTooltipElement,
                     offset: [15, 0],
@@ -514,7 +514,7 @@ export default {
 
             this.draw.interaction.on('drawend',
                 () => {
-                    this.draw.overlay.measureTooltipElement.className = 'tooltip tooltip-static';
+                    this.draw.overlay.measureTooltipElement.className = 'measure tooltip-static';
                     this.draw.overlay.measureTooltip.setOffset([0, -7]);
                     // unset sketch
                     sketch = null;
