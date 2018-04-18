@@ -50,7 +50,7 @@
                 </div> -->
             </div>
         </div>
-        <div v-show="this.lastEventMapId == this.currentMap.id && showComponent != ''" class="panel component-panel" :style="`max-height:${2*elementHeight/3}px;overflow-y:${isComponentInformations};`">
+        <div v-show="(this.lastEventMapId == this.currentMap.id && showComponent != '') || featureSelected != undefined" class="panel component-panel" :style="`max-height:${2*elementHeight/3}px;overflow-y:${isComponentInformations};`">
             <div class="panel-body">
                 <div v-show="showComponent == 'linkmap'">
                     <div class="alert alert-info">Choose a map to link</div>
