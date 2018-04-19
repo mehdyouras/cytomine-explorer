@@ -249,7 +249,6 @@ export default {
             geometryFunction, type;
         switch (interactionType) {
             case 'Select':
-                // this.removeInteraction();
                 this.draw.interaction = new Select({
                     features: this.featureSelected,
                 });

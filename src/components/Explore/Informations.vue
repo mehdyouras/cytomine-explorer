@@ -15,7 +15,6 @@
           <span class="sr-only">Toggle dropdown</span>
         </button>
         <ul class="dropdown-menu">
-          <!-- <li><a :href="`#tabs-image-${currentMap.data.project}-${currentMap.imageId}-0`">Explore</a></li> -->
           <li><a @click="reviewMode" :href="`#tabs-review-${this.currentMap.data.project}-${this.currentMap.imageId}-`">Review</a></li>
           <li><a :href="`#tabs-reviewdash-${currentMap.data.project}-${currentMap.imageId}-null-null`">Review (Cyto)</a></li>
           <li><a @click="validateImage" href="#">Validate image</a></li>
