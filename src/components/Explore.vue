@@ -177,7 +177,7 @@ export default {
     isReviewing() {
         let type = document.querySelector('.get-data').dataset.type;
         let from = type.indexOf('-');
-        type.substr(from + 1) == 'review' ? true : false; 
+        return type.substr(from + 1) == 'review' ? true : false; 
     },
     getCurrentZoom() {
         return this.mapView.mapResolution;
