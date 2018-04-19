@@ -145,7 +145,6 @@ export default {
 		let id = uuid();
 		this.lastEventMapId = id;
 		this.images = data.data.collection;
-		this.projectId = this.images[0].project;
 		api.get(`api/user/current.json`).then(data => {
 			this.currentUser = data.data;
 			if(this.imageGroupIndex[0]) {
