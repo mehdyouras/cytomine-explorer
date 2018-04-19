@@ -393,6 +393,13 @@ export default {
     })
     setInterval(this.postPosition, 5000);
     setInterval(this.getOnlineUsers, 5000)
+    if(this.isReviewing) {
+        api.put(`/api/imageinstance/${this.currentMap.imageId}/review.json`, {
+            id: this.currentMap.imageId,
+        }).then(data => {
+            this.updateMap(data.data.imageinstance)
+        })
+    }
   }
 }
 

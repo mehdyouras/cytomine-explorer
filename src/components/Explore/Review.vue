@@ -112,7 +112,7 @@ export default {
         })
       },
       validateImage() {
-        api.delete(`/api/imageinstance/${this.currentMap.imageId}/review.json`).then(data => {
+        api.delete(`/api/imageinstance/${this.currentMap.imageId}/review.json?cancel=false`).then(data => {
           this.$emit('updateMap', data.data.imageinstance);
         })
       },
