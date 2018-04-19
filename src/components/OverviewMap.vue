@@ -51,9 +51,11 @@ export default {
   },
   methods: {
       initOverviewMap(map = this.maps[0]) {
+        if(this.overviewMap.hasOwnProperty('ol_uid')) {
+            this.$openlayers.getMap(this.overviewMap.get('mapId')).removeControl(this.overviewMap);
+        }
         this.overviewMap = new OverviewMap({
             collapsed: true,
-            // collapsible: false,
             target: "overview-map",
             view: new View({
                 projection: new Projection({
@@ -65,6 +67,7 @@ export default {
                 maxZoom: 2,
             }),
         })
+        this.overviewMap.set('mapId', map.id);
         this.$openlayers.getMap(map.id).addControl(this.overviewMap);
       },
   },
