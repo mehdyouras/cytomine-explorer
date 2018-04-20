@@ -19,7 +19,7 @@
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
     <div class="maps-container">
-      <explore v-for="map in maps" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
+      <explore v-for="map in maps" :currentRoute="currentRoute" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
     </div>
   </div>
 </template>
@@ -38,6 +38,7 @@ export default {
   },
   data() {
     return {
+      projectConfig: {},
       mapView: {
         mapCenter: [0, 0],
         mapZoom: 2,
@@ -55,6 +56,7 @@ export default {
       baseSequence: {},
       onlineUsers: [],
       currentUser: {},
+      currentRoute: '',
     }
   },
   computed: {
@@ -105,6 +107,7 @@ export default {
           imageId,
           linkedTo: "",
           imageGroup,
+          projectConfig: this.projectConfig,
           user: this.currentUser,
           data: this.images[this.imageIndex(imageId)]
         })
@@ -135,29 +138,35 @@ export default {
     ping() {
       api.post(`http://localhost-core:8080/server/ping.json`, {project: this.projectId});
     },
+    checkRoute() {
+      this.currentRoute = Backbone.history.getFragment();
+    }
   },
   created() {
     api.get(`api/project/${this.projectId}/imagegroup.json`).then(data => {
       this.imageGroupIndex = data.data.collection;
     })
 
-    api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
-		let id = uuid();
-		this.lastEventMapId = id;
-		this.images = data.data.collection;
-		api.get(`api/user/current.json`).then(data => {
-			this.currentUser = data.data;
-			if(this.imageGroupIndex[0]) {
-				api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
-					this.baseSequence = resp.data.collection[0];
-					this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
-				})
-			} else {
-				this.addMap(this.baseImage, "", id);
-			}
-		})
+    api.get(`/custom-ui/config.json?project=${this.projectId}`).then(data => {
+      this.projectConfig = data.data;
+      api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
+        let id = uuid();
+        this.lastEventMapId = id;
+        this.images = data.data.collection;
+        api.get(`api/user/current.json`).then(data => {
+          this.currentUser = data.data;
+          if(this.imageGroupIndex[0]) {
+            api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
+              this.baseSequence = resp.data.collection[0];
+              this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+            })
+          } else {
+            this.addMap(this.baseImage, "", id);
+          }
+        })
+      })
+    }) 
 
-    })
 
     api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {
       this.filters = data.data.collection;
@@ -167,8 +176,7 @@ export default {
       this.onlineUsers = data.data.collection;
     })
 
-    // setInterval(this.ping, 20000);
-    
+    setInterval(this.checkRoute, 1000)  
   },
 }
 </script>

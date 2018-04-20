@@ -106,6 +106,7 @@ import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
 import ZoomControls from 'ol/control/zoom';
 import RotateControls from 'ol/control/rotate';
+import WKT from 'ol/format/wkt';
 
 export default {
   name: 'Explore',
@@ -153,6 +154,7 @@ export default {
     'lastEventMapId',
     'filters',
     'imageGroupIndex',
+    'currentRoute',
   ],
   computed: {
     linkedTo() {
@@ -207,6 +209,10 @@ export default {
     },
     isComponentInformations() {
         return this.showComponent == 'informations' ? 'visible' : 'scroll'
+    },
+    centeredFeature() {
+        let index = this.currentRoute.lastIndexOf('-');
+        return this.currentRoute.substr(index + 1);
     }
   },
   watch: {
@@ -250,6 +256,11 @@ export default {
         } else {
             this.showPanel = true;
         }
+    },
+    centeredFeature(newValue) {
+        if(newValue != this.currentMap.data.project) {
+            this.centerOnFeature(newValue);
+        }
     }
   },
   methods: {
@@ -290,6 +301,13 @@ export default {
     getOnlineUsers() {
         api.get(`/api/project/${this.currentMap.data.project}/online/user.json`).then(data => {
             this.onlineUsers = data.data.collection;
+        })
+    },
+    centerOnFeature(id) {
+        api.get(`/api/annotation/${id}.json`).then(data => {
+            let format = new WKT();
+            let feature = format.readFeature(data.data.location);
+            this.$openlayers.getView(this.currentMap.id).fit(feature.getGeometry());
         })
     },
     updateOverviewMap() {
@@ -399,6 +417,9 @@ export default {
         }).then(data => {
             this.updateMap(data.data.imageinstance)
         })
+    }
+    if(this.centeredFeature != '' && this.centeredFeature != this.currentMap.data.project) {
+        this.centerOnFeature(this.centeredFeature);
     }
   }
 }

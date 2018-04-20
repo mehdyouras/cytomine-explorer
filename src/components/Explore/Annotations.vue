@@ -23,7 +23,9 @@
                     </dl>
                 </div>
                 <div slot="reference">
-                    <img class="annot-img" :src="annotation.smallCropURL" alt="">
+                    <a :href="`#tabs-${isReviewing ? 'review' : 'image'}-${currentMap.data.project}-${currentMap.imageId}-${annotation.id}`">
+                        <img class="annot-img" :src="annotation.smallCropURL" alt="">
+                    </a>
                 </div>
             </popper>
         </li>
