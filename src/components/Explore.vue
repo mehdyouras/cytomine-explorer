@@ -6,25 +6,25 @@
         <interactions v-show="this.lastEventMapId == this.currentMap.id" @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <div>
             <div v-show="this.lastEventMapId == this.currentMap.id" class="bottom-panel">
-                <button @click="setShowComponent('informations')" :class="['btn', 'btn-default', {active: showComponent == 'informations' }]">
+                <button v-if="mustBeShown('project-explore-info')" @click="setShowComponent('informations')" :class="['btn', 'btn-default', {active: showComponent == 'informations' }]">
                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('linkmap')" :class="['btn', 'btn-default', {active: showComponent == 'linkmap' }]">
+                <button v-if="mustBeShown('project-explore-link')" @click="setShowComponent('linkmap')" :class="['btn', 'btn-default', {active: showComponent == 'linkmap' }]">
                     <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('filter')" :class="['btn', 'btn-default', {active: showComponent == 'filter' }]">
+                <button v-if="mustBeShown('project-explore-image-layers')" @click="setShowComponent('filter')" :class="['btn', 'btn-default', {active: showComponent == 'filter' }]">
                     <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('digitalZoom')" :class="['btn', 'btn-default', {active: showComponent == 'digitalZoom' }]">
+                <button v-if="mustBeShown('project-explore-digital-zoom')" @click="setShowComponent('digitalZoom')" :class="['btn', 'btn-default', {active: showComponent == 'digitalZoom' }]">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('colormap')" :class="['btn', 'btn-default', {active: showComponent == 'colormap' }]">
+                <button v-if="mustBeShown('project-explore-colormap')" @click="setShowComponent('colormap')" :class="['btn', 'btn-default', {active: showComponent == 'colormap' }]">
                     <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
                 </button>
-                <button @click="setShowComponent('annotationLayers')" :class="['btn', 'btn-default', {active: showComponent == 'annotationLayers' }]">
+                <button v-if="mustBeShown('project-explore-image-layers')" @click="setShowComponent('annotationLayers')" :class="['btn', 'btn-default', {active: showComponent == 'annotationLayers' }]">
                     Annotation layers
                 </button>
-                <button @click="setShowComponent('annotationList')" :class="['btn', 'btn-default', {active: showComponent == 'annotationList' }]">
+                <button v-if="mustBeShown('project-explore-annotation-panel')" @click="setShowComponent('annotationList')" :class="['btn', 'btn-default', {active: showComponent == 'annotationList' }]">
                     <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                     Annotation list
                 </button>
@@ -35,7 +35,7 @@
                     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                     Review
                 </button>
-                <button @click="setShowComponent('properties')" :class="['btn', 'btn-default', {active: showComponent == 'properties' }]">
+                <button v-if="mustBeShown('project-explore-property')" @click="setShowComponent('properties')" :class="['btn', 'btn-default', {active: showComponent == 'properties' }]">
                     <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
                 </button>
                 <button class="btn btn-danger" @click="deleteMap">
@@ -107,6 +107,8 @@ import Group from 'ol/layer/group';
 import ZoomControls from 'ol/control/zoom';
 import RotateControls from 'ol/control/rotate';
 import WKT from 'ol/format/wkt';
+
+import mustBeShown from '../helpers/mustBeShown';
 
 export default {
   name: 'Explore',
@@ -358,6 +360,9 @@ export default {
         } else {
             this.showComponent = component;
         }
+    },
+    mustBeShown(key) {
+        return mustBeShown(key, this.currentMap.projectConfig);
     }
   }, 
   mounted() {

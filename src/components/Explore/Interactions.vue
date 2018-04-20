@@ -1,103 +1,103 @@
 <template>
   <div>
         <ul class="toolbar2">
-            <li>
+            <li v-if="mustBeShown('project-tools-select')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Select')">
                     <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
                     Select
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-point')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Point')">
-                    <span class="glyphicon glyphicon-marker" aria-hidden="true"></span>
+                    <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
                     Point
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-line')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Line')">
                     Line
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-arrow')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Arrow')">
-                    <span class="glyphicon glyphicon-up" aria-hidden="true"></span>
+                    <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                     Arrow
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-rectangle')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Rectangle')">
                     Rectangle
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-diamond')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Ellipse')">
                     Ellipse
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-circle')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Circle')">
                     Circle
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-polygon')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Polygon')">
                     Polygon
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-magicwand')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('MagicWand')">
                     MagicWand
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-freehand')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Polygon', true)">
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-union')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Correction', true)">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-difference')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Correction', true, true)">
                     <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
-            <li>
+            <li v-if="mustBeShown('project-tools-rule')">
                 <button class="btn btn-default btn-xs" @click="addInteraction('Ruler')">
                     Ruler
                 </button>
             </li>
             <template v-if="featureSelected.getArray()[0]">
-                <li>
+                <li v-if="mustBeShown('project-tools-fill')">
                     <button class="btn btn-default btn-xs" @click="addInteraction('Fill')">
                         Fill
                     </button>
                 </li>
-                <li>
+                <li v-if="mustBeShown('project-tools-edit')">
                     <button class="btn btn-default btn-xs" @click="addInteraction('Edit')">
                         Edit
                     </button>
                 </li>
-                <li>
+                <li v-if="mustBeShown('project-tools-rotate')">
                     <button class="btn btn-default btn-xs" @click="addInteraction('Rotate')">
                         Rotate
                     </button>
                 </li>
-                <li>
+                <li v-if="mustBeShown('project-tools-resize')">
                     <button class="btn btn-default btn-xs" @click="addInteraction('Resize')">
                         Resize
                     </button>
                 </li>
-                <li>
+                <li v-if="mustBeShown('project-tools-move')">
                     <button class="btn btn-default btn-xs" @click="addInteraction('Drag')">
                         Drag
                     </button>
                 </li>
-                <li>
+                <li v-if="mustBeShown('project-tools-delete')">
                     <button class="btn btn-default btn-xs" @click="addInteraction('Remove')">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>
@@ -124,6 +124,8 @@ import Rotate from 'ol-rotate-feature';
 import Sphere from 'ol/sphere';
 import Observable from 'ol/observable';
 import Overlay from 'ol/overlay';
+
+import mustBeShown from '../../helpers/mustBeShown';
 
 export default {
   name: 'Interactions',
@@ -544,6 +546,9 @@ export default {
     },
     removeOverlay(overlay) {
         this.$openlayers.getMap(this.currentMap.id).removeOverlay(overlay)
+    },
+    mustBeShown(key) {
+        return mustBeShown(key, this.currentMap.projectConfig);
     }
   },
 }
