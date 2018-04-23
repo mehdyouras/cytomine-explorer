@@ -1,6 +1,6 @@
 <template>
   <div>
-      <h5>Overlay</h5>
+      <h4>Overlay</h4>
       <ul>
             <li v-for="overlay in overlayedLayer" :key="overlay.id">
               <button @click="removeOverlay(overlay)">Remove</button>
@@ -9,10 +9,14 @@
               <input @input="setOverlayOpacity($event, overlay)" type="range" step="0.1" min="0" max="1">
             </li>
       </ul>
-      <label :for="'overlay-' + currentMap.id">Choose a channel to add as an overlay</label>
-      <input v-model.number="sequenceSelected" type="number" :name="'overlay-' + currentMap.id" :id="'overlay-' + currentMap.id">
-      <input v-model.number="sequenceSelected" type="range" step="1" min="1" :max="imageGroup.length">
-      <button @click="addOverlay">Add as an overlay</button>
+      <div>
+        <label :for="'overlay-' + currentMap.id">Choose a channel to add as an overlay</label>
+      </div>
+      <div class="overlay-select">
+        <input v-model.number="sequenceSelected" type="number" :name="'overlay-' + currentMap.id" :id="'overlay-' + currentMap.id">
+        <input v-model.number="sequenceSelected" type="range" step="1" min="1" :max="imageGroup.length">
+      </div>
+      <button class="btn btn-default mt-4" @click="addOverlay">Add as an overlay</button>
   </div>
 </template>
 
@@ -51,7 +55,7 @@ export default {
                 extent: [0, 0, parseInt(imageToAdd.model.width), parseInt(imageToAdd.model.height)],
             })
 
-            layerToAdd.set('channel', this.sequenceSelected);
+            layerToAdd.set('channel', imageToAdd.channel);
 
             if(vectorIndex > 0) {
                 layersArray.splice(vectorIndex, 0, layerToAdd);
@@ -67,8 +71,9 @@ export default {
         removeOverlay(overlay) {
             let layersArray = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
             let index = layersArray.findIndex(layer => layer.get('channel') == overlay.channel);
-            this.$openlayers.getMap(this.currentMap.id).removeLayer(layersArray[index]);
-
+            layersArray.splice(index, 1);
+            this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: layersArray}));
+            console.log(layersArray)
             index = this.overlayedLayer.findIndex(item => overlay == item);
             this.overlayedLayer.splice(index, 1);
         },
@@ -85,3 +90,9 @@ export default {
     }
 }
 </script>
+
+<style>
+    .overlay-select {
+        display: flex;
+    }
+</style>

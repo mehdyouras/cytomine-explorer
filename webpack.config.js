@@ -5,7 +5,7 @@ module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/',
+    publicPath: 'application/views/explorer/v2.0/dist/',
     filename: 'build.js'
   },
   module: {
@@ -82,7 +82,7 @@ module.exports = {
     headers: { "Access-Control-Allow-Origin": "*" },
     port: 8085,
     proxy: {
-      "/api": "http://localhost-core:8080/"
+      "/": "http://localhost-core:8080/"
     }
   },
   performance: {

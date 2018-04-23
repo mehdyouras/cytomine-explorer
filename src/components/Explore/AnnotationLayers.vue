@@ -1,19 +1,30 @@
 <template>
   <div>
-    <select v-model="layerToBeAdded" name="user-layer" id="user-layer">
+      <div class="btn-group" style="display:flex;">
+        <select class="btn btn-default" v-model="layerToBeAdded" name="user-layer" id="user-layer">
             <option :value="{}">Choose an annotation layer</option>
             <option v-for="layer in layersNotAdded" :key="layer.id" :value="layer">{{userDisplayName(layer)}}</option>
-      </select>
-      <button @click="addLayer(layerToBeAdded)">Add</button>
-      <ul>
-            <li v-for="layer in layersSelected" :key="layer.id">
+        </select>
+        <button class="btn btn-default" @click="addLayer(layerToBeAdded)">Add</button>
+      </div>
+      <ul class="list-group display-inline-block mt-4">
+            <li class="list-group-item" v-for="layer in layersSelected" :key="layer.id">
                 <input @click="toggleVisibility(layer)" v-model="layer.visible" type="checkbox" :name="'hide-layer-' + layer.id" :id="'hide-layer-' + layer.id">
                 <label :for="'hide-layer-' + layer.id">Visible</label>
+                <input @click="followUser(layer.id)" v-model="userToFollow" :disabled="isUserOnline(layer.id)" :value="layer.id" type="checkbox" :name="'follow-' + layer.id" :id="'follow-' + layer.id">
+                <label :for="'follow-' + layer.id">Follow</label>
+
                 {{userDisplayName(layer)}}
-                <button @click="removeLayer(layer)">Remove</button>
+                <button class="btn btn-default" @click="removeLayer(layer)">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    Remove
+                </button>
             </li>
       </ul>
-      <input v-model.number="vectorLayersOpacity" min="0" max="1" step="0.01" type="range" name="layers-opacity" id="layers-opacity">
+      <div>
+          <label for="layers-opacity">Opacity</label>
+          <input v-model.number="vectorLayersOpacity" min="0" max="1" step="0.01" type="range" name="layers-opacity" id="layers-opacity">
+      </div>
   </div>
 </template>
 
@@ -39,7 +50,8 @@ export default {
         'showWithNoTerm',
         'allTerms',
         'updateLayers',
-        'isReviewing'
+        'isReviewing',
+        'onlineUsers'
     ],
     data() {
       return {
@@ -47,7 +59,10 @@ export default {
         layerToBeAdded: {},
         layersSelected: [],
         vectorLayer: {},
-        vectorLayersOpacity: 0.5,
+        vectorLayersOpacity: 0.3,
+        annotationIndex: {},
+        userToFollow: [],
+        intervalId: '',
       }
     },
     computed: {
@@ -93,6 +108,11 @@ export default {
                 })
                 this.$emit('updateLayers', false);
             }
+        },
+        annotationIndex(newValue, oldValue) {
+            if(newValue.countAnnotation != oldValue.countAnnotation || newValue.countReviewedAnnotation != oldValue.countReviewedAnnotation) {
+                this.$emit('updateLayers', true)
+            }
         }
     },
     methods: {
@@ -106,10 +126,11 @@ export default {
             return `${user.lastname} ${user.firstname} (${user.username})`
         },
         addLayer(toAdd, addToSelected = true) {
-            if(toAdd.id) {            
-                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true`).then(data => {
+            let bbox = this.$openlayers.getView(this.currentMap.id).calculateExtent().join();
+            if(toAdd.id) {
+                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${bbox}`).then(data => {
                     let collection = data.data.collection;
-                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=true&notReviewedOnly=true`).then(resp => {
+                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=true&notReviewedOnly=true&bbox=${bbox}`).then(resp => {
                         if(addToSelected) {
                             // Push added item to selected
                             toAdd.visible = true;
@@ -198,16 +219,46 @@ export default {
             let index = this.layerIndex(this.layersArray, layer.id);
             this.layersArray[index].setVisible(!layer.visible);
         },
+        getAnnotationIndex() {
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
+                this.annotationIndex = data.data.collection[0];
+            })
+        },
+        followUser(userId) {
+            let index = this.userToFollow.findIndex(user => user == userId);
+
+            if(index > 0) {
+                this.userToFollow = [];
+                clearInterval(this.intervalId);
+            } else {
+                this.userToFollow = [userId];
+                this.intervalId = setInterval(this.setUserPosition, 1000);
+            }
+        },
+        setUserPosition() {
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/position/${this.userToFollow[0]}.json`).then(data => {
+                let {x, y, zoom} = data.data;
+                this.$openlayers.getView(this.currentMap.id).setCenter([x, y]);
+                this.$openlayers.getView(this.currentMap.id).setZoom(zoom);
+            })
+        },
+        isUserOnline(userId) {
+            let index = this.onlineUsers.findIndex(user => user.id == userId);
+            return index > 0 ? false : true;
+        }
     },
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
                 this.userLayers = data.data.collection;
                 this.$emit('userLayers', this.userLayers);
-            })
-        },
+        })
+        setInterval(this.getAnnotationIndex, 5000)
+    }
 }
 </script>
 
 <style>
-
+    .display-inline-block {
+        display: inline-block;
+    }
 </style>

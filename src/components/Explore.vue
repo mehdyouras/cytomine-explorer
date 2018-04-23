@@ -1,35 +1,89 @@
 <template>
-    <div class="map">
-        <div @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
+    <div :style="`height:${elementHeight}px;width:${elementWidth}%;`" class="map">
+        <div style="height:100vh;" @mousemove="sendView" @mousewheel="sendView" :id="currentMap.id" ref="exploreMap">
         </div>
-        <digital-zoom :currentMap="currentMap"></digital-zoom>
-        <label :for="'link-'+currentMap.id">Link the map</label>
-        <select @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
-            <option value="">Select a map</option>
-            <template v-for="(map, index) in maps">
-                <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
-            </template>
-        </select>
+        <div class="controls" :id="'controls-'+currentMap.id"></div>
+        <interactions v-show="this.lastEventMapId == this.currentMap.id" @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
         <div>
-            <label :for="'original-filter-'+currentMap.id">Original</label>
-            <input v-model="filterSelected" type="radio" :name="'filter-original-'+currentMap.id" :id="'filter-original-'+currentMap.id" value="">
-            <div v-for="filter in filters" :key="filter.id">
-                <label :for="'filter-'+filter.id+'-'+currentMap.id">{{filter.name}}</label>
-                <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
+            <div v-show="this.lastEventMapId == this.currentMap.id" class="bottom-panel">
+                <button v-if="mustBeShown('project-explore-info')" @click="setShowComponent('informations')" :class="['btn', 'btn-default', {active: showComponent == 'informations' }]">
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                </button>
+                <button v-if="mustBeShown('project-explore-link')" @click="setShowComponent('linkmap')" :class="['btn', 'btn-default', {active: showComponent == 'linkmap' }]">
+                    <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
+                </button>
+                <button v-if="mustBeShown('project-explore-image-layers')" @click="setShowComponent('filter')" :class="['btn', 'btn-default', {active: showComponent == 'filter' }]">
+                    <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+                </button>
+                <button v-if="mustBeShown('project-explore-digital-zoom')" @click="setShowComponent('digitalZoom')" :class="['btn', 'btn-default', {active: showComponent == 'digitalZoom' }]">
+                    <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+                </button>
+                <button v-if="mustBeShown('project-explore-colormap')" @click="setShowComponent('colormap')" :class="['btn', 'btn-default', {active: showComponent == 'colormap' }]">
+                    <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
+                </button>
+                <button v-if="mustBeShown('project-explore-image-layers')" @click="setShowComponent('annotationLayers')" :class="['btn', 'btn-default', {active: showComponent == 'annotationLayers' }]">
+                    Annotation layers
+                </button>
+                <button v-if="mustBeShown('project-explore-annotation-panel')" @click="setShowComponent('annotationList')" :class="['btn', 'btn-default', {active: showComponent == 'annotationList' }]">
+                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                    Annotation list
+                </button>
+                <button v-if="imageGroupIndex[0]" @click="setShowComponent('multidimension')" :class="['btn', 'btn-default', {active: showComponent == 'multidimension' }]">
+                    Multidimension
+                </button>
+                <button v-if="isReviewing" @click="setShowComponent('review')" :class="['btn', 'btn-default', {active: showComponent == 'review' }]">
+                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    Review
+                </button>
+                <button v-if="mustBeShown('project-explore-property')" @click="setShowComponent('properties')" :class="['btn', 'btn-default', {active: showComponent == 'properties' }]">
+                    <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn-danger" @click="deleteMap">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    Close
+                </button>
+                <!-- <div class="panel postion-panel">
+                    <div class="panel-body">
+                        <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
+                    </div>
+                </div> -->
             </div>
         </div>
-        <color-maps :currentMap="currentMap"></color-maps>
-        <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
-        <interactions @updateLayers="setUpdateLayers" @featureSelected="setFeatureSelected" :currentMap="currentMap" :isReviewing="isReviewing" :vectorLayersOpacity="vectorLayersOpacity"></interactions>
-        <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
-        <review v-if="isReviewing" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
-        <multidimension v-if="imageGroupIndex[0]" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
-        <properties :layersSelected="layersSelected" :currentMap="currentMap"></properties>
-        <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
-        <informations @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
-        <position :mousePosition="mousePosition" :currentMapId="currentMap.id"></position>
-        <annotations @updateAnnotationsIndex="setUpdateAnnotationsIndex" :updateAnnotationsIndex="updateAnnotationsIndex" :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
-        <button @click="deleteMap">Delete the map</button>
+        <div v-show="(this.lastEventMapId == this.currentMap.id && showComponent != '') || featureSelected != undefined" class="panel component-panel" :style="`max-height:${2*elementHeight/3}px;`">
+            <div class="panel-body">
+                <div v-show="showComponent == 'linkmap'">
+                    <div class="alert alert-info">Choose a map to link</div>
+                    <label :for="'link-'+currentMap.id">Link the map</label>
+                    <select class="btn btn-default" @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
+                        <option value="">Select a map</option>
+                        <template v-for="(map, index) in maps">
+                            <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
+                        </template>
+                    </select>
+                </div>
+                <digital-zoom v-show="showComponent == 'digitalZoom'" :currentMap="currentMap"></digital-zoom>
+                <div v-show="showComponent == 'filter'">
+                    <div class="alert alert-info">Choose a filter to apply</div>
+                    <label :for="'original-filter-'+currentMap.id">Original</label>
+                    <input v-model="filterSelected" type="radio" :name="'filter-original-'+currentMap.id" :id="'filter-original-'+currentMap.id" value="">
+                    <div v-for="filter in filters" :key="filter.id">
+                        <label :for="'filter-'+filter.id+'-'+currentMap.id">{{filter.name}}</label>
+                        <input v-model="filterSelected" type="radio" :name="'filter-'+filter.id+'-'+currentMap.id" :id="'filter-'+filter.id+'-'+currentMap.id" :value="filter">
+                    </div>
+                </div>
+                <color-maps v-show="showComponent == 'colormap'" :currentMap="currentMap"></color-maps>
+                <div v-show="showComponent == 'annotationLayers'">
+                    <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+                    <ontology :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
+                </div>
+                <review v-if="isReviewing" v-show="showComponent == 'review'" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
+                <multidimension v-if="imageGroupIndex[0]" v-show="showComponent == 'multidimension'" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
+                <properties v-show="showComponent == 'properties'" :layersSelected="layersSelected" :currentMap="currentMap"></properties>
+                <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
+                <informations v-show="showComponent == 'informations'" @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
+                <annotations v-show="showComponent == 'annotationList'" @updateAnnotationsIndex="setUpdateAnnotationsIndex" :updateAnnotationsIndex="updateAnnotationsIndex" :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -50,6 +104,11 @@ import ColorMaps from './Explore/Colormaps'
 import OlTile from 'ol/layer/tile';
 import Zoomify from 'ol/source/zoomify';
 import Group from 'ol/layer/group';
+import ZoomControls from 'ol/control/zoom';
+import RotateControls from 'ol/control/rotate';
+import WKT from 'ol/format/wkt';
+
+import mustBeShown from '../helpers/mustBeShown';
 
 export default {
   name: 'Explore',
@@ -85,6 +144,9 @@ export default {
         vectorLayersOpacity: 0.5,
         updateLayers: false,
         updateAnnotationsIndex: false,
+        onlineUsers: [],
+        showComponent: '',
+        showPanel: true,
     }
   },
   props: [
@@ -94,6 +156,7 @@ export default {
     'lastEventMapId',
     'filters',
     'imageGroupIndex',
+    'currentRoute',
   ],
   computed: {
     linkedTo() {
@@ -116,7 +179,39 @@ export default {
         return parseInt(this.currentMap.data.height)
     },
     isReviewing() {
-        return true;
+        let type = document.querySelector('.get-data').dataset.type;
+        let from = type.indexOf('-');
+        return type.substr(from + 1) == 'review' ? true : false; 
+    },
+    getCurrentZoom() {
+        return this.mapView.mapResolution;
+    },
+    innerHeight() {
+        return window.innerHeight;
+    },
+    elementHeight() {
+        let fullHeight = this.innerHeight - (92+15);
+        let heights = [
+            [fullHeight],
+            [fullHeight, fullHeight],
+            [fullHeight/2, fullHeight/2, fullHeight/2],
+            [fullHeight/2, fullHeight/2, fullHeight/2, fullHeight/2],
+        ]
+        return heights[this.maps.length - 1][this.mapIndex]
+    },
+    elementWidth() {
+        let fullWidth = 100;
+        let widths = [
+            [fullWidth],
+            [fullWidth/2, fullWidth/2],
+            [fullWidth/2, fullWidth/2, fullWidth],
+            [fullWidth/2, fullWidth/2, fullWidth/2, fullWidth/2],
+        ]
+        return widths[this.maps.length - 1][this.mapIndex]
+    },
+    centeredFeature() {
+        let index = this.currentRoute.lastIndexOf('-');
+        return this.currentRoute.substr(index + 1);
     }
   },
   watch: {
@@ -150,6 +245,21 @@ export default {
         this.$openlayers.getMap(this.currentMap.id).getLayers().getArray()[0] = layer;
         this.$openlayers.getMap(this.currentMap.id).render();
         this.updateOverviewMap();
+    },
+    getCurrentZoom() {
+        this.updateLayers = true;
+    },
+    lastEventMapId() {
+        if(this.lastEventMapId != this.currentMap.id) {
+            this.showPanel = false;
+        } else {
+            this.showPanel = true;
+        }
+    },
+    centeredFeature(newValue) {
+        if(newValue != this.currentMap.data.project) {
+            this.centerOnFeature(newValue);
+        }
     }
   },
   methods: {
@@ -170,6 +280,34 @@ export default {
     sendLink() {
         let payload = [this.currentMap.id, this.linkValue];
         this.$emit('mapIsLinked', payload);
+    },
+    postPosition() {
+        let extent = this.$openlayers.getView(this.currentMap.id).calculateExtent();
+        let payload = {
+            bottomLeftX: Math.round(extent[0]),
+            bottomLeftY: Math.round(extent[1]),
+            bottomRightX: Math.round(extent[2]),
+            bottomLeftY: Math.round(extent[1]),
+            image: parseInt(this.currentMap.imageId),
+            topLeftX: Math.round(extent[0]),
+            topLeftY: Math.round(extent[3]),
+            topRightX: Math.round(extent[2]),
+            topRightY: Math.round(extent[3]),
+            zoom: this.$openlayers.getView(this.currentMap.id).getZoom(),
+        }
+        api.post(`/api/imageinstance/${this.currentMap.imageId}/position.json`, payload);
+    },
+    getOnlineUsers() {
+        api.get(`/api/project/${this.currentMap.data.project}/online/user.json`).then(data => {
+            this.onlineUsers = data.data.collection;
+        })
+    },
+    centerOnFeature(id) {
+        api.get(`/api/annotation/${id}.json`).then(data => {
+            let format = new WKT();
+            let feature = format.readFeature(data.data.location);
+            this.$openlayers.getView(this.currentMap.id).fit(feature.getGeometry());
+        })
     },
     updateOverviewMap() {
         this.$emit('updateOverviewMap');
@@ -212,6 +350,16 @@ export default {
     },
     setUpdateAnnotationsIndex(payload) {
         this.updateAnnotationsIndex = payload;
+    },
+    setShowComponent(component) {
+        if(component == this.showComponent) {
+            this.showComponent = '';
+        } else {
+            this.showComponent = component;
+        }
+    },
+    mustBeShown(key) {
+        return mustBeShown(key, this.currentMap.projectConfig);
     }
   }, 
   mounted() {
@@ -222,11 +370,17 @@ export default {
       element: this.currentMap.id,
       center: [this.mapWidth/2, this.mapHeight/2],
       zoom: this.mapZoom,
-      enableZoomButton: true,
+      controls: [
+          new ZoomControls({
+            target: document.getElementById('controls-'+this.currentMap.id),
+          }),
+          new RotateControls({
+            target: document.getElementById('controls-'+this.currentMap.id),
+          })
+      ],
       enablePan: true,
       enableMouseWheelZoom: true,
       enableDoubleClickZoom: true,
-      enableScaleLine: true,
       minZoom: 2,
       projection: {
         code: 'CYTO',
@@ -243,8 +397,32 @@ export default {
         }),
         extent: this.extent,
     })
+
     this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
     this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
+    this.$openlayers.getMap(this.currentMap.id).on('moveend', () => {
+        this.postPosition();
+    })
+    this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[0].element.childNodes.forEach(child => {
+        child.classList.add('btn');
+        child.classList.add('btn-default');
+    })
+    this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[1].element.childNodes.forEach(child => {
+        child.classList.add('btn');
+        child.classList.add('btn-default');
+    })
+    setInterval(this.postPosition, 5000);
+    setInterval(this.getOnlineUsers, 5000)
+    if(this.isReviewing) {
+        api.put(`/api/imageinstance/${this.currentMap.imageId}/review.json`, {
+            id: this.currentMap.imageId,
+        }).then(data => {
+            this.updateMap(data.data.imageinstance)
+        })
+    }
+    if(this.centeredFeature != '' && this.centeredFeature != this.currentMap.data.project) {
+        this.centerOnFeature(this.centeredFeature);
+    }
   }
 }
 
@@ -252,7 +430,36 @@ export default {
 
 <style>
   .map {
-    width: 100%;
-    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  .controls {
+      position: absolute;
+      top: 1em;
+      left: 1em;
+      display: flex;
+      flex-direction: column;
+  }
+  .ol-zoom {
+      margin-bottom: 1em;
+      display: flex;
+      flex-direction: column;
+  }
+  .ol-zoom-in {
+      margin-bottom: 1em;
+  }
+  .bottom-panel {
+      display: flex;
+      position: absolute;
+      bottom: 1em;
+      left: 1em;
+  }
+  .postion-panel {
+      margin-bottom: 0;
+  }
+  .component-panel {
+      position: absolute;
+      bottom: 4em;
+      left: 1em;
   }
 </style>

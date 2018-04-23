@@ -2,24 +2,24 @@
   <div>
     <div v-if="maps.length < maxMapsToShow">
       <template v-if="imageGroupIndex[0]">
-        <select v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
+        <select class="btn" v-model.number="imageGroupToAdd" name="image-groups" id="image-groups">
           <option value="">Select an imagegroup</option>
           <option v-for="imageGroup in imageGroupIndex" :key="imageGroup.id" :value="imageGroup.id">{{imageGroup.name}}</option>
         </select>
-        <button @click="addImageGroup()">Add image group</button>
+        <button class="btn" @click="addImageGroup()">Add image group</button>
       </template>
       <template v-else>
-        <select v-model.number="imageToAdd" name="images" id="images">
+        <select class="btn" v-model.number="imageToAdd" name="images" id="images">
           <option value="">Select an image to add</option>
           <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
         </select>
-        <button @click="addMap(imageToAdd)">Add a map</button>
+        <button class="btn" @click="addMap(imageToAdd)">Add a map</button>
       </template>
     </div>
     <p v-else>You can only have {{maxMapsToShow}} maps displayed</p>
     <overview-map :lastEventMapId="lastEventMapId" :maps="maps"></overview-map>  
-    <div class="container">
-      <explore v-for="map in maps" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
+    <div class="maps-container">
+      <explore v-for="map in maps" :currentRoute="currentRoute" :key="map.id" @updateMap="updateMap" @dragged="setMap" @mapIsLinked="linkMaps" @deleteMap="deleteMap" @updateOverviewMap="updateOverviewMap" :mapView="mapView" :maps='maps' :currentMap="map" :lastEventMapId="lastEventMapId" :filters="filters" :imageGroupIndex="imageGroupIndex"></explore>
     </div>
   </div>
 </template>
@@ -38,6 +38,7 @@ export default {
   },
   data() {
     return {
+      projectConfig: {},
       mapView: {
         mapCenter: [0, 0],
         mapZoom: 2,
@@ -47,16 +48,23 @@ export default {
       maps: [],
       lastEventMapId: null,
       images: [],
-      projectId: '82029',
       imageToAdd: "",
       imageGroupToAdd: "",
-      baseImage: '82258',
       filters: [],
       imageGroupIndex: [],
-	  imageSequences: [],
-    baseSequence: {},
-	onlineUsers: [],
-	currentUser: {},
+      imageSequences: [],
+      baseSequence: {},
+      onlineUsers: [],
+      currentUser: {},
+      currentRoute: '',
+    }
+  },
+  computed: {
+    projectId() {
+      return document.querySelector('.get-data').dataset.project;
+    },
+    baseImage() {
+      return document.querySelector('.get-data').dataset.id;
     }
   },
   methods: {
@@ -73,6 +81,7 @@ export default {
         mapRotation: payload.view.getRotation(),
       }
       this.lastEventMapId = payload.mapId;
+      this.$openlayers.getMap(payload.mapId).updateSize();
     },
     linkMaps(payload) {
       // Removes last linked map
@@ -97,8 +106,9 @@ export default {
           id,
           imageId,
           linkedTo: "",
-		  imageGroup,
-		  user: this.currentUser,
+          imageGroup,
+          projectConfig: this.projectConfig,
+          user: this.currentUser,
           data: this.images[this.imageIndex(imageId)]
         })
       }
@@ -124,6 +134,12 @@ export default {
       let index = this.maps.findIndex(map => map == payload.old);
       this.maps[index].data = payload.new;
       this.maps[index].imageId = payload.new.id;
+    },
+    ping() {
+      api.post(`http://localhost-core:8080/server/ping.json`, {project: this.projectId});
+    },
+    checkRoute() {
+      this.currentRoute = Backbone.history.getFragment();
     }
   },
   created() {
@@ -131,24 +147,26 @@ export default {
       this.imageGroupIndex = data.data.collection;
     })
 
-    api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
-		let id = uuid();
-		this.lastEventMapId = id;
-		this.images = data.data.collection;
-		this.projectId = this.images[0].project;
-		api.get(`api/user/current.json`).then(data => {
-			this.currentUser = data.data;
-			if(this.imageGroupIndex[0]) {
-				api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
-					this.baseSequence = resp.data.collection[0];
-					this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
-				})
-			} else {
-				this.addMap(this.baseImage, "", id);
-			}
-		})
+    api.get(`/custom-ui/config.json?project=${this.projectId}`).then(data => {
+      this.projectConfig = data.data;
+      api.get(`api/project/${this.projectId}/imageinstance.json`).then(data => {
+        let id = uuid();
+        this.lastEventMapId = id;
+        this.images = data.data.collection;
+        api.get(`api/user/current.json`).then(data => {
+          this.currentUser = data.data;
+          if(this.imageGroupIndex[0]) {
+            api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
+              this.baseSequence = resp.data.collection[0];
+              this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+            })
+          } else {
+            this.addMap(this.baseImage, "", id);
+          }
+        })
+      })
+    }) 
 
-    })
 
     api.get(`api/project/${this.projectId}/imagefilterproject.json`).then(data => {
       this.filters = data.data.collection;
@@ -157,17 +175,16 @@ export default {
     api.get(`/api/project/82029/online/user.json`).then(data => {
       this.onlineUsers = data.data.collection;
     })
-    
+
+    setInterval(this.checkRoute, 1000)  
   },
 }
 </script>
 
 <style>
-  .container {
+  .maps-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
   }
 </style>
 

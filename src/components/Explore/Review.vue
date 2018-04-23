@@ -13,17 +13,17 @@
           <dt>Term(s):</dt>
           <dd></dd>
         </dl>
-        <button :disabled="this.featureSelectedData.reviewed" @click="acceptReview">Accept</button>
-        <button :disabled="!this.featureSelectedData.reviewed" @click="rejectReview">Reject</button>
+        <button class="btn btn-success" :disabled="this.featureSelectedData.reviewed" @click="acceptReview">Accept</button>
+        <button class="btn btn-danger" :disabled="!this.featureSelectedData.reviewed" @click="rejectReview">Reject</button>
       </div>  
     </section>
     <section>
       <h4>Review | Action Image</h4>
-      <div>
-        <button @click="acceptAll">Accept all</button>
-        <button @click="rejectAll">Reject all</button>
-        <button v-if="currentMap.data.reviewed" @click="validateImage">Validate Image</button>
-        <button v-else @click="unvalidateImage">Unvalidate Image</button>
+      <div class="btn-group">
+        <button class="btn btn-success" @click="acceptAll">Accept all</button>
+        <button class="btn btn-danger" @click="rejectAll">Reject all</button>
+        <button class="btn btn-success" v-if="!currentMap.data.reviewed" @click="validateImage">Validate Image</button>
+        <button class="btn btn-danger" v-else @click="unvalidateImage">Unvalidate Image</button>
       </div>
     </section>
   </div>
@@ -112,7 +112,7 @@ export default {
         })
       },
       validateImage() {
-        api.delete(`/api/imageinstance/${this.currentMap.imageId}/review.json`).then(data => {
+        api.delete(`/api/imageinstance/${this.currentMap.imageId}/review.json?cancel=false`).then(data => {
           this.$emit('updateMap', data.data.imageinstance);
         })
       },
