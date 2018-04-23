@@ -2,103 +2,103 @@
   <div>
         <ul class="toolbar2">
             <li v-if="mustBeShown('project-tools-select')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Select')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Select'}]" @click="addInteraction('Select')">
                     <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
                     Select
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-point')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Point')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Point'}]" @click="addInteraction('Point')">
                     <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
                     Point
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-line')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Line')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Line'}]" @click="addInteraction('Line')">
                     Line
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-arrow')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Arrow')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Arrow'}]" @click="addInteraction('Arrow')">
                     <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                     Arrow
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-rectangle')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Rectangle')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Rectangle'}]" @click="addInteraction('Rectangle')">
                     Rectangle
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-diamond')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Ellipse')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Ellipse'}]" @click="addInteraction('Ellipse')">
                     Ellipse
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-circle')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Circle')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Circle'}]" @click="addInteraction('Circle')">
                     Circle
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-polygon')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Polygon')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Polygon'}]" @click="addInteraction('Polygon')">
                     Polygon
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-magicwand')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('MagicWand')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'MagicWand'}]" @click="addInteraction('MagicWand')">
                     MagicWand
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-freehand')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Polygon', true)">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Freehand'}]" @click="addInteraction('Polygon', true)">
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-union')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Correction', true)">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Union'}]" @click="addInteraction('Correction', true)">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-difference')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Correction', true, true)">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Difference'}]" @click="addInteraction('Correction', true, true)">
                     <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
             </li>
             <li v-if="mustBeShown('project-tools-rule')">
-                <button class="btn btn-default btn-xs" @click="addInteraction('Ruler')">
+                <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Ruler'}]" @click="addInteraction('Ruler')">
                     Ruler
                 </button>
             </li>
             <template v-if="featureSelected.getArray()[0]">
                 <li v-if="mustBeShown('project-tools-fill')">
-                    <button class="btn btn-default btn-xs" @click="addInteraction('Fill')">
+                    <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Fill'}]" @click="addInteraction('Fill')">
                         Fill
                     </button>
                 </li>
                 <li v-if="mustBeShown('project-tools-edit')">
-                    <button class="btn btn-default btn-xs" @click="addInteraction('Edit')">
+                    <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Edit'}]" @click="addInteraction('Edit')">
                         Edit
                     </button>
                 </li>
                 <li v-if="mustBeShown('project-tools-rotate')">
-                    <button class="btn btn-default btn-xs" @click="addInteraction('Rotate')">
+                    <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Rotate'}]" @click="addInteraction('Rotate')">
                         Rotate
                     </button>
                 </li>
                 <li v-if="mustBeShown('project-tools-resize')">
-                    <button class="btn btn-default btn-xs" @click="addInteraction('Resize')">
+                    <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Resize'}]" @click="addInteraction('Resize')">
                         Resize
                     </button>
                 </li>
                 <li v-if="mustBeShown('project-tools-move')">
-                    <button class="btn btn-default btn-xs" @click="addInteraction('Drag')">
+                    <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Drag'}]" @click="addInteraction('Drag')">
                         Drag
                     </button>
                 </li>
                 <li v-if="mustBeShown('project-tools-delete')">
-                    <button class="btn btn-default btn-xs" @click="addInteraction('Remove')">
+                    <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Remove'}]" @click="addInteraction('Remove')">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>
                 </li>
@@ -143,7 +143,8 @@ export default {
                   helpTooltip: {},
                   measureTooltip: {},
                   measureTooltipElement: "",
-              }
+              },
+              activeTool: '',
           },
           featureSelected: new Collection(),
       }
@@ -255,20 +256,29 @@ export default {
                     features: this.featureSelected,
                 });
                 currentMap.addInteraction(this.draw.interaction);
+                this.draw.activeTool = 'Select';
                 return;
                 break;
             case 'Rectangle':
                 geometryFunction = Draw.createBox();    
                 type = 'Circle';
+                this.draw.activeTool = 'Rectangle';
                 break;
             case 'Point':
                 type = 'Point'
+                this.draw.activeTool = 'Point';
                 break;
             case 'Circle':
                 type = 'Circle'
+                this.draw.activeTool = 'Circle';
                 break;
             case 'Polygon':
                 type = 'Polygon'
+                if(!freehand) {
+                    this.draw.activeTool = 'Polygon';
+                } else {
+                    this.draw.activeTool = 'Freehand';
+                }
                 break;
             case 'Ellipse':
                 type = 'Circle'
@@ -295,6 +305,7 @@ export default {
                     geometry.setCoordinates([newCoordinates]);
                     return geometry;
                 }
+                this.draw.activeTool = 'Ellipse';
                 break;
             case 'Arrow':
                 type = 'Circle'
@@ -318,9 +329,11 @@ export default {
                     geometry.setCoordinates([newCoordinates]);
                     return geometry;
                 }
+                this.draw.activeTool = 'Arrow';
                 break;
             case 'Line':
                 type = "LineString"
+                this.draw.activeTool = 'Line';
                 break;
             case 'Edit':
                 this.draw.interaction = new Modify({
@@ -334,6 +347,7 @@ export default {
                         api.put(`/api/annotation/${this.featureSelectedId}.json`, data.data);
                     })
                 })
+                this.draw.activeTool = 'Edit';
                 return;
                 break;
             case 'Drag':
@@ -341,6 +355,7 @@ export default {
                     features: this.featureSelected,
                 })
                 currentMap.addInteraction(this.draw.interaction);
+                this.draw.activeTool = 'Drag';
                 return;
                 break;
             case 'Remove':
@@ -354,11 +369,10 @@ export default {
                     this.featureSelected.getArray().splice(0, 1);
                     this.addInteraction('Select');
                 });
-
                 return;
                 break;
             case 'Resize':
-
+                //
                 return;
                 break;
             case 'Fill':
@@ -386,10 +400,16 @@ export default {
                     })
                 })
                 currentMap.addInteraction(this.draw.interaction);
+                this.draw.activeTool = 'Rotate';
                 return;
                 break;
             case 'Correction':
                 type = 'Polygon'
+                if(remove == false) {
+                    this.draw.activeTool = 'Union';
+                } else {
+                    this.draw.activeTool = 'Difference';
+                }
                 break;
             case 'Ruler':
                 /**
@@ -467,6 +487,7 @@ export default {
 
                 var listener;
                 type = 'LineString';
+                this.draw.activeTool = 'Ruler';
                 break;
         }
 
@@ -486,7 +507,7 @@ export default {
                     layers,
                     location,
                     remove,
-                    review: false,
+                    review: this.isReviewing,
                 }).then(data => {
                     this.$emit('updateLayers', true);
                     this.$emit('updateAnnotationsIndex', true)
