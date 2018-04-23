@@ -48,7 +48,7 @@ export default {
 
             let layerToAdd = new OlTile({
                 source: new Zoomify({
-                    url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${imageToAdd.model.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${imageToAdd.model.mime}`,
+                    url: `${this.filterUrl}${this.imsBaseUrl}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${imageToAdd.model.mime}`,
                     size: [parseInt(imageToAdd.model.width), parseInt(imageToAdd.model.height)],
                     extent: [0, 0, parseInt(imageToAdd.model.width), parseInt(imageToAdd.model.height)],
                 }),

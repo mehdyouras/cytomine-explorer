@@ -130,7 +130,7 @@ export default {
     return {
         linkValue: "",
         mapNames: ['1', '2', '3', '4'],
-        imsBaseUrl: 'http://localhost-ims/',
+        imsBaseUrl: '',
         filterSelected: "",
         extent: [],
         mousePosition: [0, 0],
@@ -212,6 +212,9 @@ export default {
     centeredFeature() {
         let index = this.currentRoute.lastIndexOf('-');
         return this.currentRoute.substr(index + 1);
+    },
+    currentMapBaseImage() {
+        return this.currentMap.data.baseImage;
     }
   },
   watch: {
@@ -236,7 +239,7 @@ export default {
         //sets filter on change 
         let layer = new OlTile({
             source: new Zoomify({
-                url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+                url: `${this.filterUrl}${this.imsBaseUrl}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
                 size: [this.mapWidth, this.mapHeight],
                 extent: this.extent,
             }),
@@ -260,6 +263,9 @@ export default {
         if(newValue != this.currentMap.data.project) {
             this.centerOnFeature(newValue);
         }
+    },
+    currentMapBaseImage(newValue) {
+        this.setImsBaseUrl(newValue);
     }
   },
   methods: {
@@ -360,6 +366,11 @@ export default {
     },
     mustBeShown(key) {
         return mustBeShown(key, this.currentMap.projectConfig);
+    },
+    setImsBaseUrl(baseImage) {
+        api.get(`/api/abstractimage/${baseImage}/imageservers.json?&imageinstance=${this.currentMap.imageId}`).then(data => {
+            this.imsBaseUrl = data.data[0];
+        })
     }
   }, 
   mounted() {
@@ -387,11 +398,11 @@ export default {
         extent: this.extent,
       },
     })
-
+    this.setImsBaseUrl(this.currentMap.data.baseImage);
     // Adds layer
     let layer = new OlTile({
         source: new Zoomify({
-            url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.currentMap.data.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+            url: `${this.filterUrl}${this.imsBaseUrl}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
             size: [this.mapWidth, this.mapHeight],
             extent: this.extent,
         }),

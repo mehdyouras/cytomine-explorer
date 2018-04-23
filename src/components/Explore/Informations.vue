@@ -92,7 +92,7 @@ export default {
     changeImage() {
       let layer = new OlTile({
           source: new Zoomify({
-              url: `${this.filterUrl}${this.imsBaseUrl}image/tile?zoomify=${this.adjacentImage.fullPath}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.adjacentImage.mime}`,
+              url: `${this.filterUrl}${this.imsBaseUrl}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.adjacentImage.mime}`,
               size: [this.adjacentImage.width, this.adjacentImage.height],
               extent: [0, 0, this.adjacentImage.width, this.adjacentImage.height],
           }),
