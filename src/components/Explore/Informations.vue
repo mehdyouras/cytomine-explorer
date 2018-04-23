@@ -1,14 +1,6 @@
 <template>
-  <div>
-      <div>
-        <dt>Name</dt>
-        <dd>{{currentMap.data.instanceFilename}}</dd>
-        <dt>Width</dt>
-        <dd>{{currentMap.data.width}} pixels</dd>
-        <dt>Height</dt>
-        <dd>{{currentMap.data.height}} pixels</dd>
-      </div>
-      <div class="btn-group dropup display-block">
+  <div style="min-height: 300px">
+      <div class="btn-group">
         <a :href="`#tabs-image-${currentMap.data.project}-${currentMap.imageId}-0`" class="btn btn-info">Expore</a>
         <button class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
@@ -26,6 +18,14 @@
           <li><a href="#">Delete</a></li>
           <li><a href="#">More info</a></li>
         </ul>
+      </div>
+      <div class="mt-4">
+        <dt>Name</dt>
+        <dd>{{currentMap.data.instanceFilename}}</dd>
+        <dt>Width</dt>
+        <dd>{{currentMap.data.width}} pixels</dd>
+        <dt>Height</dt>
+        <dd>{{currentMap.data.height}} pixels</dd>
       </div>
       <div class="btn-group mt-4">
         <div class="alert alert-warning" v-if="adjacentImageError != ''"><strong>Warning!</strong> {{adjacentImageError}}</div>
