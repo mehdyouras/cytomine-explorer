@@ -49,7 +49,7 @@
                 </div> -->
             </div>
         </div>
-        <div v-show="(this.lastEventMapId == this.currentMap.id && showComponent != '') || featureSelected != undefined" class="panel component-panel" :style="`max-height:${2*elementHeight/3}px;`">
+        <div v-show="(this.lastEventMapId == this.currentMap.id && showComponent != '') || featureSelected != undefined" class="panel component-panel" :style="`max-height:${2*elementHeight/3}px;overflow-y: scroll;`">
             <div class="panel-body">
                 <div v-show="showComponent == 'linkmap'">
                     <div class="alert alert-info">Choose a map to link</div>
