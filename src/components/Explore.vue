@@ -303,6 +303,9 @@ export default {
         })
     },
     centerOnFeature(id) {
+        if(id == 0 || id == '') {
+            return;
+        }
         api.get(`/api/annotation/${id}.json`).then(data => {
             let format = new WKT();
             let feature = format.readFeature(data.data.location);
