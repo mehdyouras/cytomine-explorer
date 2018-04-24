@@ -127,7 +127,11 @@ export default {
             return array.findIndex(item => item.id == toFind);
         },
         userDisplayName(user) {
-            return `${user.lastname} ${user.firstname} (${user.username})`
+            if(user.softwareName != undefined) {
+                return user.softwareName; 
+            } else {
+                return `${user.lastname} ${user.firstname} (${user.username})`
+            }
         },
         addLayer(toAdd, addToSelected = true) {
             let bbox = this.$openlayers.getView(this.currentMap.id).calculateExtent().join();
@@ -253,8 +257,8 @@ export default {
     },
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
-                this.userLayers = data.data.collection;
-                this.$emit('userLayers', this.userLayers);
+            this.userLayers = data.data.collection;
+            this.$emit('userLayers', this.userLayers);
         })
         setInterval(this.getAnnotationIndex, 5000)
     }
