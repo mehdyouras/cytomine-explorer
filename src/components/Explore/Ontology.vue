@@ -32,6 +32,7 @@ export default {
       'featureSelectedData',
       'featureSelected',
       'vectorLayersOpacity',
+      'currentMap',
   ],
   data() {
       return {
@@ -110,7 +111,7 @@ export default {
       }
   },
   created() {
-      api.get(`/api/project/1493/stats/term.json`).then(data => {
+      api.get(`/api/project/${this.currentMap.data.project}/stats/term.json`).then(data => {
           this.terms = data.data.collection;
           this.visibleTerms = this.termsId;
           this.$emit('showTerms', this.termsId);
