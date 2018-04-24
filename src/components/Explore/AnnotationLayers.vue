@@ -259,6 +259,16 @@ export default {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
             this.userLayers = data.data.collection;
             this.$emit('userLayers', this.userLayers);
+            api.get(`/api/project/${this.currentMap.data.project}/defaultlayer.json`).then(data => {
+                if(data.data.collection[0]) {
+                    data.data.collection.map(layer => {
+                        let index = this.userLayers.findIndex(user => user.id == layer.user);
+                        this.addLayer(this.userLayers[index]);
+                    });
+                } else {
+                    this.addLayer(this.currentMap.user);
+                }
+            })
         })
         setInterval(this.getAnnotationIndex, 5000)
     }
