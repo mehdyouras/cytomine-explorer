@@ -67,7 +67,11 @@ export default {
     },
     computed: {
       layersNotAdded() {
-          return difference(this.userLayers, this.layersSelected);
+        return difference(this.userLayers, this.layersSelected).sort((a, b) => {
+            if(a.lastname < b.lastname) return -1;
+            if(a.lastname > b.lastname) return 1;
+            return 0;
+        });
       },
       extent() {
           return [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
