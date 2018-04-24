@@ -80,7 +80,7 @@
                 <multidimension v-if="imageGroupIndex[0]" v-show="showComponent == 'multidimension'" @imageGroupHasChanged="setImageGroup" :imageGroupIndex="imageGroupIndex" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" @imageHasChanged="updateMap" :currentMap="currentMap"></multidimension>
                 <properties v-show="showComponent == 'properties'" :layersSelected="layersSelected" :currentMap="currentMap"></properties>
                 <annotation-details @featureSelectedData="setFeatureSelectedData" :users="userLayers" :terms="allTerms" :featureSelected="featureSelected" :currentMap="currentMap"></annotation-details>
-                <informations v-show="showComponent == 'informations'" @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
+                <informations v-show="showComponent == 'informations'" @updateImsServer="setImsServer" @updateMap="updateMap" @updateOverviewMap="updateOverviewMap" :filterUrl="filterUrl" :imsBaseUrl="imsBaseUrl" :currentMap="currentMap"></informations>
                 <annotations v-show="showComponent == 'annotationList'" @updateAnnotationsIndex="setUpdateAnnotationsIndex" :updateAnnotationsIndex="updateAnnotationsIndex" :isReviewing="isReviewing" :users="userLayers" :terms="allTerms" :currentMap="currentMap"></annotations>
             </div>
         </div>
@@ -213,9 +213,6 @@ export default {
         let index = this.currentRoute.lastIndexOf('-');
         return this.currentRoute.substr(index + 1);
     },
-    currentMapBaseImage() {
-        return this.currentMap.data.baseImage;
-    }
   },
   watch: {
     mapView: {
@@ -264,9 +261,6 @@ export default {
             this.centerOnFeature(newValue);
         }
     },
-    currentMapBaseImage(newValue) {
-        this.setImsBaseUrl(newValue);
-    }
   },
   methods: {
     // Sends view infos
@@ -340,7 +334,10 @@ export default {
         this.layersSelected = payload;
     },
     updateMap(payload) {
-        this.$emit('updateMap', {old: this.currentMap, new: payload});
+        api.get(`/api/abstractimage/${payload.baseImage}/imageservers.json?&imageinstance=${payload.id}`).then(data => {
+            this.imsBaseUrl = data.data.imageServersURLs[0];
+            this.$emit('updateMap', {old: this.currentMap, new: payload});
+        })
     },
     setVectorLayersOpacity(payload) {
         this.vectorLayersOpacity = payload;
@@ -364,14 +361,12 @@ export default {
             this.showComponent = component;
         }
     },
+    setImsServer(payload) {
+        this.imsBaseUrl = payload;
+    },
     mustBeShown(key) {
         return mustBeShown(key, this.currentMap.projectConfig);
     },
-    setImsBaseUrl(baseImage) {
-        api.get(`/api/abstractimage/${baseImage}/imageservers.json?&imageinstance=${this.currentMap.imageId}`).then(data => {
-            this.imsBaseUrl = data.data.imageServersURLs[0];
-        })
-    }
   }, 
   mounted() {
     this.extent = [0, 0, this.mapWidth, this.mapHeight];
