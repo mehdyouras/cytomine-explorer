@@ -369,7 +369,7 @@ export default {
     },
     setImsBaseUrl(baseImage) {
         api.get(`/api/abstractimage/${baseImage}/imageservers.json?&imageinstance=${this.currentMap.imageId}`).then(data => {
-            this.imsBaseUrl = data.data[0];
+            this.imsBaseUrl = data.data.imageServersURLs[0];
         })
     }
   }, 
@@ -398,42 +398,44 @@ export default {
         extent: this.extent,
       },
     })
-    this.setImsBaseUrl(this.currentMap.data.baseImage);
-    // Adds layer
-    let layer = new OlTile({
-        source: new Zoomify({
-            url: `${this.filterUrl}${this.imsBaseUrl}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
-            size: [this.mapWidth, this.mapHeight],
+    api.get(`/api/abstractimage/${this.currentMap.data.baseImage}/imageservers.json?&imageinstance=${this.currentMap.imageId}`).then(data => {
+        this.imsBaseUrl = data.data.imageServersURLs[0];
+        // Adds layer
+        let layer = new OlTile({
+            source: new Zoomify({
+                url: `${this.filterUrl}${this.imsBaseUrl}&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+                size: [this.mapWidth, this.mapHeight],
+                extent: this.extent,
+            }),
             extent: this.extent,
-        }),
-        extent: this.extent,
+        })
+        this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
+        this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
+        this.$openlayers.getMap(this.currentMap.id).on('moveend', () => {
+            this.postPosition();
+        })
+        this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[0].element.childNodes.forEach(child => {
+            child.classList.add('btn');
+            child.classList.add('btn-default');
+        })
+        this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[1].element.childNodes.forEach(child => {
+            child.classList.add('btn');
+            child.classList.add('btn-default');
+        })
+        setInterval(this.postPosition, 5000);
+        setInterval(this.getOnlineUsers, 5000)
+        if(this.isReviewing) {
+            api.put(`/api/imageinstance/${this.currentMap.imageId}/review.json`, {
+                id: this.currentMap.imageId,
+            }).then(data => {
+                this.updateMap(data.data.imageinstance)
+            })
+        }
+        if(this.centeredFeature != '' && this.centeredFeature != this.currentMap.data.project) {
+            this.centerOnFeature(this.centeredFeature);
+        }
     })
 
-    this.$openlayers.getMap(this.currentMap.id).addLayer(layer)
-    this.$openlayers.getView(this.currentMap.id).setMaxZoom(this.currentMap.data.depth);
-    this.$openlayers.getMap(this.currentMap.id).on('moveend', () => {
-        this.postPosition();
-    })
-    this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[0].element.childNodes.forEach(child => {
-        child.classList.add('btn');
-        child.classList.add('btn-default');
-    })
-    this.$openlayers.getMap(this.currentMap.id).getControls().getArray()[1].element.childNodes.forEach(child => {
-        child.classList.add('btn');
-        child.classList.add('btn-default');
-    })
-    setInterval(this.postPosition, 5000);
-    setInterval(this.getOnlineUsers, 5000)
-    if(this.isReviewing) {
-        api.put(`/api/imageinstance/${this.currentMap.imageId}/review.json`, {
-            id: this.currentMap.imageId,
-        }).then(data => {
-            this.updateMap(data.data.imageinstance)
-        })
-    }
-    if(this.centeredFeature != '' && this.centeredFeature != this.currentMap.data.project) {
-        this.centerOnFeature(this.centeredFeature);
-    }
   }
 }
 
