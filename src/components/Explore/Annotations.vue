@@ -118,7 +118,7 @@ export default {
         }
       },
       previousAnnotations() {
-          if(currentPage !== 0) {
+          if(this.currentPage !== 0) {
             this.getAnnotations(30, this.currentPage - 1);
           }
       },
