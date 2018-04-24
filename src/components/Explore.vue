@@ -246,9 +246,9 @@ export default {
         this.$openlayers.getMap(this.currentMap.id).render();
         this.updateOverviewMap();
     },
-    getCurrentZoom() {
-        this.updateLayers = true;
-    },
+    // getCurrentZoom() {
+    //     this.updateLayers = true; [ TODO ANNOTATION CLUSTERING !!!  ]
+    // },
     lastEventMapId() {
         if(this.lastEventMapId != this.currentMap.id) {
             this.showPanel = false;
