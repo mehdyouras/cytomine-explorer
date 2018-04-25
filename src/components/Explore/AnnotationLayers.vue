@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div v-if="isReviewing">
+    <input type="checkbox" v-model="showReviewLayer">
+    <label>Display review layer</label>
+    </div>
       <div class="btn-group" style="display:flex;">
         <select class="btn btn-default" v-model="layerToBeAdded" name="user-layer" id="user-layer">
             <option :value="{}">Choose an annotation layer</option>
@@ -63,6 +67,7 @@ export default {
         annotationIndex: {},
         userToFollow: [],
         intervalId: '',
+        showReviewLayer: true,
       }
     },
     computed: {
@@ -131,6 +136,9 @@ export default {
             if(newValue.countAnnotation != oldValue.countAnnotation || newValue.countReviewedAnnotation != oldValue.countReviewedAnnotation) {
                 this.$emit('updateLayers', true)
             }
+        },
+        showReviewLayer() {
+            this.$emit('updateLayers', true);
         }
     },
     methods: {
@@ -153,16 +161,16 @@ export default {
         addLayer(toAdd, addToSelected = true) {
             let bbox = this.$openlayers.getView(this.currentMap.id).calculateExtent().join();
             if(toAdd.id) {
-                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${bbox}`).then(data => {
+                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${bbox}&notReviewedOnly=${this.isReviewing}`).then(data => {
                     let collection = data.data.collection;
-                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=true&notReviewedOnly=true&bbox=${bbox}`).then(resp => {
+                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=false&notReviewedOnly=false&bbox=${bbox}`).then(resp => {
                         if(addToSelected) {
                             // Push added item to selected
                             toAdd.visible = true;
                             toAdd.size = data.data.size;
                             this.layersSelected.push(toAdd);
                         }
-                        if(this.isReviewing) {
+                        if(this.isReviewing && this.showReviewLayer) {
                             let response = resp.data.collection.map(annotation => {
                                 annotation.isReviewed = true;
                                 return annotation;
