@@ -142,12 +142,12 @@ export default {
         },
         userDisplayName(user) {
             if(user.algo) {
-                return `${user.softwareName} (${user.username})`; 
+                return `${user.softwareName} (${user.size}) (${user.username})`; 
             } else if(user.lastname == undefined && user.firstname == undefined) {
-                return user.username;
+                return `${user.username} (${user.size})`;
             } 
             else {
-                return `${user.lastname} ${user.firstname} (${user.username})`;
+                return `${user.lastname} ${user.firstname} (${user.size}) (${user.username})`;
             }
         },
         addLayer(toAdd, addToSelected = true) {
@@ -159,6 +159,7 @@ export default {
                         if(addToSelected) {
                             // Push added item to selected
                             toAdd.visible = true;
+                            toAdd.size = data.data.size;
                             this.layersSelected.push(toAdd);
                         }
                         if(this.isReviewing) {
