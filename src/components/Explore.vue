@@ -167,7 +167,7 @@ export default {
     },
     filterUrl() {
         if(this.filterSelected !== "") {
-            return `${this.imsBaseUrl}${this.filterSelected.baseUrl}`;
+            return `${this.filterSelected.processingServer}${this.filterSelected.baseUrl}`;
         } else {
             return "";
         }
@@ -236,7 +236,7 @@ export default {
         //sets filter on change 
         let layer = new OlTile({
             source: new Zoomify({
-                url: `${this.filterUrl}${this.imsBaseUrl}/&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
+                url: `${this.filterUrl}${this.imsBaseUrl}&tileGroup={TileGroup}&z={z}&x={x}&y={y}&channels=0&layer=0&timeframe=0&mimeType=${this.currentMap.data.mime}`,
                 size: [this.mapWidth, this.mapHeight],
                 extent: this.extent,
             }),
