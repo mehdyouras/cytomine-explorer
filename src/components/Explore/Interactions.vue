@@ -511,6 +511,7 @@ export default {
                 }).then(data => {
                     this.$emit('updateLayers', true);
                     this.$emit('updateAnnotationsIndex', true)
+                    this.selectFeature(data.data.annotation);
                 })
             })
         } else if (interactionType == 'Ruler'){
@@ -554,9 +555,10 @@ export default {
                     roi: false,
                     term: [],
                     user: this.currentMap.user.id,
-                }).then(() => {
-                    this.$emit('updateLayers', true)
-                    this.$emit('updateAnnotationsIndex', true)
+                }).then((data) => {
+                    this.$emit('updateLayers', true);
+                    this.$emit('updateAnnotationsIndex', true);
+                    this.selectFeature(data.data.annotation);
                 })
             })
         }
@@ -570,6 +572,18 @@ export default {
     },
     mustBeShown(key) {
         return mustBeShown(key, this.currentMap.projectConfig);
+    },
+    selectFeature(annotation) {
+        let index = this.layersArray.findIndex(layer => layer.get('title') == annotation.user);
+        if(index < 0) return;
+        let interval = setInterval( () => {
+            let feature = this.layersArray[index].getSource().getFeatureById(annotation.id);
+            if(feature != null) {
+                clearInterval(interval);
+                this.featureSelected.clear();
+                this.featureSelected.push(feature);
+            }
+        }, 100)
     }
   },
   mounted() {
