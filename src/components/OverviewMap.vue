@@ -1,6 +1,6 @@
 <template>
     <div class="overview-container">
-        <div v-show="showOverviewMap" id="overview-map"></div>
+        <div v-show="showOverviewMap" :id="overviewMapId"></div>
         <button class="btn btn-default" style="width: 100%;" id="overview-map-collapse" @click="showOverviewMap = !showOverviewMap">
             <span :class="`glyphicon glyphicon-chevron-${showOverviewMap ? 'right' : 'left'}`"></span>
         </button>
@@ -11,6 +11,7 @@
 import OverviewMap from 'ol/control/overviewmap'; 
 import Projection from 'ol/proj/projection';
 import View from 'ol/view';
+import uuid from 'uuid';
 
 export default {
   name: 'OverviewMap',
@@ -19,6 +20,7 @@ export default {
           overviewMap: {},
           overviewMapCount: 0,
           showOverviewMap: true,
+          overviewMapId: uuid(),
       }
   },
   props: [
@@ -56,7 +58,7 @@ export default {
         }
         this.overviewMap = new OverviewMap({
             collapsed: true,
-            target: "overview-map",
+            target: this.overviewMapId,
             view: new View({
                 projection: new Projection({
                     code: 'CYTO',
