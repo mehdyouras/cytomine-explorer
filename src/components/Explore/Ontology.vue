@@ -101,7 +101,7 @@ export default {
                     this.changeFeatureColor()
                 })
           } else {
-                api.post(`/api/annotation/1655/term/1481.json`, {
+                api.post(`/api/annotation/${this.featureSelected.getId()}/term/${termId}.json`, {
                     term: termId, 
                     userannotation: this.featureSelected.getId()
                 }).then(data => {
