@@ -21,7 +21,7 @@
                 <button v-if="mustBeShown('project-explore-colormap')" @click="setShowComponent('colormap')" :class="['btn', 'btn-default', {active: showComponent == 'colormap' }]">
                     <span class="glyphicon glyphicon-adjust" aria-hidden="true"></span>
                 </button>
-                <button v-if="mustBeShown('project-explore-image-layers')" @click="setShowComponent('annotationLayers')" :class="['btn', 'btn-default', {active: showComponent == 'annotationLayers' }]">
+                <button @click="setShowComponent('annotationLayers')" :class="['btn', 'btn-default', {active: showComponent == 'annotationLayers' }]">
                     Annotation layers
                 </button>
                 <button v-if="mustBeShown('project-explore-annotation-panel')" @click="setShowComponent('annotationList')" :class="['btn', 'btn-default', {active: showComponent == 'annotationList' }]">
