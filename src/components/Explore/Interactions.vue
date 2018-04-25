@@ -572,6 +572,15 @@ export default {
         return mustBeShown(key, this.currentMap.projectConfig);
     }
   },
+  mounted() {
+      let interval = setInterval( () => {
+            if(this.$openlayers.getMap(this.currentMap.id) != undefined) {
+                this.addInteraction('Select');
+                clearInterval(interval);
+            }
+        }, 500
+      )
+  }
 }
 </script>
 
