@@ -2,6 +2,7 @@
   <div>
         <ul class="list-group mt-4">
             <li class="list-group-item" v-for="term in terms" :key="'term-'+term.id">
+                <span class="glyphicon glyphicon-circle-arrow-right" :style="`color: ${term.color};`"></span>
                 <input @change="handlePost(term.id)" v-model="featureTerms" :value="term.id" type="checkbox" :name="'term-'+term.id" :id="'term-'+term.id">
                 <label :for="'term-'+term.id">{{term.key}} ({{term.value}})</label>
                 <label :for="'show-term-'+term.id">Show</label>
