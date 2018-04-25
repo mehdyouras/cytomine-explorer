@@ -141,10 +141,13 @@ export default {
             return array.findIndex(item => item.id == toFind);
         },
         userDisplayName(user) {
-            if(user.softwareName != undefined) {
+            if(user.algo) {
                 return `${user.softwareName} (${user.username})`; 
-            } else {
-                return `${user.lastname} ${user.firstname} (${user.username})`
+            } else if(user.lastname == undefined && user.firstname == undefined) {
+                return user.username;
+            } 
+            else {
+                return `${user.lastname} ${user.firstname} (${user.username})`;
             }
         },
         addLayer(toAdd, addToSelected = true) {
