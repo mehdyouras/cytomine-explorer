@@ -3,7 +3,7 @@
       <div class="btn-group" style="display:flex;">
         <select class="btn btn-default" v-model="layerToBeAdded" name="user-layer" id="user-layer">
             <option :value="{}">Choose an annotation layer</option>
-            <option v-for="layer in layersNotAdded" :key="layer.id" :value="layer">{{userDisplayName(layer)}}</option>
+            <option v-for="layer in layersToShow" :key="layer.id" :value="layer">{{userDisplayName(layer)}}</option>
         </select>
         <button class="btn btn-default" @click="addLayer(layerToBeAdded)">Add</button>
       </div>
@@ -68,10 +68,24 @@ export default {
     computed: {
       layersNotAdded() {
         return difference(this.userLayers, this.layersSelected).sort((a, b) => {
-            if(a.lastname < b.lastname) return -1;
-            if(a.lastname > b.lastname) return 1;
-            return 0;
-        });
+            if(!a.algo && !b.algo) {
+                if(a.lastname < b.lastname) return -1;
+                if(a.lastname > b.lastname) return 1;
+                return 0;
+            }
+        }).filter(item => !item.algo);
+      },
+      algoNotAdded() {
+          return difference(this.userLayers, this.layersSelected).sort((a, b) => {
+              if(a.algo && b.algo) {
+                if(a.softwareName < b.softwareName || a.created < b.created) return -1;
+                if(a.softwareName > b.softwareName || a.created > b.created) return 1;
+                return 0;
+            }
+          }).filter(item => item.algo);
+      },
+      layersToShow() {
+          return this.layersNotAdded.concat(this.algoNotAdded);
       },
       extent() {
           return [0, 0, parseInt(this.currentMap.data.width), parseInt(this.currentMap.data.height)];
@@ -128,7 +142,7 @@ export default {
         },
         userDisplayName(user) {
             if(user.softwareName != undefined) {
-                return user.softwareName; 
+                return `${user.softwareName} (${user.username})`; 
             } else {
                 return `${user.lastname} ${user.firstname} (${user.username})`
             }
