@@ -44,11 +44,11 @@
                     Polygon
                 </button>
             </li>
-            <li v-if="mustBeShown('project-tools-magicwand')">
+            <!-- <li v-if="mustBeShown('project-tools-magicwand')"> TODO MAGICWAND
                 <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'MagicWand'}]" @click="addInteraction('MagicWand')">
                     MagicWand
                 </button>
-            </li>
+            </li> -->
             <li v-if="mustBeShown('project-tools-freehand')">
                 <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Freehand'}]" @click="addInteraction('Polygon', true)">
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
@@ -87,11 +87,11 @@
                         Rotate
                     </button>
                 </li>
-                <li v-if="mustBeShown('project-tools-resize')">
+                <!-- <li v-if="mustBeShown('project-tools-resize')"> TODO RESIZE
                     <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Resize'}]" @click="addInteraction('Resize')">
                         Resize
                     </button>
-                </li>
+                </li> -->
                 <li v-if="mustBeShown('project-tools-move')">
                     <button :class="['btn', 'btn-default', 'btn-xs', {active: draw.activeTool == 'Drag'}]" @click="addInteraction('Drag')">
                         Drag
