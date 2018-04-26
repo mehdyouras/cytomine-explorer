@@ -45,6 +45,7 @@ import SrcVector from 'ol/source/vector';
 import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
+import loadingstrategy from 'ol/loadingstrategy';
 
 export default {
     name: 'AnnotationLayers',
@@ -63,11 +64,13 @@ export default {
         layerToBeAdded: {},
         layersSelected: [],
         vectorLayer: {},
+        reviewedLayer: {},
         vectorLayersOpacity: 0.3,
         annotationIndex: {},
         userToFollow: [],
         intervalId: '',
         showReviewLayer: true,
+        toAdd: {},
       }
     },
     computed: {
@@ -164,56 +167,54 @@ export default {
                 return `${user.lastname} ${user.firstname} (${user.size}) (${user.username})`;
             }
         },
-        addLayer(toAdd, addToSelected = true) {
-            if(toAdd.id) {
-                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${this.bbox}&notReviewedOnly=${this.isReviewing}`).then(data => {
-                    let collection = data.data.collection;
-                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${this.bbox}`).then(resp => {
-                        if(addToSelected) {
-                            // Push added item to selected
-                            toAdd.visible = true;
-                            toAdd.size = data.data.size;
-                            this.layersSelected.push(toAdd);
-                        }
-                        if(this.isReviewing && this.showReviewLayer) {
-                            this.addReviewLayer();
-                        }
-                        let format = new WKT();
-                        let geoms = this.createFeatures(collection, toAdd.id);
-
-                        geoms = compact(geoms);
-
-                        let features = new Collection(geoms)
-
-                        // Create vector layer                
-                        this.vectorLayer = this.createVectorLayer(toAdd.id, features);
-                        
-                        // Clear field
-                        this.layerToBeAdded = {};                
-                    })
-                    
-                })
-
-            }
+        vectorLoader(extent, resolution, projection) {
+            api.get(`/api/annotation.json?&user=${this.toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&notReviewedOnly=${this.isReviewing}&kmeans=true&bbox=${extent.join(',')}`).then(data => {
+                let geoms = this.createFeatures(data.data.collection, this.toAdd.id);
+                if(this.addToSelected) {
+                    // Push added item to selected
+                    this.toAdd.visible = true;
+                    this.toAdd.size = data.data.size;
+                    this.toAdd.size = data.data.size;
+                    this.layersSelected.push(this.toAdd);
+                }
+                this.loadFeatures(geoms);
+            })
         },
-        addReviewLayer() {
-            let features = new Collection();
+        reviewLoader(extent, resolution, projection) {
             api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
                 data.data.collection.map(user => {
                     if(user.countReviewedAnnotation > 0) {
-                        api.get(`/api/annotation.json?&user=${user.user}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${this.bbox}`).then(resp => {
+                        api.get(`/api/annotation.json?&user=${user.user}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${extent.join(',')}`).then(resp => {
                             let collection = resp.data.collection;
                             let geoms = this.createFeatures(collection, user.user, true);
-                            features.extend(geoms);
+                            this.loadFeatures(geoms, true)
                         })
                     }
                 })
-                this.reviewedLayer = this.createVectorLayer('reviewed', features);
             })
+        },
+        loadFeatures(collection, areReviewed = false) {
+            if(areReviewed) {
+                this.reviewedLayer.getSource().addFeatures(collection);
+            } else {
+                this.vectorLayer.getSource().addFeatures(collection);
+            }
+        },
+        addLayer(toAdd, addToSelected = true) {
+            this.addToSelected = addToSelected;
+            if(toAdd.id) {
+                this.toAdd = toAdd;
+                if(this.isReviewing && this.showReviewLayer) {
+                    this.reviewedLayer = this.createVectorLayer('reviewed', this.reviewLoader);
+                }
+                this.vectorLayer = this.createVectorLayer(this.toAdd.id, this.vectorLoader);
+
+                this.layerToBeAdded = {};
+            }
         },
         createFeatures(collection, userId, areReviewed = false) {
             let format = new WKT();
-            return collection.map(element => {
+            let test = collection.map(element => {
                 let termsIntersection = intersection(this.termsToShow, element.term);
                 // Checks if element has no term && show annotations without terms is enabled 
                 // If false checks terms intersection
@@ -242,12 +243,14 @@ export default {
                     return feature;
                 }
             })
+            return compact(test);
         },
-        createVectorLayer(title, features) {
+        createVectorLayer(title, loader) {
             let layer = new LayerVector({
                 title,  
                 source: new SrcVector({
-                    features,
+                    strategy: loadingstrategy.bbox,
+                    loader,
                 }),
                 extent : this.extent,
             })
