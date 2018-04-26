@@ -8,7 +8,7 @@
         </select>
         <button class="btn" @click="addImageGroup()">Add image group</button>
       </template>
-      <template v-else>
+      <template>
         <select class="btn" v-model.number="imageToAdd" name="images" id="images">
           <option value="">Select an image to add</option>
           <option v-for="image in images" :key="image.id" :value="image.id">{{image.instanceFilename}}</option>
