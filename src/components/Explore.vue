@@ -54,12 +54,12 @@
                 <div v-show="showComponent == 'linkmap'">
                     <div class="alert alert-info">Choose a map to link</div>
                     <label :for="'link-'+currentMap.id">Link the map</label>
-                    <select class="btn btn-default" @change="sendLink" v-model="linkValue" name="link" :id="'link-'+currentMap.id">
-                        <option value="">Select a map</option>
-                        <template v-for="(map, index) in maps">
-                            <option v-if="index !== mapIndex" :key="map.id" :value="map.id">{{mapNames[index]}}</option>
+                    <div v-for="(map, index) in maps" :key="'linkdiv' + map.id">
+                        <template v-if="index !== mapIndex">
+                            <input v-model="linkValue" :value="map.id" @change="sendLink(map.id)" type="checkbox" :name="currentMap.id + map.id" :id="currentMap.id + map.id">
+                            <label :for="currentMap.id + map.id">{{ mapNames[index] }}</label>
                         </template>
-                    </select>
+                    </div>
                 </div>
                 <digital-zoom v-show="showComponent == 'digitalZoom'" :currentMap="currentMap"></digital-zoom>
                 <div v-show="showComponent == 'filter'">
@@ -128,7 +128,7 @@ export default {
   },
   data () {
     return {
-        linkValue: "",
+        linkValue: [],
         mapNames: ['1', '2', '3', '4'],
         imsBaseUrl: '',
         filterSelected: "",
@@ -218,7 +218,8 @@ export default {
     mapView: {
         handler() {
             let {mapCenter, mapResolution, mapRotation} = this.mapView;
-            if(this.currentMap.linkedTo == this.lastEventMapId) {
+            let index = this.currentMap.linkedTo.findIndex(link => link == this.lastEventMapId);
+            if(index >= 0) {
                 this.$openlayers.getView(this.currentMap.id).setProperties({
                     center: mapCenter,
                     resolution: mapResolution,
@@ -277,8 +278,12 @@ export default {
         this.$emit('dragged', payload);
     },
     // Sends which map is linked to this one to the parent
-    sendLink() {
-        let payload = [this.currentMap.id, this.linkValue];
+    sendLink(mapId) {
+        let payload = {
+            sender: this.currentMap.id,
+            newLinks: this.linkValue,
+            modifiedValue: mapId,
+        }
         this.$emit('mapIsLinked', payload);
     },
     postPosition() {
