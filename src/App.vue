@@ -84,28 +84,30 @@ export default {
       this.$openlayers.getMap(payload.mapId).updateSize();
     },
     linkMaps(payload) {
-      // Removes last linked map
-      let index = this.maps.findIndex((map) => {
-        return map.linkedTo === payload[0];
-      })
-      if(index !== -1) {
-        this.maps[index].linkedTo = "";
-      }
-
       // Finds map index
-      index = this.mapIndex(payload[0])
-      // Links maps
-      this.maps[index].linkedTo = payload[1];
+      let index = this.mapIndex(payload.sender)
 
-      index = this.mapIndex(payload[1])
-      this.maps[index].linkedTo = payload[0];
+      // let isRemoving = payload.newLinks.length < this.maps[index].linkedTo.length;
+      let isRemoving = this.maps[index].linkedTo.findIndex(link => link == payload.modifiedValue) >= 0;
+
+      // Links maps 
+      this.maps[index].linkedTo = payload.newLinks;
+
+      if(isRemoving) {
+        index = this.mapIndex(payload.modifiedValue);
+        let linkToDeleteIndex = this.maps[index].linkedTo.findIndex(link => link == payload.sender);
+        this.maps[index].linkedTo.splice(linkToDeleteIndex, 1);
+      } else {
+        index = this.mapIndex(payload.modifiedValue);
+        this.maps[index].linkedTo.push(payload.sender);
+      }
     },
     addMap(imageId = this.imageToAdd, imageGroup = "", id = uuid()) {
       if(this.maps.length < this.maxMapsToShow && imageId !== "") {
         this.maps.push({
           id,
           imageId,
-          linkedTo: "",
+          linkedTo: [],
           imageGroup,
           projectConfig: this.projectConfig,
           user: this.currentUser,
