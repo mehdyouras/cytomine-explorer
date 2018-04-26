@@ -1,8 +1,8 @@
 <template>
   <div>
     <div v-if="isReviewing">
-    <input type="checkbox" v-model="showReviewLayer">
-    <label>Display review layer</label>
+    <input :id="'showReviewLayer-' + currentMap.id" type="checkbox" v-model="showReviewLayer">
+    <label :for="'showReviewLayer-' + currentMap.id" >Display review layer</label>
     </div>
       <div class="btn-group" style="display:flex;">
         <select class="btn btn-default" v-model="layerToBeAdded" name="user-layer" id="user-layer">
@@ -19,7 +19,7 @@
                 <label :for="'follow-' + layer.id">Follow</label>
 
                 {{userDisplayName(layer)}}
-                <button class="btn btn-default" @click="removeLayer(layer)">
+                <button class="btn btn-default" @click="removeLayer(layer.id)">
                     <span class="glyphicon glyphicon-remove"></span>
                     Remove
                 </button>
@@ -98,6 +98,9 @@ export default {
       layersArray() {
           return this.$openlayers.getMap(this.currentMap.id).getLayers().getArray();
       },
+      bbox() {
+          return this.$openlayers.getView(this.currentMap.id).calculateExtent().join();
+      }
     },
     watch: {
         layersSelected(newValue) {
@@ -105,13 +108,13 @@ export default {
         },
         termsToShow() {
             this.layersSelected.map(layer => {
-                this.removeLayer(layer, false);
+                this.removeLayer(layer.id, false);
                 this.addLayer(layer, false);
             });
         },
         showWithNoTerm() {
             this.layersSelected.map(layer => {
-                this.removeLayer(layer, false);
+                this.removeLayer(layer.id, false);
                 this.addLayer(layer, false);
             });
         },
@@ -125,8 +128,11 @@ export default {
         },
         updateLayers(newValue) {
             if(newValue == true) {
+                if(this.isReviewing && this.showReviewLayer) {
+                    this.removeLayer(this.reviewedLayer.get('title'), false);
+                }
                 this.layersSelected.map(layer => {
-                    this.removeLayer(layer, false)
+                    this.removeLayer(layer.id, false)
                     this.addLayer(layer, false)
                 })
                 this.$emit('updateLayers', false);
@@ -159,11 +165,10 @@ export default {
             }
         },
         addLayer(toAdd, addToSelected = true) {
-            let bbox = this.$openlayers.getView(this.currentMap.id).calculateExtent().join();
             if(toAdd.id) {
-                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${bbox}&notReviewedOnly=${this.isReviewing}`).then(data => {
+                api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&bbox=${this.bbox}&notReviewedOnly=${this.isReviewing}`).then(data => {
                     let collection = data.data.collection;
-                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&reviewed=false&notReviewedOnly=false&bbox=${bbox}`).then(resp => {
+                    api.get(`/api/annotation.json?&user=${toAdd.id}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${this.bbox}`).then(resp => {
                         if(addToSelected) {
                             // Push added item to selected
                             toAdd.visible = true;
@@ -171,57 +176,17 @@ export default {
                             this.layersSelected.push(toAdd);
                         }
                         if(this.isReviewing && this.showReviewLayer) {
-                            let response = resp.data.collection.map(annotation => {
-                                annotation.isReviewed = true;
-                                return annotation;
-                            })
-                            collection = collection.concat(response)
+                            this.addReviewLayer();
                         }
                         let format = new WKT();
-                        let geoms = collection.map(element => {
-                            let termsIntersection = intersection(this.termsToShow, element.term);
-                            // Checks if element has no term && show annotations without terms is enabled 
-                            // If false checks terms intersection
-                            let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
-                            if(isToShow) {  
-                                // Sets the color specified by api if annotation has only one term
-                                let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
-                                let feature = format.readFeature(element.location);
-                                feature.setId(element.id);
-                                feature.set('user', toAdd.id);
-                                let strokeColor;
-                                if(this.isReviewing) {
-                                    strokeColor = element.isReviewed ? [91, 183, 91] : [189, 54, 47];
-                                } else {
-                                    strokeColor = [0, 0, 0]
-                                }
-                                feature.setStyle(new Style({
-                                    fill: new Fill({
-                                        color: fillColor,
-                                    }),
-                                    stroke: new Stroke({
-                                        color: strokeColor,
-                                        width: 3,
-                                    }),
-                                }))
-                                return feature;
-                            }
-                        })
+                        let geoms = this.createFeatures(collection, toAdd.id);
 
                         geoms = compact(geoms);
 
                         let features = new Collection(geoms)
 
                         // Create vector layer                
-                        this.vectorLayer = new LayerVector({
-                            title: toAdd.id,  
-                            source: new SrcVector({
-                                features,
-                            }),
-                            extent : this.extent,
-                        })
-                        this.vectorLayer.setOpacity(this.vectorLayersOpacity);
-                        this.$openlayers.getMap(this.currentMap.id).addLayer(this.vectorLayer);
+                        this.vectorLayer = this.createVectorLayer(toAdd.id, features);
                         
                         // Clear field
                         this.layerToBeAdded = {};                
@@ -231,19 +196,78 @@ export default {
 
             }
         },
-        removeLayer(toRemove, removeFromSelected = true) {
+        addReviewLayer() {
+            let features = new Collection();
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
+                data.data.collection.map(user => {
+                    if(user.countReviewedAnnotation > 0) {
+                        api.get(`/api/annotation.json?&user=${user.user}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${this.bbox}`).then(resp => {
+                            let collection = resp.data.collection;
+                            let geoms = this.createFeatures(collection, user.user, true);
+                            features.extend(geoms);
+                        })
+                    }
+                })
+                this.reviewedLayer = this.createVectorLayer('reviewed', features);
+            })
+        },
+        createFeatures(collection, userId, areReviewed = false) {
+            let format = new WKT();
+            return collection.map(element => {
+                let termsIntersection = intersection(this.termsToShow, element.term);
+                // Checks if element has no term && show annotations without terms is enabled 
+                // If false checks terms intersection
+                let isToShow = element.term.length == 0 && this.showWithNoTerm ? true : termsIntersection.length > 0;
+                if(isToShow) {  
+                    // Sets the color specified by api if annotation has only one term
+                    let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
+                    let feature = format.readFeature(element.location);
+                    feature.setId(element.id);
+                    feature.set('user', userId);
+                    let strokeColor;
+                    if(this.isReviewing) {
+                        strokeColor = areReviewed ? [91, 183, 91] : [189, 54, 47];
+                    } else {
+                        strokeColor = [0, 0, 0]
+                    }
+                    feature.setStyle(new Style({
+                        fill: new Fill({
+                            color: fillColor,
+                        }),
+                        stroke: new Stroke({
+                            color: strokeColor,
+                            width: 3,
+                        }),
+                    }))
+                    return feature;
+                }
+            })
+        },
+        createVectorLayer(title, features) {
+            let layer = new LayerVector({
+                title,  
+                source: new SrcVector({
+                    features,
+                }),
+                extent : this.extent,
+            })
+            layer.setOpacity(this.vectorLayersOpacity);
+            this.$openlayers.getMap(this.currentMap.id).addLayer(layer);
+            return layer;
+        },
+        removeLayer(toRemoveId, removeFromSelected = true) {
             let index;
 
             if(removeFromSelected) {
                 index = this.layersSelected.findIndex(layer => {
-                    return layer.id === toRemove.id;
+                    return layer.id === toRemoveId;
                 });
                 // Removes the layer from the selected
                 this.layersSelected.splice(index, 1);
             }
 
             // Removes layer from the map
-            index = this.layerIndex(this.layersArray, toRemove.id);
+            index = this.layerIndex(this.layersArray, toRemoveId);
             if(index < 0) return;
             
             this.layersArray.splice(index, 1);
@@ -279,7 +303,7 @@ export default {
         isUserOnline(userId) {
             let index = this.onlineUsers.findIndex(user => user.id == userId);
             return index > 0 ? false : true;
-        }
+        },
     },
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
