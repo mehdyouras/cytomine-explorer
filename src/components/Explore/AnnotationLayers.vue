@@ -164,14 +164,6 @@ export default {
         vectorLoader(extent, resolution, projection) {
             api.get(`/api/annotation.json?&user=${this.toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&notReviewedOnly=${this.isReviewing}&kmeans=true&bbox=${extent.join(',')}`).then(data => {
                 let geoms = this.createFeatures(data.data.collection, this.toAdd.id);
-                if(this.addToSelected) {
-                    // Push added item to selected
-                    this.toAdd.visible = true;
-                    this.toAdd.size = data.data.size;
-                    let index = this.layersSelected.findIndex(layer => layer.id == this.toAdd.id);
-                    if(index >= 0) return;
-                    this.layersSelected.push(this.toAdd);
-                }
                 this.loadFeatures(geoms);
             })
         },
@@ -196,12 +188,20 @@ export default {
             }
         },
         addLayer(toAdd, addToSelected = true) {
-            this.addToSelected = addToSelected;
             if(toAdd.id) {
-                this.toAdd = toAdd;
                 if(this.isReviewing && this.showReviewLayer) {
                     this.reviewedLayer = this.createVectorLayer('reviewed', this.reviewLoader);
                 }
+                if(addToSelected) {
+                    // Push added item to selected
+                    toAdd.visible = true;
+                    let index = this.layersSelected.findIndex(layer => layer.id == toAdd.id);
+                    if(index >= 0) return;
+                    this.layersSelected.push(toAdd);
+                }
+
+                this.toAdd = toAdd;
+                
                 this.vectorLayer = this.createVectorLayer(this.toAdd.id, this.vectorLoader);
 
                 this.layerToBeAdded = {};
