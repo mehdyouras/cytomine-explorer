@@ -65,8 +65,8 @@ export default {
                     extent: [0, 0, parseInt(map.data.width), parseInt(map.data.height)],
                 }),
                 center:[0, 0],
-                minZoom: 1,
-                maxZoom: 2,
+                minZoom: -1,
+                maxZoom: 0,
             }),
         })
         this.overviewMap.set('mapId', map.id);

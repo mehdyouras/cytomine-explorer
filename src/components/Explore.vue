@@ -387,7 +387,7 @@ export default {
     this.$openlayers.init({
       element: this.currentMap.id,
       center: [this.mapWidth/2, this.mapHeight/2],
-      zoom: this.mapZoom,
+      zoom: 0,
       controls: [
           new ZoomControls({
             target: document.getElementById('controls-'+this.currentMap.id),
