@@ -169,15 +169,11 @@ export default {
             })
         },
         reviewLoader(extent, resolution, projection) {
-            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
-                data.data.collection.map(user => {
-                    if(user.countReviewedAnnotation > 0) {
-                        api.get(`/api/annotation.json?&user=${user.user}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${extent.join(',')}`).then(resp => {
-                            let collection = resp.data.collection;
-                            let geoms = this.createFeatures(collection, user.user, true);
-                            this.loadFeatures(geoms, true)
-                        })
-                    }
+            this.userLayers.map(user => {
+                api.get(`/api/annotation.json?&user=${user.id}&image=${this.currentMap.imageId}&roi=false&notReviewedOnly=true&reviewed=true&showWKT=true&showTerm=true&kmeans=true&bbox=${extent.join(',')}`).then(resp => {
+                    let collection = resp.data.collection;
+                    let geoms = this.createFeatures(collection, user.id, true);
+                    this.loadFeatures(geoms, true)
                 })
             })
         },
