@@ -57,7 +57,8 @@ export default {
         'allTerms',
         'updateLayers',
         'isReviewing',
-        'onlineUsers'
+        'onlineUsers',
+        'layerToAdd'
     ],
     data() {
       return {
@@ -144,6 +145,9 @@ export default {
         },
         showReviewLayer(newValue) {
             this.$emit('updateLayers', true);
+        },
+        layerToAdd(newValue) {
+            this.addLayer({id: newValue}, 'userLayer');
         }
     },
     methods: {

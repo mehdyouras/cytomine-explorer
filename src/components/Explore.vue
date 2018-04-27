@@ -73,7 +73,7 @@
                 </div>
                 <color-maps v-show="showComponent == 'colormap'" :currentMap="currentMap"></color-maps>
                 <div v-show="showComponent == 'annotationLayers'">
-                    <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
+                    <annotation-layers @updateLayers="setUpdateLayers" @vectorLayersOpacity="setVectorLayersOpacity" @layersSelected="setLayersSelected" @userLayers="setUserLayers" :layerToAdd="addLayer" :onlineUsers="onlineUsers" :isReviewing="isReviewing" :updateLayers="updateLayers" :termsToShow="termsToShow" :showWithNoTerm="showWithNoTerm" :allTerms="allTerms" :currentMap="currentMap"></annotation-layers>
                     <ontology :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :vectorLayersOpacity="vectorLayersOpacity" @showTerms="showTerms" @showWithNoTerm="setShowWithNoTerm" @allTerms="setAllTerms"></ontology>
                 </div>
                 <review v-if="isReviewing" v-show="showComponent == 'review'" @updateAnnotationsIndex="setUpdateAnnotationsIndex" @updateLayers="setUpdateLayers" @featureSelectedData="setFeatureSelectedData" @updateMap="updateMap" :layersSelected="layersSelected" :currentMap="currentMap" :featureSelectedData="featureSelectedData" :featureSelected="featureSelected" :userLayers="userLayers"></review>
@@ -147,6 +147,7 @@ export default {
         onlineUsers: [],
         showComponent: '',
         showPanel: true,
+        addLayer: '',
     }
   },
   props: [
@@ -310,8 +311,13 @@ export default {
             return;
         }
         api.get(`/api/annotation/${id}.json`).then(data => {
+            let annotation = data.data;
             let format = new WKT();
-            let feature = format.readFeature(data.data.location);
+            let feature = format.readFeature(annotation.location);
+            let annotLayer = this.$openlayers.getMap(this.currentMap.id).getLayers().getArray().findIndex(layer => layer.get('title') == annotation.user);
+            if(annotLayer < 0) {
+                this.addLayer = annotation.user;
+            }
             this.$openlayers.getView(this.currentMap.id).fit(feature.getGeometry());
         })
     },
