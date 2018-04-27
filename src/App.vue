@@ -159,7 +159,11 @@ export default {
           if(this.imageGroupIndex[0]) {
             api.get(`/api/imageinstance/${this.baseImage}/imagesequence.json`).then(resp => {
               this.baseSequence = resp.data.collection[0];
-              this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+              if(this.baseSequence) {
+                this.addMap(this.baseImage, this.baseSequence.imageGroup, id);
+              } else {
+                this.addMap(this.baseImage, "", id);
+              }
             })
           } else {
             this.addMap(this.baseImage, "", id);
