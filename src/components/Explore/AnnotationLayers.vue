@@ -153,12 +153,12 @@ export default {
         },
         userDisplayName(user) {
             if(user.algo) {
-                return `${user.softwareName} (${user.size}) (${user.username})`; 
+                return `${user.softwareName} (${user.size == undefined ? '0' : user.size}) (${user.username})`; 
             } else if(user.lastname == undefined && user.firstname == undefined) {
-                return `${user.username} (${user.size})`;
+                return `${user.username} (${user.size == undefined ? '0' : user.size})`;
             } 
             else {
-                return `${user.lastname} ${user.firstname} (${user.size}) (${user.username})`;
+                return `${user.lastname} ${user.firstname} (${user.size == undefined ? '0' : user.size}) (${user.username})`;
             }
         },
         vectorLoader(extent, resolution, projection) {
