@@ -66,7 +66,6 @@ export default {
         vectorLayer: {},
         reviewedLayer: {},
         vectorLayersOpacity: 0.3,
-        annotationIndex: {},
         userToFollow: [],
         intervalId: '',
         showReviewLayer: true,
@@ -141,11 +140,6 @@ export default {
                 this.$emit('updateLayers', false);
             }
         },
-        annotationIndex(newValue, oldValue) {
-            if(newValue.countAnnotation != oldValue.countAnnotation || newValue.countReviewedAnnotation != oldValue.countReviewedAnnotation) {
-                this.$emit('updateLayers', true)
-            }
-        },
         showReviewLayer() {
             this.$emit('updateLayers', true);
         }
@@ -159,25 +153,17 @@ export default {
         },
         userDisplayName(user) {
             if(user.algo) {
-                return `${user.softwareName} (${user.size}) (${user.username})`; 
+                return `${user.softwareName} (${user.size == undefined ? '0' : user.size}) (${user.username})`; 
             } else if(user.lastname == undefined && user.firstname == undefined) {
-                return `${user.username} (${user.size})`;
+                return `${user.username} (${user.size == undefined ? '0' : user.size})`;
             } 
             else {
-                return `${user.lastname} ${user.firstname} (${user.size}) (${user.username})`;
+                return `${user.lastname} ${user.firstname} (${user.size == undefined ? '0' : user.size}) (${user.username})`;
             }
         },
         vectorLoader(extent, resolution, projection) {
             api.get(`/api/annotation.json?&user=${this.toAdd.id}&image=${this.currentMap.imageId}&showWKT=true&showTerm=true&notReviewedOnly=${this.isReviewing}&kmeans=true&bbox=${extent.join(',')}`).then(data => {
                 let geoms = this.createFeatures(data.data.collection, this.toAdd.id);
-                if(this.addToSelected) {
-                    // Push added item to selected
-                    this.toAdd.visible = true;
-                    this.toAdd.size = data.data.size;
-                    let index = this.layersSelected.findIndex(layer => layer.id == this.toAdd.id);
-                    if(index >= 0) return;
-                    this.layersSelected.push(this.toAdd);
-                }
                 this.loadFeatures(geoms);
             })
         },
@@ -202,13 +188,17 @@ export default {
             }
         },
         addLayer(toAdd, addToSelected = true) {
-            this.addToSelected = addToSelected;
             if(toAdd.id) {
-                this.toAdd = toAdd;
                 if(this.isReviewing && this.showReviewLayer) {
                     this.reviewedLayer = this.createVectorLayer('reviewed', this.reviewLoader);
                 }
-                this.vectorLayer = this.createVectorLayer(this.toAdd.id, this.vectorLoader);
+                this.vectorLayer = this.createVectorLayer(toAdd.id, this.vectorLoader);
+
+                if(addToSelected) {
+                    // Push added item to selected
+                    toAdd.visible = true;
+                    this.layersSelected.push(toAdd);
+                }
 
                 this.layerToBeAdded = {};
             }
@@ -281,11 +271,6 @@ export default {
             let index = this.layerIndex(this.layersArray, layer.id);
             this.layersArray[index].setVisible(!layer.visible);
         },
-        getAnnotationIndex() {
-            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
-                this.annotationIndex = data.data.collection[0];
-            })
-        },
         followUser(userId) {
             let index = this.userToFollow.findIndex(user => user == userId);
 
@@ -312,7 +297,13 @@ export default {
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
             this.userLayers = data.data.collection;
-            this.$emit('userLayers', this.userLayers);
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
+                data.data.collection.map(item => {
+                    let index = this.userLayers.findIndex(user => item.user == user.id);
+                    this.userLayers[index].size = item.countAnnotation;
+                })
+                this.$emit('userLayers', this.userLayers);
+            })
             api.get(`/api/project/${this.currentMap.data.project}/defaultlayer.json`).then(data => {
                 if(data.data.collection[0]) {
                     data.data.collection.map(layer => {
@@ -324,7 +315,6 @@ export default {
                 }
             })
         })
-        setInterval(this.getAnnotationIndex, 5000)
     }
 }
 </script>
