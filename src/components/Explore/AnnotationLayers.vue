@@ -192,13 +192,15 @@ export default {
                 if(this.isReviewing && this.showReviewLayer) {
                     this.reviewedLayer = this.createVectorLayer('reviewed', this.reviewLoader);
                 }
-                this.vectorLayer = this.createVectorLayer(this.toAdd.id, this.vectorLoader);
 
                 if(addToSelected) {
                     // Push added item to selected
                     toAdd.visible = true;
                     this.layersSelected.push(toAdd);
                 }
+
+                this.vectorLayer = this.createVectorLayer(toAdd.id, this.vectorLoader);
+                this.toAdd = toAdd;
 
                 this.layerToBeAdded = {};
             }
@@ -297,7 +299,13 @@ export default {
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
             this.userLayers = data.data.collection;
-            this.$emit('userLayers', this.userLayers);
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => { 
+                data.data.collection.map(item => { 
+                    let index = this.userLayers.findIndex(user => item.user == user.id); 
+                    this.userLayers[index].size = item.countAnnotation; 
+                }) 
+                this.$emit('userLayers', this.userLayers); 
+            }) 
             api.get(`/api/project/${this.currentMap.data.project}/defaultlayer.json`).then(data => {
                 if(data.data.collection[0]) {
                     data.data.collection.map(layer => {
