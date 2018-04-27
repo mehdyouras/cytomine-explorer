@@ -66,7 +66,6 @@ export default {
         vectorLayer: {},
         reviewedLayer: {},
         vectorLayersOpacity: 0.3,
-        annotationIndex: {},
         userToFollow: [],
         intervalId: '',
         showReviewLayer: true,
@@ -139,11 +138,6 @@ export default {
                     this.addLayer(layer, false)
                 })
                 this.$emit('updateLayers', false);
-            }
-        },
-        annotationIndex(newValue, oldValue) {
-            if(newValue.countAnnotation != oldValue.countAnnotation || newValue.countReviewedAnnotation != oldValue.countReviewedAnnotation) {
-                this.$emit('updateLayers', true)
             }
         },
         showReviewLayer() {
@@ -281,11 +275,6 @@ export default {
             let index = this.layerIndex(this.layersArray, layer.id);
             this.layersArray[index].setVisible(!layer.visible);
         },
-        getAnnotationIndex() {
-            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => {
-                this.annotationIndex = data.data.collection[0];
-            })
-        },
         followUser(userId) {
             let index = this.userToFollow.findIndex(user => user == userId);
 
@@ -312,7 +301,13 @@ export default {
     mounted() {
         api.get(`/api/project/${this.currentMap.data.project}/userlayer.json?image=${this.currentMap.imageId}`).then(data => {
             this.userLayers = data.data.collection;
-            this.$emit('userLayers', this.userLayers);
+            api.get(`/api/imageinstance/${this.currentMap.imageId}/annotationindex.json`).then(data => { 
+                data.data.collection.map(item => { 
+                    let index = this.userLayers.findIndex(user => item.user == user.id); 
+                    this.userLayers[index].size = item.countAnnotation; 
+                }) 
+                this.$emit('userLayers', this.userLayers); 
+            }) 
             api.get(`/api/project/${this.currentMap.data.project}/defaultlayer.json`).then(data => {
                 if(data.data.collection[0]) {
                     data.data.collection.map(layer => {
@@ -324,7 +319,6 @@ export default {
                 }
             })
         })
-        setInterval(this.getAnnotationIndex, 5000)
     }
 }
 </script>
