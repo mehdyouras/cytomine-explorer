@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import difference from 'lodash.difference'
+import differenceby from 'lodash.differenceby'
 import compact from 'lodash.compact'
 import intersection from 'lodash.intersection'
 import hexToRgb from '../../helpers/hexToRgb'
@@ -75,7 +75,7 @@ export default {
     },
     computed: {
       layersNotAdded() {
-        return difference(this.userLayers, this.layersSelected).sort((a, b) => {
+        return differenceby(this.userLayers, this.layersSelected, 'id').sort((a, b) => {
             if(!a.algo && !b.algo) {
                 if(this.userDisplayName(a).toLowerCase() < this.userDisplayName(b).toLowerCase()) return -1;
                 if(this.userDisplayName(a).toLowerCase() > this.userDisplayName(b).toLowerCase()) return 1;
@@ -84,7 +84,7 @@ export default {
         }).filter(item => !item.algo);
       },
       algoNotAdded() {
-          return difference(this.userLayers, this.layersSelected).sort((a, b) => {
+          return differenceby(this.userLayers, this.layersSelected, 'id').sort((a, b) => {
               if(a.algo && b.algo) {
                 if(this.userDisplayName(a).toLowerCase() < this.userDisplayName(b).toLowerCase() || a.created < b.created) return -1;
                 if(this.userDisplayName(a).toLowerCase() > this.userDisplayName(b).toLowerCase() || a.created > b.created) return 1;
@@ -302,18 +302,23 @@ export default {
                     this.userLayers[index].size = item.countAnnotation; 
                 }) 
                 this.$emit('userLayers', this.userLayers); 
+                api.get(`/api/project/${this.currentMap.data.project}/defaultlayer.json`).then(data => {
+                    if(data.data.collection[0]) {
+                        data.data.collection.map(layer => {
+                            let index = this.userLayers.findIndex(user => user.id == layer.user);
+                            this.addLayer(this.userLayers[index], 'userLayer');
+                        });
+                    } else {
+                        this.addLayer(this.currentMap.user, 'userLayer');
+                    }
+                    this.layersSelected.map(layer => {
+                        let index = this.userLayers.findIndex(item => layer.id == item.id);
+                        layer.size = this.userLayers[index].size;
+                        return layer;
+                    })
+                })
             }) 
-            api.get(`/api/project/${this.currentMap.data.project}/defaultlayer.json`).then(data => {
-                if(data.data.collection[0]) {
-                    data.data.collection.map(layer => {
-                        let index = this.userLayers.findIndex(user => user.id == layer.user);
-                        this.addLayer(this.userLayers[index], 'userLayer');
-                    });
-                } else {
-                    this.addLayer(this.currentMap.user, 'userLayer');
-                }
-                this.addLayer('review', 'reviewedLayer', false);
-            })
+            this.addLayer('review', 'reviewedLayer', false);
         })
     }
 }
