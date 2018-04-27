@@ -60,11 +60,17 @@ export default {
     }
   },
   computed: {
+    backboneTabIndex() {
+      // DEPENDS ON [BACKBONE]
+      return window.app.status.currentImages.findIndex(tab => window.app.status.currentImage.idImage == tab.image);
+    },
     projectId() {
-      return document.querySelector('.get-data').dataset.project;
+      // DEPENDS ON [BACKBONE]
+      return window.app.status.currentProject;
     },
     baseImage() {
-      return document.querySelector('.get-data').dataset.id;
+      // DEPENDS ON [BACKBONE]
+      return window.app.status.currentImages[this.backboneTabIndex].image;
     }
   },
   methods: {
@@ -140,6 +146,7 @@ export default {
       api.post(`http://localhost-core:8080/server/ping.json`, {project: this.projectId});
     },
     checkRoute() {
+      // DEPENDS ON [BACKBONE]
       this.currentRoute = Backbone.history.getFragment();
     }
   },
@@ -181,6 +188,7 @@ export default {
       this.onlineUsers = data.data.collection;
     })
 
+    // DEPENDS ON [BACKBONE]
     setInterval(this.checkRoute, 1000)  
   },
 }

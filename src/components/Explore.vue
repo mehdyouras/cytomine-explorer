@@ -179,7 +179,8 @@ export default {
         return parseInt(this.currentMap.data.height)
     },
     isReviewing() {
-        let type = document.querySelector('.get-data').dataset.type;
+        // DEPENDS ON [BACKBONE]
+        let type = document.querySelector('.get-data' + this.currentMap.imageId).dataset.type;
         let from = type.indexOf('-');
         return type.substr(from + 1) == 'review' ? true : false; 
     },
@@ -247,9 +248,6 @@ export default {
         this.$openlayers.getMap(this.currentMap.id).render();
         this.updateOverviewMap();
     },
-    // getCurrentZoom() {
-    //     this.updateLayers = true; [ TODO ANNOTATION CLUSTERING !!!  ]
-    // },
     lastEventMapId() {
         if(this.lastEventMapId != this.currentMap.id) {
             this.showPanel = false;
