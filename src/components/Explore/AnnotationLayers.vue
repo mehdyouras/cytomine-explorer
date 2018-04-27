@@ -77,8 +77,8 @@ export default {
       layersNotAdded() {
         return difference(this.userLayers, this.layersSelected).sort((a, b) => {
             if(!a.algo && !b.algo) {
-                if(a.lastname < b.lastname) return -1;
-                if(a.lastname > b.lastname) return 1;
+                if(this.userDisplayName(a).toLowerCase() < this.userDisplayName(b).toLowerCase()) return -1;
+                if(this.userDisplayName(a).toLowerCase() > this.userDisplayName(b).toLowerCase()) return 1;
                 return 0;
             }
         }).filter(item => !item.algo);
@@ -86,8 +86,8 @@ export default {
       algoNotAdded() {
           return difference(this.userLayers, this.layersSelected).sort((a, b) => {
               if(a.algo && b.algo) {
-                if(a.softwareName < b.softwareName || a.created < b.created) return -1;
-                if(a.softwareName > b.softwareName || a.created > b.created) return 1;
+                if(this.userDisplayName(a).toLowerCase() < this.userDisplayName(b).toLowerCase() || a.created < b.created) return -1;
+                if(this.userDisplayName(a).toLowerCase() > this.userDisplayName(b).toLowerCase() || a.created > b.created) return 1;
                 return 0;
             }
           }).filter(item => item.algo);
