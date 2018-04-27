@@ -46,6 +46,7 @@ import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
 import loadingstrategy from 'ol/loadingstrategy';
+import Circle from 'ol/style/circle';
 
 export default {
     name: 'AnnotationLayers',
@@ -215,6 +216,7 @@ export default {
                 if(isToShow) {  
                     // Sets the color specified by api if annotation has only one term
                     let fillColor = termsIntersection.length == 1 ? hexToRgb(this.allTerms[this.termIndex(this.allTerms, termsIntersection[0])].color) : [204, 204, 204];
+                    
                     let feature = format.readFeature(element.location);
                     feature.setId(element.id);
                     feature.set('user', userId);
@@ -232,7 +234,18 @@ export default {
                             color: strokeColor,
                             width: 3,
                         }),
+                        image: new Circle({
+                            radius: 7,
+                            fill: new Fill({
+                                color: strokeColor,
+                            }),
+                            stroke: new Stroke({
+                                color: strokeColor,
+                                width: 3,
+                            })
+                        })
                     }))
+
                     return feature;
                 }
             })
