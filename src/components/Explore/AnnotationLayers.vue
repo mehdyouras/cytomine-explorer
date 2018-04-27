@@ -9,7 +9,7 @@
             <option :value="{}">Choose an annotation layer</option>
             <option v-for="layer in layersToShow" :key="layer.id" :value="layer">{{userDisplayName(layer)}}</option>
         </select>
-        <button class="btn btn-default" @click="addLayer(layerToBeAdded)">Add</button>
+        <button class="btn btn-default" @click="addLayer(layerToBeAdded, 'userLayer')">Add</button>
       </div>
       <ul class="list-group display-inline-block mt-4">
             <li class="list-group-item" v-for="layer in layersSelected" :key="layer.id">
@@ -112,13 +112,13 @@ export default {
         termsToShow() {
             this.layersSelected.map(layer => {
                 this.removeLayer(layer.id, false);
-                this.addLayer(layer, false);
+                this.addLayer(layer, 'userLayer', false);
             });
         },
         showWithNoTerm() {
             this.layersSelected.map(layer => {
                 this.removeLayer(layer.id, false);
-                this.addLayer(layer, false);
+                this.addLayer(layer, 'userLayer', false);
             });
         },
         vectorLayersOpacity(newValue) {
@@ -131,17 +131,18 @@ export default {
         },
         updateLayers(newValue) {
             if(newValue == true) {
-                if(this.isReviewing && this.showReviewLayer) {
+                if(this.isReviewing) {
                     this.removeLayer(this.reviewedLayer.get('title'), false);
+                    this.addLayer(this.reviewedLayer.get('title'), 'reviewedLayer', false)
                 }
                 this.layersSelected.map(layer => {
                     this.removeLayer(layer.id, false)
-                    this.addLayer(layer, false)
+                    this.addLayer(layer, 'userLayer', false)
                 })
                 this.$emit('updateLayers', false);
             }
         },
-        showReviewLayer() {
+        showReviewLayer(newValue) {
             this.$emit('updateLayers', true);
         }
     },
@@ -184,22 +185,19 @@ export default {
                 this.vectorLayer.getSource().addFeatures(collection);
             }
         },
-        addLayer(toAdd, addToSelected = true) {
-            if(toAdd.id) {
-                if(this.isReviewing && this.showReviewLayer) {
-                    this.reviewedLayer = this.createVectorLayer('reviewed', this.reviewLoader);
-                }
-
+        addLayer(toAdd, layerType, addToSelected = true) {
+            if(layerType == 'userLayer' && toAdd.id) {
                 if(addToSelected) {
                     // Push added item to selected
                     toAdd.visible = true;
                     this.layersSelected.push(toAdd);
                 }
-
                 this.vectorLayer = this.createVectorLayer(toAdd.id, this.vectorLoader);
                 this.toAdd = toAdd;
-
                 this.layerToBeAdded = {};
+            } else if(layerType == 'reviewedLayer' && this.isReviewing) {
+                this.reviewedLayer = this.createVectorLayer('reviewed', this.reviewLoader);
+                this.reviewedLayer.setVisible(this.showReviewLayer);
             }
         },
         createFeatures(collection, userId, areReviewed = false) {
@@ -309,11 +307,12 @@ export default {
                 if(data.data.collection[0]) {
                     data.data.collection.map(layer => {
                         let index = this.userLayers.findIndex(user => user.id == layer.user);
-                        this.addLayer(this.userLayers[index]);
+                        this.addLayer(this.userLayers[index], 'userLayer');
                     });
                 } else {
-                    this.addLayer(this.currentMap.user);
+                    this.addLayer(this.currentMap.user, 'userLayer');
                 }
+                this.addLayer('review', 'reviewedLayer', false);
             })
         })
     }
