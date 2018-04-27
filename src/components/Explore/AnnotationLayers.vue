@@ -174,7 +174,8 @@ export default {
                     // Push added item to selected
                     this.toAdd.visible = true;
                     this.toAdd.size = data.data.size;
-                    this.toAdd.size = data.data.size;
+                    let index = this.layersSelected.findIndex(layer => layer.id == this.toAdd.id);
+                    if(index >= 0) return;
                     this.layersSelected.push(this.toAdd);
                 }
                 this.loadFeatures(geoms);
