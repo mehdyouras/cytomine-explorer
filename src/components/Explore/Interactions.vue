@@ -126,6 +126,7 @@ import Observable from 'ol/observable';
 import Overlay from 'ol/overlay';
 
 import mustBeShown from '../../helpers/mustBeShown';
+import pointStyle from '../../helpers/pointStyle';
 
 export default {
   name: 'Interactions',
@@ -170,7 +171,7 @@ export default {
   watch: {
       deepFeatureSelected(newFeature, oldFeature) {
         this.$emit('featureSelected', newFeature);
-
+        
         if(oldFeature !== undefined && oldFeature.hasOwnProperty('id_')) {
             let color = oldFeature.getStyle().getFill().getColor();
             let strokeColor = oldFeature.get('strokeColor');
@@ -183,11 +184,13 @@ export default {
                     width: 3,
                 })  
             )
+            oldFeature.getStyle().setImage(pointStyle(color, strokeColor));
             oldFeature.changed();
         }
         if(newFeature !== undefined) {
             let color = newFeature.getStyle().getFill().getColor();
             let strokeColor = this.isReviewing ? newFeature.getStyle().getStroke().getColor() : [0, 0, 255];
+            newFeature.set('strokeColor', newFeature.getStyle().getStroke().getColor())
             color[3] = this.vectorLayersOpacity + 0.3;
             newFeature.getStyle().setStroke(
                 new Stroke({
@@ -195,7 +198,7 @@ export default {
                     width: 3,
                 }) 
             )
-            newFeature.set('strokeColor', strokeColor)
+            newFeature.getStyle().setImage(pointStyle(color, strokeColor));
             newFeature.changed();
         }
       },

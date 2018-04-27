@@ -37,6 +37,7 @@ import difference from 'lodash.difference'
 import compact from 'lodash.compact'
 import intersection from 'lodash.intersection'
 import hexToRgb from '../../helpers/hexToRgb'
+import pointStyle from '../../helpers/pointStyle'
 
 import WKT from 'ol/format/wkt';
 import Collection from 'ol/collection';
@@ -46,7 +47,6 @@ import Style from 'ol/style/style';
 import Fill from 'ol/style/fill';
 import Stroke from 'ol/style/stroke';
 import loadingstrategy from 'ol/loadingstrategy';
-import Circle from 'ol/style/circle';
 
 export default {
     name: 'AnnotationLayers',
@@ -234,18 +234,8 @@ export default {
                             color: strokeColor,
                             width: 3,
                         }),
-                        image: new Circle({
-                            radius: 7,
-                            fill: new Fill({
-                                color: strokeColor,
-                            }),
-                            stroke: new Stroke({
-                                color: strokeColor,
-                                width: 3,
-                            })
-                        })
+                        image: pointStyle(fillColor, strokeColor),
                     }))
-
                     return feature;
                 }
             })

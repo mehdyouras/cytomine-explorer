@@ -75,7 +75,6 @@ export default {
             let index = layersArray.findIndex(layer => layer.get('channel') == overlay.channel);
             layersArray.splice(index, 1);
             this.$openlayers.getMap(this.currentMap.id).setLayerGroup(new Group({layers: layersArray}));
-            console.log(layersArray)
             index = this.overlayedLayer.findIndex(item => overlay == item);
             this.overlayedLayer.splice(index, 1);
         },
